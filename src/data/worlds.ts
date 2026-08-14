@@ -279,6 +279,16 @@ const grade7Worlds: World[] = [
         generated: rampedSlots(['sp-mean', 'sp-simple-probability', 'sp-mean']),
         passThreshold: 0.6,
       },
+      {
+        id: 'sp-l5',
+        strand: 'statistics-probability',
+        order: 5,
+        title: 'Summit Connections',
+        description: 'Where percents become exponentials and scaling squares area.',
+        questionIds: [],
+        generated: rampedSlots(['cx-percent-exponential', 'cx-scale-area', 'cx-rate-as-slope']),
+        passThreshold: 0.6,
+      },
     ],
   },
 ];

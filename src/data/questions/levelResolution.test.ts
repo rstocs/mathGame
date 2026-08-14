@@ -45,12 +45,13 @@ describe('level content integrity', () => {
   });
 
   it('keeps focused levels on a single strand, and allows Challenge levels to mix', () => {
-    // A "Challenge" level is a deliberate mixed review, so it may pull from
-    // several strands. Anywhere else, a level drilling one skill should not
-    // quietly serve questions from an unrelated strand.
+    // A "Challenge" level is a deliberate mixed review and a "Connections"
+    // level exists precisely to span topics, so both may pull from several
+    // strands. Anywhere else, a level drilling one skill should not quietly
+    // serve questions from an unrelated strand.
     const byId = new Map(allGenerators.map((g) => [g.id, g]));
     for (const level of allLevels) {
-      if (level.title.includes('Challenge')) continue;
+      if (level.title.includes('Challenge') || level.title.includes('Connections')) continue;
       const strands = new Set((level.generated ?? []).map((s) => byId.get(s.generatorId)!.strand));
       expect(
         strands.size,

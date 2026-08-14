@@ -274,7 +274,180 @@ export const slopeInterceptForm: QuestionGenerator = {
   },
 };
 
+/** A-REI.B.3 — solve a multi-step equation with parentheses. */
+export const equationWithParentheses: QuestionGenerator = {
+  id: 'g9-equation-parentheses',
+  strand: 'expressions-equations',
+  describes: 'Solve a linear equation that needs distributing first.',
+  build: (rng, difficulty) => {
+    const a = rng.int(2, difficulty === 1 ? 5 : 8);
+    const b = rng.int(-8, 8) || 3;
+    const x = rng.int(-8, 10);
+    const c = rng.int(-10, 10);
+    // a(x + b) + c = result
+    const result = a * (x + b) + c;
+
+    return {
+      strand: 'expressions-equations',
+      type: 'numeric',
+      prompt: `Solve for x:  ${a}(x ${b < 0 ? '−' : '+'} ${Math.abs(b)}) ${c < 0 ? '−' : '+'} ${Math.abs(c)} = ${result}`,
+      correctAnswer: x,
+      explanation:
+        `Distribute first: ${a}(x ${b < 0 ? '−' : '+'} ${Math.abs(b)}) = ${a}x ${a * b < 0 ? '−' : '+'} ${Math.abs(a * b)}. ` +
+        `The equation becomes ${a}x ${a * b + c < 0 ? '−' : '+'} ${Math.abs(a * b + c)} = ${result}. ` +
+        `Then ${a}x = ${result - a * b - c}, so x = ${x}. ` +
+        `The ${a} multiplies EVERYTHING inside the brackets, not just the x.`,
+    };
+  },
+};
+
+/** A-REI.D.12 — read the solution of an inequality on a number line. */
+export const inequalityOnNumberLine: QuestionGenerator = {
+  id: 'g9-inequality-number-line',
+  strand: 'expressions-equations',
+  describes: 'Match an inequality to its number-line description.',
+  build: (rng, difficulty) => {
+    const a = rng.int(2, 6) * (difficulty === 3 && rng.chance(0.5) ? -1 : 1);
+    const x = rng.int(-6, 8);
+    const r = a * x;
+    const symbol = rng.pick(['>', '≥', '<', '≤'] as const);
+    const flip: Record<string, string> = { '>': '<', '<': '>', '≥': '≤', '≤': '≥' };
+    const solved = a < 0 ? flip[symbol] : symbol;
+    const open = solved === '>' || solved === '<';
+    const rightwards = solved === '>' || solved === '≥';
+
+    const correct = `${open ? 'Open' : 'Closed'} circle at ${x}, shaded ${rightwards ? 'right' : 'left'}`;
+    const choices = rng.shuffle([
+      correct,
+      `${open ? 'Closed' : 'Open'} circle at ${x}, shaded ${rightwards ? 'right' : 'left'}`,
+      `${open ? 'Open' : 'Closed'} circle at ${x}, shaded ${rightwards ? 'left' : 'right'}`,
+      `${open ? 'Closed' : 'Open'} circle at ${x}, shaded ${rightwards ? 'left' : 'right'}`,
+    ]);
+
+    return {
+      strand: 'expressions-equations',
+      type: 'multiple-choice',
+      prompt: `Solve ${a === 1 ? 'x' : a === -1 ? '−x' : `${a}`.replace('-', '−') + 'x'} ${symbol} ${r} and describe its graph on a number line.`,
+      choices,
+      correctIndex: choices.indexOf(correct),
+      explanation:
+        `Divide both sides by ${a}` +
+        (a < 0
+          ? `, and because ${a} is NEGATIVE the sign flips: ${symbol} becomes ${solved}. `
+          : `; since ${a} is positive the sign stays as ${solved}. `) +
+        `That gives x ${solved} ${x}. ` +
+        `A strict ${solved === '>' || solved === '<' ? 'inequality (> or <) uses an OPEN circle, because ' + x + ' itself is not included' : 'inequality (≥ or ≤) uses a CLOSED circle, because ' + x + ' itself IS included'}. ` +
+        `Shade ${rightwards ? 'right, toward the larger numbers' : 'left, toward the smaller numbers'}.`,
+    };
+  },
+};
+
+/** F-IF.B.4 — read the vertex of a parabola in vertex form. */
+export const parabolaVertex: QuestionGenerator = {
+  id: 'g9-parabola-vertex',
+  strand: 'expressions-equations',
+  describes: 'Plot the vertex of a parabola given in vertex form.',
+  build: (rng, difficulty) => {
+    const h = rng.int(-6, 6);
+    const k = rng.int(-6, 6);
+    const a = difficulty === 1 ? 1 : rng.pick([-2, -1, 1, 2]);
+
+    const lead = a === 1 ? '' : a === -1 ? '−' : `${a}`.replace('-', '−');
+
+    return {
+      strand: 'expressions-equations',
+      type: 'graph-plot',
+      prompt: `Plot the vertex of  y = ${lead}(x ${h < 0 ? '+' : '−'} ${Math.abs(h)})² ${k < 0 ? '−' : '+'} ${Math.abs(k)}`,
+      mode: { kind: 'points', count: 1 },
+      bounds: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 },
+      correctPoints: [{ x: h, y: k }],
+      explanation:
+        `In vertex form y = a(x − h)² + k the vertex is (h, k) — and the sign inside the bracket is FLIPPED. ` +
+        `"(x ${h < 0 ? '+' : '−'} ${Math.abs(h)})" means h = ${h}, and the ${k < 0 ? '− ' : '+ '}${Math.abs(k)} on the end means k = ${k}, ` +
+        `so the vertex is (${h}, ${k}). ` +
+        `The a = ${a} only decides how wide the parabola is and whether it opens ${a < 0 ? 'downward' : 'upward'} — it never moves the vertex.`,
+    };
+  },
+};
+
+/** A-CED.A.2 — build a linear model from a word problem. */
+export const linearModel: QuestionGenerator = {
+  id: 'g9-linear-model',
+  strand: 'expressions-equations',
+  describes: 'Model a real situation with a linear rule and evaluate it.',
+  build: (rng, difficulty) => {
+    const startFee = rng.int(10, 60);
+    const perUnit = rng.int(2, 15);
+    const units = rng.int(3, difficulty === 1 ? 10 : 25);
+    const total = startFee + perUnit * units;
+
+    const contexts = [
+      { noun: 'A gym', fee: 'joining fee', unit: 'month', verb: 'membership' },
+      { noun: 'A phone plan', fee: 'monthly charge', unit: 'gigabyte', verb: 'plan' },
+      { noun: 'A taxi', fee: 'flag-drop charge', unit: 'kilometre', verb: 'ride' },
+    ] as const;
+    const c = rng.pick(contexts);
+
+    return {
+      strand: 'expressions-equations',
+      type: 'numeric',
+      prompt:
+        `${c.noun} charges a ${startFee} dollar ${c.fee} plus ${perUnit} dollars per ${c.unit}. ` +
+        `A ${c.verb} cost ${total} dollars in total. How many ${c.unit}s was it?`,
+      correctAnswer: units,
+      unit: `${c.unit}s`,
+      explanation:
+        `Write the rule first: cost = ${perUnit} × (number of ${c.unit}s) + ${startFee}, or y = ${perUnit}x + ${startFee}. ` +
+        `The ${startFee} is the y-intercept — what you pay before any ${c.unit}s — and ${perUnit} is the slope. ` +
+        `Setting ${perUnit}x + ${startFee} = ${total} gives ${perUnit}x = ${total - startFee}, so x = ${units}. ` +
+        `The one-off fee is ADDED once, never multiplied by the number of ${c.unit}s.`,
+    };
+  },
+};
+
+/** A-APR.A.1 — add and subtract polynomials. */
+export const polynomialAddSub: QuestionGenerator = {
+  id: 'g9-polynomial-add-sub',
+  strand: 'expressions-equations',
+  describes: 'Add or subtract two polynomials.',
+  build: (rng, difficulty) => {
+    const a1 = rng.int(1, 8);
+    const b1 = rng.int(-8, 8);
+    const c1 = rng.int(-8, 8);
+    const a2 = rng.int(1, 8);
+    const b2 = rng.int(-8, 8);
+    const c2 = rng.int(-8, 8);
+    const subtract = difficulty > 1 && rng.chance(0.5);
+    const sign = subtract ? -1 : 1;
+
+    const term = (n: number) => (Math.abs(n) === 1 ? '' : `${Math.abs(n)}`);
+    const poly = (a: number, b: number, c: number) =>
+      `${term(a)}x² ${b < 0 ? '−' : '+'} ${term(b)}x ${c < 0 ? '−' : '+'} ${Math.abs(c)}`;
+
+    return {
+      strand: 'expressions-equations',
+      type: 'expression',
+      prompt: `Simplify:  (${poly(a1, b1, c1)}) ${subtract ? '−' : '+'} (${poly(a2, b2, c2)})`,
+      correctExpression: `${a1 + sign * a2}x^2 + ${b1 + sign * b2}x + ${c1 + sign * c2}`,
+      variableLabel: 'x',
+      explanation:
+        (subtract
+          ? `Subtracting a bracket flips the sign of EVERY term inside it, not just the first. ` +
+            `The second polynomial becomes ${-a2}x² ${-b2 < 0 ? '−' : '+'} ${Math.abs(b2)}x ${-c2 < 0 ? '−' : '+'} ${Math.abs(c2)}. `
+          : '') +
+        `Now combine like terms only: x² terms give ${a1} ${sign * a2 < 0 ? '−' : '+'} ${Math.abs(a2)} = ${a1 + sign * a2}, ` +
+        `x terms give ${b1 + sign * b2}, and the plain numbers give ${c1 + sign * c2}. ` +
+        `An x² term never combines with an x term — they count different things.`,
+    };
+  },
+};
+
 export const grade9Generators: QuestionGenerator[] = [
+  equationWithParentheses,
+  inequalityOnNumberLine,
+  parabolaVertex,
+  linearModel,
+  polynomialAddSub,
   variableBothSides,
   factorQuadratic,
   solveQuadratic,

@@ -11,6 +11,7 @@ import { grade8Generators } from './grade8';
 import { grade9Generators } from './grade9';
 import { grade10Generators } from './grade10';
 import { grade11Generators } from './grade11';
+import { connectionGenerators } from './connections';
 
 export const allGenerators: QuestionGenerator[] = [
   ...grade5Generators,
@@ -23,6 +24,7 @@ export const allGenerators: QuestionGenerator[] = [
   ...grade9Generators,
   ...grade10Generators,
   ...grade11Generators,
+  ...connectionGenerators,
 ];
 
 const generatorsById = new Map(allGenerators.map((g) => [g.id, g]));
