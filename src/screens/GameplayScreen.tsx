@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
-import { getQuestionsForLevel } from '../data/questions';
 import { getLevel, getWorld } from '../data/worlds';
 import type { UserAnswer } from '../lib/scoring';
 import { TopBar } from '../components/hud/TopBar';
@@ -19,8 +18,7 @@ export function GameplayScreen() {
 
   const level = getLevel(run.levelId);
   const world = level ? getWorld(level.strand) : undefined;
-  const questions = getQuestionsForLevel(run.questionIds);
-  const question = questions[run.currentIndex];
+  const question = run.questions[run.currentIndex];
 
   const handleAnswer = (answer: UserAnswer) => {
     const result = state.submitAnswer(answer);
@@ -45,7 +43,7 @@ export function GameplayScreen() {
         rightContent={
           <div className="gameplay-screen__hud-right">
             <span className="gameplay-screen__progress">
-              {run.currentIndex + 1}/{run.questionIds.length}
+              {run.currentIndex + 1}/{run.questions.length}
             </span>
             <StreakMeter streak={run.streak} />
           </div>

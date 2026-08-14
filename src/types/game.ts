@@ -104,13 +104,25 @@ export type Question =
   | GraphPlotQuestion
   | ExpressionQuestion;
 
+/** A question built fresh from a generator each time the level is started. */
+export interface GeneratedSlot {
+  generatorId: string;
+  difficulty: 1 | 2 | 3;
+}
+
 export interface Level {
   id: string;
   strand: StrandId;
   order: number;
   title: string;
   description: string;
+  /** Hand-authored questions, referenced by id. */
   questionIds: string[];
+  /**
+   * Generated questions appended after the authored ones. These reroll on every
+   * attempt, so replaying a level is practice rather than recall.
+   */
+  generated?: GeneratedSlot[];
   passThreshold: number;
 }
 

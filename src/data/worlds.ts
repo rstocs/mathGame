@@ -1,7 +1,20 @@
-import type { World } from '../types/game';
+import type { GeneratedSlot, World } from '../types/game';
 
 function levelQuestionIds(prefix: string, level: number): string[] {
   return Array.from({ length: 9 }, (_, i) => `${prefix}-l${level}-q${i + 1}`);
+}
+
+/**
+ * Each world's Challenge level ends with three generated questions that reroll
+ * on every attempt, so replaying it is practice rather than recall of nine
+ * memorised answers. Difficulty climbs across the three slots.
+ */
+function challengeSlots(generatorIds: [string, string, string]): GeneratedSlot[] {
+  return [
+    { generatorId: generatorIds[0], difficulty: 1 },
+    { generatorId: generatorIds[1], difficulty: 2 },
+    { generatorId: generatorIds[2], difficulty: 3 },
+  ];
 }
 
 export const worlds: World[] = [
@@ -47,6 +60,7 @@ export const worlds: World[] = [
         title: 'Ridge Challenge',
         description: 'A mixed review of everything from Ratio Ridge.',
         questionIds: levelQuestionIds('rp', 4),
+        generated: challengeSlots(['rp-unit-rate', 'rp-solve-proportion', 'rp-percent-change']),
         passThreshold: 0.6,
       },
     ],
@@ -93,6 +107,7 @@ export const worlds: World[] = [
         title: 'Nexus Challenge',
         description: 'A mixed review of everything from Number Nexus.',
         questionIds: levelQuestionIds('ns', 4),
+        generated: challengeSlots(['ns-signed-add-sub', 'ns-fraction-add', 'ns-signed-mul-div']),
         passThreshold: 0.6,
       },
     ],
@@ -139,6 +154,7 @@ export const worlds: World[] = [
         title: 'Expanse Challenge',
         description: 'A mixed review of everything from Equation Expanse.',
         questionIds: levelQuestionIds('ee', 4),
+        generated: challengeSlots(['ee-combine-like-terms', 'ee-solve-two-step', 'ee-solve-inequality']),
         passThreshold: 0.6,
       },
     ],
@@ -185,6 +201,7 @@ export const worlds: World[] = [
         title: 'Grotto Challenge',
         description: 'A mixed review of everything from Geometry Grotto.',
         questionIds: levelQuestionIds('g', 4),
+        generated: challengeSlots(['g-angles', 'g-rectangle-area', 'g-circle']),
         passThreshold: 0.6,
       },
     ],
@@ -231,6 +248,7 @@ export const worlds: World[] = [
         title: 'Summit Challenge',
         description: 'A mixed review of everything from Statistics Summit.',
         questionIds: levelQuestionIds('sp', 4),
+        generated: challengeSlots(['sp-mean', 'sp-simple-probability', 'sp-mean']),
         passThreshold: 0.6,
       },
     ],

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { LevelRunResult, PersistedState, ScreenId, StrandId } from '../types/game';
+import type { LevelRunResult, PersistedState, Question, ScreenId, StrandId } from '../types/game';
 import { worlds, getLevel } from '../data/worlds';
-import { getQuestionsForLevel } from '../data/questions';
+import { attemptSeedFor, resolveLevelQuestions } from '../data/questions';
 import { checkBadgeUnlocks } from '../data/badges';
 import { isAnswerCorrect, starsForAccuracy, type UserAnswer } from '../lib/scoring';
 import { xpForCorrectAnswer, xpForLevelCompletion } from '../lib/xp';
@@ -11,7 +11,12 @@ const SCHEMA_VERSION = 1;
 
 interface RunState {
   levelId: string;
-  questionIds: string[];
+  /**
+   * Resolved at start time rather than looked up per render: generated
+   * questions only exist for this attempt, so there is nothing to look them up
+   * from. Runtime-only, so none of this is persisted.
+   */
+  questions: Question[];
   currentIndex: number;
   correctCount: number;
   streak: number;
@@ -92,12 +97,15 @@ export const useGameStore = create<GameStore>()(
       startLevel: (levelId) => {
         const level = getLevel(levelId);
         if (!level) return;
+        // Seed off the attempt count so each replay rerolls the generated
+        // slots; the authored questions are unaffected.
+        const attempt = (get().levelProgress[levelId]?.timesPlayed ?? 0) + 1;
         set({
           selectedLevelId: levelId,
           currentScreen: 'gameplay',
           run: {
             levelId,
-            questionIds: level.questionIds,
+            questions: resolveLevelQuestions(level, attemptSeedFor(levelId, attempt)),
             currentIndex: 0,
             correctCount: 0,
             streak: 0,
@@ -112,8 +120,7 @@ export const useGameStore = create<GameStore>()(
         const state = get();
         const run = state.run;
         if (!run) return { correct: false, xpGained: 0 };
-        const questions = getQuestionsForLevel(run.questionIds);
-        const question = questions[run.currentIndex];
+        const question = run.questions[run.currentIndex];
         const correct = isAnswerCorrect(question, answer);
 
         const newStreak = correct ? run.streak + 1 : 0;
@@ -139,7 +146,7 @@ export const useGameStore = create<GameStore>()(
         const run = state.run;
         if (!run) return;
 
-        const isLastQuestion = run.currentIndex >= run.questionIds.length - 1;
+        const isLastQuestion = run.currentIndex >= run.questions.length - 1;
         if (!isLastQuestion) {
           set({ run: { ...run, currentIndex: run.currentIndex + 1, lastAnswerCorrect: null } });
           return;
@@ -148,7 +155,7 @@ export const useGameStore = create<GameStore>()(
         const level = getLevel(run.levelId);
         if (!level) return;
 
-        const accuracy = run.correctCount / run.questionIds.length;
+        const accuracy = run.correctCount / run.questions.length;
         const stars = starsForAccuracy(accuracy, level.passThreshold);
         const passed = accuracy >= level.passThreshold;
         const completionBonus = xpForLevelCompletion(stars);
@@ -190,7 +197,7 @@ export const useGameStore = create<GameStore>()(
         const result: LevelRunResult = {
           levelId: level.id,
           correctCount: run.correctCount,
-          totalCount: run.questionIds.length,
+          totalCount: run.questions.length,
           accuracy,
           stars,
           xpEarned: totalXpEarned,
