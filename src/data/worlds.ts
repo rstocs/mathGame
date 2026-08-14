@@ -8,11 +8,11 @@ function levelQuestionIds(prefix: string, level: number): string[] {
 }
 
 /**
- * Each world's Challenge level ends with three generated questions that reroll
- * on every attempt, so replaying it is practice rather than recall of nine
- * memorised answers. Difficulty climbs across the three slots.
+ * Every grade 7 level ends with three generated questions that reroll on each
+ * attempt, so replaying is practice rather than recall of nine memorised
+ * answers. Difficulty climbs across the three slots.
  */
-function challengeSlots(generatorIds: [string, string, string]): GeneratedSlot[] {
+function rampedSlots(generatorIds: [string, string, string]): GeneratedSlot[] {
   return [
     { generatorId: generatorIds[0], difficulty: 1 },
     { generatorId: generatorIds[1], difficulty: 2 },
@@ -38,6 +38,7 @@ const grade7Worlds: World[] = [
         title: 'Unit Rates',
         description: 'Compare prices, speeds, and rates to find the better deal.',
         questionIds: levelQuestionIds('rp', 1),
+        generated: rampedSlots(['rp-unit-rate', 'rp-unit-rate', 'rp-unit-rate']),
         passThreshold: 0.6,
       },
       {
@@ -47,6 +48,7 @@ const grade7Worlds: World[] = [
         title: 'Proportional Relationships',
         description: 'Spot proportional relationships and solve for missing values.',
         questionIds: levelQuestionIds('rp', 2),
+        generated: rampedSlots(['rp-solve-proportion', 'rp-solve-proportion', 'rp-solve-proportion']),
         passThreshold: 0.6,
       },
       {
@@ -56,6 +58,7 @@ const grade7Worlds: World[] = [
         title: 'Percent Problems',
         description: 'Work out discounts, tax, tips, and percent change.',
         questionIds: levelQuestionIds('rp', 3),
+        generated: rampedSlots(['rp-percent-of', 'rp-percent-change', 'rp-percent-of']),
         passThreshold: 0.6,
       },
       {
@@ -65,7 +68,7 @@ const grade7Worlds: World[] = [
         title: 'Ridge Challenge',
         description: 'A mixed review of everything from Ratio Ridge.',
         questionIds: levelQuestionIds('rp', 4),
-        generated: challengeSlots(['rp-unit-rate', 'rp-solve-proportion', 'rp-percent-change']),
+        generated: rampedSlots(['rp-unit-rate', 'rp-solve-proportion', 'rp-percent-change']),
         passThreshold: 0.6,
       },
     ],
@@ -87,6 +90,7 @@ const grade7Worlds: World[] = [
         title: 'Adding & Subtracting Signed Numbers',
         description: 'Add and subtract positive and negative fractions and decimals.',
         questionIds: levelQuestionIds('ns', 1),
+        generated: rampedSlots(['ns-signed-add-sub', 'ns-fraction-add', 'ns-signed-add-sub']),
         passThreshold: 0.6,
       },
       {
@@ -96,6 +100,7 @@ const grade7Worlds: World[] = [
         title: 'Multiplying & Dividing Signed Numbers',
         description: 'Apply sign rules to multiply and divide rational numbers.',
         questionIds: levelQuestionIds('ns', 2),
+        generated: rampedSlots(['ns-signed-mul-div', 'ns-signed-mul-div', 'ns-signed-mul-div']),
         passThreshold: 0.6,
       },
       {
@@ -105,6 +110,7 @@ const grade7Worlds: World[] = [
         title: 'Mixed Operations',
         description: 'Combine operations and solve signed-number word problems.',
         questionIds: levelQuestionIds('ns', 3),
+        generated: rampedSlots(['ns-signed-add-sub', 'ns-signed-mul-div', 'ns-order-rationals']),
         passThreshold: 0.6,
       },
       {
@@ -114,7 +120,7 @@ const grade7Worlds: World[] = [
         title: 'Nexus Challenge',
         description: 'A mixed review of everything from Number Nexus.',
         questionIds: levelQuestionIds('ns', 4),
-        generated: challengeSlots(['ns-signed-add-sub', 'ns-fraction-add', 'ns-signed-mul-div']),
+        generated: rampedSlots(['ns-signed-add-sub', 'ns-fraction-add', 'ns-signed-mul-div']),
         passThreshold: 0.6,
       },
     ],
@@ -136,6 +142,7 @@ const grade7Worlds: World[] = [
         title: 'Simplifying Expressions',
         description: 'Combine like terms and use the distributive property.',
         questionIds: levelQuestionIds('ee', 1),
+        generated: rampedSlots(['ee-combine-like-terms', 'ee-expand', 'ee-combine-like-terms']),
         passThreshold: 0.6,
       },
       {
@@ -145,6 +152,7 @@ const grade7Worlds: World[] = [
         title: 'Two-Step Equations',
         description: 'Solve two-step linear equations for the unknown.',
         questionIds: levelQuestionIds('ee', 2),
+        generated: rampedSlots(['ee-solve-two-step', 'ee-word-equation', 'ee-solve-two-step']),
         passThreshold: 0.6,
       },
       {
@@ -154,6 +162,7 @@ const grade7Worlds: World[] = [
         title: 'Inequalities',
         description: 'Solve inequalities, including the negative flip rule.',
         questionIds: levelQuestionIds('ee', 3),
+        generated: rampedSlots(['ee-solve-inequality', 'ee-solve-inequality', 'ee-solve-inequality']),
         passThreshold: 0.6,
       },
       {
@@ -163,7 +172,7 @@ const grade7Worlds: World[] = [
         title: 'Expanse Challenge',
         description: 'A mixed review of everything from Equation Expanse.',
         questionIds: levelQuestionIds('ee', 4),
-        generated: challengeSlots(['ee-combine-like-terms', 'ee-solve-two-step', 'ee-solve-inequality']),
+        generated: rampedSlots(['ee-combine-like-terms', 'ee-solve-two-step', 'ee-solve-inequality']),
         passThreshold: 0.6,
       },
     ],
@@ -185,6 +194,7 @@ const grade7Worlds: World[] = [
         title: 'Circles',
         description: 'Find the area and circumference of circles.',
         questionIds: levelQuestionIds('g', 1),
+        generated: rampedSlots(['g-circle', 'g-circle', 'g-circle']),
         passThreshold: 0.6,
       },
       {
@@ -194,6 +204,7 @@ const grade7Worlds: World[] = [
         title: 'Angle Relationships',
         description: 'Use complementary, supplementary, and vertical angles.',
         questionIds: levelQuestionIds('g', 2),
+        generated: rampedSlots(['g-angles', 'g-angles', 'g-angles']),
         passThreshold: 0.6,
       },
       {
@@ -203,6 +214,7 @@ const grade7Worlds: World[] = [
         title: 'Volume & Surface Area',
         description: 'Calculate volume and surface area of 3D figures.',
         questionIds: levelQuestionIds('g', 3),
+        generated: rampedSlots(['g5-prism-volume', 'g-rectangle-area', 'g5-prism-volume']),
         passThreshold: 0.6,
       },
       {
@@ -212,7 +224,7 @@ const grade7Worlds: World[] = [
         title: 'Grotto Challenge',
         description: 'A mixed review of everything from Geometry Grotto.',
         questionIds: levelQuestionIds('g', 4),
-        generated: challengeSlots(['g-angles', 'g-rectangle-area', 'g-circle']),
+        generated: rampedSlots(['g-angles', 'g-rectangle-area', 'g-circle']),
         passThreshold: 0.6,
       },
     ],
@@ -234,6 +246,7 @@ const grade7Worlds: World[] = [
         title: 'Random Sampling',
         description: 'Evaluate sampling methods and make predictions.',
         questionIds: levelQuestionIds('sp', 1),
+        generated: rampedSlots(['sp-sample-prediction', 'sp-sample-prediction', 'sp-sample-prediction']),
         passThreshold: 0.6,
       },
       {
@@ -243,6 +256,7 @@ const grade7Worlds: World[] = [
         title: 'Simple Probability',
         description: 'Calculate the probability of a single simple event.',
         questionIds: levelQuestionIds('sp', 2),
+        generated: rampedSlots(['sp-simple-probability', 'sp-simple-probability', 'sp-simple-probability']),
         passThreshold: 0.6,
       },
       {
@@ -252,6 +266,7 @@ const grade7Worlds: World[] = [
         title: 'Compound Probability',
         description: 'Find the probability of two independent events.',
         questionIds: levelQuestionIds('sp', 3),
+        generated: rampedSlots(['sp-compound-probability', 'sp-compound-probability', 'sp-compound-probability']),
         passThreshold: 0.6,
       },
       {
@@ -261,7 +276,7 @@ const grade7Worlds: World[] = [
         title: 'Summit Challenge',
         description: 'A mixed review of everything from Statistics Summit.',
         questionIds: levelQuestionIds('sp', 4),
-        generated: challengeSlots(['sp-mean', 'sp-simple-probability', 'sp-mean']),
+        generated: rampedSlots(['sp-mean', 'sp-simple-probability', 'sp-mean']),
         passThreshold: 0.6,
       },
     ],

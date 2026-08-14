@@ -1,6 +1,10 @@
 import type { QuestionGenerator } from './types';
 import { choicesFrom, round } from './types';
 
+function gcd(a: number, b: number): number {
+  return b === 0 ? Math.abs(a) : gcd(b, a % b);
+}
+
 /** 7.G.B.4 — circumference and area of a circle. */
 export const circleMeasures: QuestionGenerator = {
   id: 'g-circle',
@@ -169,7 +173,89 @@ export const meanOfData: QuestionGenerator = {
   },
 };
 
+/** 7.SP.C.8 — probability of two independent events. */
+export const compoundProbability: QuestionGenerator = {
+  id: 'sp-compound-probability',
+  strand: 'statistics-probability',
+  describes: 'Find the probability of two independent events both happening.',
+  build: (rng, difficulty) => {
+    const contexts = [
+      { first: 'flipping heads on a coin', n: 1, d: 2 },
+      { first: 'rolling a 6 on a die', n: 1, d: 6 },
+      { first: 'rolling an even number on a die', n: 3, d: 6 },
+      { first: 'drawing a red card from a deck', n: 1, d: 2 },
+    ] as const;
+    const a = rng.pick(contexts);
+    const b = rng.pick(contexts.filter((c) => c.first !== a.first));
+
+    // Independent events multiply. Reduce the product for the stated answer.
+    const rawN = a.n * b.n;
+    const rawD = a.d * b.d;
+    const g = gcd(rawN, rawD) || 1;
+    const correct = `${rawN / g}/${rawD / g}`;
+
+    const { choices, correctIndex } = choicesFrom(
+      rng,
+      correct,
+      [
+        // Adding the probabilities instead of multiplying is the classic error.
+        `${a.n * b.d + b.n * a.d}/${rawD}`,
+        `${rawN}/${a.d + b.d}`,
+        `${rawN / g + 1}/${rawD / g}`,
+      ],
+      (i) => `${rawN / g}/${rawD / g + i + 1}`,
+    );
+
+    return {
+      strand: 'statistics-probability',
+      type: 'multiple-choice',
+      prompt:
+        `What is the probability of ${a.first} AND then ${b.first}? ` +
+        (difficulty > 1 ? 'Give your answer in simplest form.' : ''),
+      choices,
+      correctIndex,
+      explanation:
+        `These are INDEPENDENT events — the first does not change the second — so multiply their probabilities: ` +
+        `${a.n}/${a.d} × ${b.n}/${b.d} = ${rawN}/${rawD}` +
+        (g > 1 ? `, which simplifies to ${correct}.` : `.`) +
+        ` Adding them would be wrong, and would give an answer bigger than either one — but requiring BOTH to happen ` +
+        `must be less likely than either alone.`,
+    };
+  },
+};
+
+/** 7.SP.A.2 — use a sample to predict a whole population. */
+export const samplePrediction: QuestionGenerator = {
+  id: 'sp-sample-prediction',
+  strand: 'statistics-probability',
+  describes: 'Scale up a random sample to predict a population total.',
+  build: (rng, difficulty) => {
+    const sampleSize = rng.pick([20, 25, 40, 50]);
+    const favourable = rng.int(2, sampleSize / 2);
+    const population = sampleSize * rng.pick(difficulty === 1 ? [10, 20] : [12, 15, 30, 40]);
+    const answer = (favourable / sampleSize) * population;
+
+    return {
+      strand: 'statistics-probability',
+      type: 'numeric',
+      prompt:
+        `In a random sample of ${sampleSize} students, ${favourable} said they walk to school. ` +
+        `The school has ${population.toLocaleString('en-US')} students. About how many walk to school?`,
+      correctAnswer: answer,
+      unit: 'students',
+      explanation:
+        `A random sample is assumed to look like the whole population. ` +
+        `In the sample, ${favourable} out of ${sampleSize} walk — a proportion of ${round(favourable / sampleSize, 4)}. ` +
+        `Applying that to all ${population.toLocaleString('en-US')} students: ` +
+        `${round(favourable / sampleSize, 4)} × ${population.toLocaleString('en-US')} = ${answer.toLocaleString('en-US')}. ` +
+        `This only works because the sample was RANDOM — a biased sample would scale up its bias too.`,
+    };
+  },
+};
+
 export const geometryStatsGenerators: QuestionGenerator[] = [
+  compoundProbability,
+  samplePrediction,
   circleMeasures,
   rectangleArea,
   angleRelationships,

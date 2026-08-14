@@ -18,7 +18,10 @@ export const signedAddSub: QuestionGenerator = {
   build: (rng, difficulty) => {
     const range = difficulty === 1 ? 12 : difficulty === 2 ? 25 : 60;
     const a = rng.int(-range, range);
-    const b = rng.int(-range, range);
+    let b = rng.int(-range, range);
+    // At least one operand must be negative. "1 + 12" is arithmetic a fifth
+    // grader can do, and drills nothing in a signed-numbers level.
+    if (a >= 0 && b >= 0) b = -(b || 1);
     const subtract = rng.chance(0.5);
     const answer = subtract ? a - b : a + b;
 

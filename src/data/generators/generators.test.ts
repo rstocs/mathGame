@@ -288,6 +288,14 @@ describe('question quality', () => {
     });
   });
 
+  it('always involves a negative in a signed-number question', () => {
+    eachGenerated((q, meta) => {
+      if (meta.generatorId !== 'ns-signed-add-sub') return;
+      // "What is 1 + 12?" belongs in a much earlier grade.
+      expect(q.prompt, `${meta.seed}: no negative in "${q.prompt}"`).toMatch(/-\d/);
+    });
+  });
+
   it('never poses a GCF question whose answer is 1', () => {
     eachGenerated((q, meta) => {
       if (meta.generatorId !== 'g6-gcf-lcm' || q.type !== 'numeric') return;

@@ -96,10 +96,17 @@ describe('resolveLevelQuestions', () => {
     expect(new Set(prompts).size).toBe(prompts.length);
   });
 
-  it('leaves purely authored levels untouched', () => {
-    const level = getLevel('rp-l1')!;
-    const questions = resolveLevelQuestions(level, attemptSeedFor('rp-l1', 1));
-    expect(questions.map((q) => q.id)).toEqual(level.questionIds);
+  it('leaves a level with no generated slots untouched', () => {
+    // Built here rather than pointing at a real level: every shipped level now
+    // has generated slots, and this is a property of resolveLevelQuestions
+    // itself, not of any particular content.
+    const authoredOnly = { ...getLevel('rp-l1')!, generated: undefined };
+    const questions = resolveLevelQuestions(authoredOnly, attemptSeedFor('rp-l1', 1));
+    expect(questions.map((q) => q.id)).toEqual(authoredOnly.questionIds);
+    // And it stays identical across attempts, since nothing rerolls.
+    expect(resolveLevelQuestions(authoredOnly, attemptSeedFor('rp-l1', 9)).map((q) => q.id)).toEqual(
+      authoredOnly.questionIds,
+    );
   });
 
   it('produces answerable questions for every level across several attempts', () => {
