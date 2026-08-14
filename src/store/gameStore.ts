@@ -6,8 +6,9 @@ import { attemptSeedFor, resolveLevelQuestions } from '../data/questions';
 import { checkBadgeUnlocks } from '../data/badges';
 import { isAnswerCorrect, starsForAccuracy, type UserAnswer } from '../lib/scoring';
 import { xpForCorrectAnswer, xpForLevelCompletion } from '../lib/xp';
+import { migratePersistedState } from './migration';
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 interface RunState {
   levelId: string;
@@ -283,9 +284,11 @@ export const useGameStore = create<GameStore>()(
         unlockedBadgeIds: state.unlockedBadgeIds,
         levelProgress: state.levelProgress,
         currentWorldId: state.currentWorldId,
+        selectedGradeId: state.selectedGradeId,
         soundEnabled: state.soundEnabled,
       }),
-      migrate: (persistedState) => persistedState as GameStore,
+      migrate: (persistedState, fromVersion) =>
+        migratePersistedState(persistedState as Partial<PersistedState>, fromVersion) as GameStore,
     },
   ),
 );
