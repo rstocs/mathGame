@@ -9,7 +9,9 @@ export type QuestionType =
   | 'multiple-choice'
   | 'numeric'
   | 'drag-drop-order'
-  | 'drag-drop-match';
+  | 'drag-drop-match'
+  | 'graph-plot'
+  | 'expression';
 
 export type VisualHint =
   | { kind: 'circle'; radiusLabel: string }
@@ -51,11 +53,56 @@ export interface DragDropMatchQuestion extends BaseQuestion {
   pairs: { left: string; right: string }[];
 }
 
+export interface GridPoint {
+  x: number;
+  y: number;
+}
+
+/** What the kid is asked to place on the coordinate plane. */
+export type GraphPlotMode =
+  /** Tap to place one or more independent points (scatter, plotting a pair). */
+  | { kind: 'points'; count: number }
+  /** Place two points; the answer is the line through them (slope/intercept). */
+  | { kind: 'line' };
+
+export interface GraphPlotQuestion extends BaseQuestion {
+  type: 'graph-plot';
+  mode: GraphPlotMode;
+  /** Inclusive axis bounds, in grid units. */
+  bounds: { xMin: number; xMax: number; yMin: number; yMax: number };
+  /**
+   * For 'points': the expected points, order-insensitive.
+   * For 'line': any two distinct points on the target line — the check compares
+   * the line itself, so a kid may pick any other two points on it.
+   */
+  correctPoints: GridPoint[];
+}
+
+export interface ExpressionQuestion extends BaseQuestion {
+  type: 'expression';
+  /**
+   * The expected answer. Any algebraically equivalent form is accepted, so
+   * `2x+6` also accepts `2(x+3)`.
+   */
+  correctExpression: string;
+  /**
+   * A form that is algebraically equivalent but doesn't show the work — for an
+   * "expand 3(x + 4)" question, that's `3(x + 4)` itself. Without this the kid
+   * can copy the prompt back and be marked correct, since equivalence checking
+   * can't tell the two apart.
+   */
+  rejectSameAs?: string;
+  /** Shown as a hint above the keypad, e.g. "x". */
+  variableLabel?: string;
+}
+
 export type Question =
   | MultipleChoiceQuestion
   | NumericQuestion
   | DragDropOrderQuestion
-  | DragDropMatchQuestion;
+  | DragDropMatchQuestion
+  | GraphPlotQuestion
+  | ExpressionQuestion;
 
 export interface Level {
   id: string;

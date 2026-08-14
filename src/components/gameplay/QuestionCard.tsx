@@ -4,6 +4,8 @@ import type { UserAnswer } from '../../lib/scoring';
 import { MultipleChoiceAnswer } from './MultipleChoiceAnswer';
 import { NumericAnswer } from './NumericAnswer';
 import { DragDropOrderAnswer, DragDropMatchAnswer } from './DragDropAnswer';
+import { GraphPlotAnswer } from './GraphPlotAnswer';
+import { ExpressionAnswer } from './ExpressionAnswer';
 import { VisualHint } from './VisualHint';
 import './QuestionCard.css';
 
@@ -39,5 +41,9 @@ function renderAnswer(question: Question, onAnswer: (answer: UserAnswer) => void
       return <DragDropOrderAnswer question={question} onAnswer={onAnswer} disabled={disabled} />;
     case 'drag-drop-match':
       return <DragDropMatchAnswer question={question} onAnswer={onAnswer} disabled={disabled} />;
+    case 'graph-plot':
+      return <GraphPlotAnswer question={question} onAnswer={onAnswer} disabled={disabled} />;
+    case 'expression':
+      return <ExpressionAnswer question={question} onAnswer={onAnswer} disabled={disabled} />;
   }
 }

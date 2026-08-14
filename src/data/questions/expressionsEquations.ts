@@ -14,10 +14,11 @@ export const expressionsEquationsQuestions: Question[] = [
   {
     id: 'ee-l1-q2',
     strand: 'expressions-equations',
-    type: 'multiple-choice',
-    prompt: 'Apply the distributive property: 3(x + 4)',
-    choices: ['3x + 4', '3x + 12', 'x + 12', '3x + 7'],
-    correctIndex: 1,
+    type: 'expression',
+    prompt: 'Apply the distributive property and write the expanded form of 3(x + 4).',
+    correctExpression: '3x + 12',
+    rejectSameAs: '3(x + 4)',
+    variableLabel: 'x',
     explanation:
       'The distributive property means you multiply the 3 by EACH term inside the parentheses: 3 × x = 3x and 3 × 4 = 12. So 3(x + 4) = 3x + 12. A common mistake is only multiplying the first term and leaving the 4 alone.',
   },

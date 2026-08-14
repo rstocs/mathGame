@@ -123,11 +123,17 @@ export const ratiosProportionsQuestions: Question[] = [
   {
     id: 'rp-l2-q4',
     strand: 'ratios-proportions',
-    type: 'multiple-choice',
-    prompt: 'Which equation represents a proportional relationship between x and y?',
-    choices: ['y = 5x', 'y = 5x + 2', 'y = x²', 'y = 5/x'],
-    correctIndex: 0,
-    explanation: 'A proportional relationship has the form y = kx, a straight line through the origin (0, 0) with no added or subtracted constant. Only y = 5x fits this form; the others have an added constant, a squared term, or x in the denominator.',
+    type: 'graph-plot',
+    prompt:
+      'Blueberries cost $2 per pound. Graph this proportional relationship: place two points that the line must pass through.',
+    mode: { kind: 'line' },
+    bounds: { xMin: -6, xMax: 6, yMin: -6, yMax: 6 },
+    correctPoints: [
+      { x: 0, y: 0 },
+      { x: 2, y: 4 },
+    ],
+    explanation:
+      'A proportional relationship has the form y = kx, so its graph is a straight line through the origin. Here k is the unit rate, $2 per pound, giving y = 2x. It must pass through (0, 0) — buying 0 pounds costs $0 — and it rises 2 dollars for every 1 pound, so (1, 2), (2, 4) and (3, 6) are all on it. Any two points on that line are correct.',
   },
   {
     id: 'rp-l2-q5',

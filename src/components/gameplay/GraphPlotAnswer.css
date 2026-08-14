@@ -1,0 +1,73 @@
+.graph-plot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.graph-plot__svg {
+  width: 100%;
+  max-width: 320px;
+  /* Stop the browser from panning/zooming the page when a kid taps the grid. */
+  touch-action: none;
+  cursor: crosshair;
+  border-radius: var(--radius-md);
+}
+
+.graph-plot__svg:focus-visible {
+  outline: 3px solid var(--color-success);
+  outline-offset: 2px;
+}
+
+.graph-plot__field {
+  fill: white;
+  stroke: rgba(35, 50, 74, 0.12);
+  stroke-width: 2;
+  rx: 8;
+}
+
+.graph-plot__grid {
+  stroke: rgba(35, 50, 74, 0.09);
+  stroke-width: 1;
+}
+
+.graph-plot__axis {
+  stroke: rgba(35, 50, 74, 0.45);
+  stroke-width: 2;
+}
+
+.graph-plot__line {
+  stroke: var(--world-primary, #4a90d9);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.graph-plot__point {
+  fill: var(--world-primary, #4a90d9);
+  stroke: white;
+  stroke-width: 2;
+}
+
+.graph-plot__cursor {
+  fill: none;
+  stroke: var(--color-ink-soft);
+  stroke-width: 2;
+  stroke-dasharray: 3 3;
+}
+
+.graph-plot__status {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-ink-soft);
+  text-align: center;
+}
+
+.graph-plot__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}

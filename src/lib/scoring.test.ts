@@ -5,6 +5,8 @@ import type {
   NumericQuestion,
   DragDropOrderQuestion,
   DragDropMatchQuestion,
+  GraphPlotQuestion,
+  ExpressionQuestion,
 } from '../types/game';
 
 const mc: MultipleChoiceQuestion = {
@@ -141,6 +143,191 @@ describe('isAnswerCorrect — matching', () => {
         pairs: [{ left: 'area', right: 'πr²' }],
       }),
     ).toBe(false);
+  });
+});
+
+const bounds = { xMin: -10, xMax: 10, yMin: -10, yMax: 10 };
+
+const plotPoints: GraphPlotQuestion = {
+  id: 'test-plot',
+  strand: 'expressions-equations',
+  type: 'graph-plot',
+  prompt: 'test',
+  explanation: 'test',
+  mode: { kind: 'points', count: 2 },
+  bounds,
+  correctPoints: [
+    { x: 1, y: 2 },
+    { x: -3, y: 4 },
+  ],
+};
+
+const plotLine: GraphPlotQuestion = {
+  ...plotPoints,
+  id: 'test-line',
+  mode: { kind: 'line' },
+  // y = 2x + 1
+  correctPoints: [
+    { x: 0, y: 1 },
+    { x: 1, y: 3 },
+  ],
+};
+
+const expression: ExpressionQuestion = {
+  id: 'test-expr',
+  strand: 'expressions-equations',
+  type: 'expression',
+  prompt: 'test',
+  explanation: 'test',
+  correctExpression: '2x+6',
+};
+
+describe('isAnswerCorrect — graph plot (points)', () => {
+  it('accepts the right points in any order', () => {
+    expect(
+      isAnswerCorrect(plotPoints, {
+        type: 'graph-plot',
+        points: [
+          { x: -3, y: 4 },
+          { x: 1, y: 2 },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects a wrong point, a missing point, or a swapped coordinate', () => {
+    expect(
+      isAnswerCorrect(plotPoints, {
+        type: 'graph-plot',
+        points: [
+          { x: 1, y: 2 },
+          { x: -3, y: 5 },
+        ],
+      }),
+    ).toBe(false);
+    expect(isAnswerCorrect(plotPoints, { type: 'graph-plot', points: [{ x: 1, y: 2 }] })).toBe(false);
+    // (2,1) instead of (1,2) — the classic x/y mix-up must be marked wrong.
+    expect(
+      isAnswerCorrect(plotPoints, {
+        type: 'graph-plot',
+        points: [
+          { x: 2, y: 1 },
+          { x: -3, y: 4 },
+        ],
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isAnswerCorrect — graph plot (line)', () => {
+  it('accepts any two distinct points on the same line', () => {
+    // y = 2x + 1 also passes through (-2,-3) and (3,7).
+    expect(
+      isAnswerCorrect(plotLine, {
+        type: 'graph-plot',
+        points: [
+          { x: -2, y: -3 },
+          { x: 3, y: 7 },
+        ],
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects a parallel line and a line of the wrong slope', () => {
+    // y = 2x + 2 (parallel, shifted).
+    expect(
+      isAnswerCorrect(plotLine, {
+        type: 'graph-plot',
+        points: [
+          { x: 0, y: 2 },
+          { x: 1, y: 4 },
+        ],
+      }),
+    ).toBe(false);
+    // y = 3x + 1 (right intercept, wrong slope).
+    expect(
+      isAnswerCorrect(plotLine, {
+        type: 'graph-plot',
+        points: [
+          { x: 0, y: 1 },
+          { x: 1, y: 4 },
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it('rejects two identical points, which define no line', () => {
+    expect(
+      isAnswerCorrect(plotLine, {
+        type: 'graph-plot',
+        points: [
+          { x: 0, y: 1 },
+          { x: 0, y: 1 },
+        ],
+      }),
+    ).toBe(false);
+  });
+
+  it('handles vertical lines, where slope is undefined', () => {
+    const vertical: GraphPlotQuestion = {
+      ...plotLine,
+      correctPoints: [
+        { x: 4, y: 0 },
+        { x: 4, y: 5 },
+      ],
+    };
+    expect(
+      isAnswerCorrect(vertical, {
+        type: 'graph-plot',
+        points: [
+          { x: 4, y: -2 },
+          { x: 4, y: 9 },
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      isAnswerCorrect(vertical, {
+        type: 'graph-plot',
+        points: [
+          { x: 5, y: -2 },
+          { x: 5, y: 9 },
+        ],
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('isAnswerCorrect — expression', () => {
+  it('accepts equivalent forms', () => {
+    expect(isAnswerCorrect(expression, { type: 'expression', text: '2x+6' })).toBe(true);
+    expect(isAnswerCorrect(expression, { type: 'expression', text: '2(x+3)' })).toBe(true);
+    expect(isAnswerCorrect(expression, { type: 'expression', text: '6 + 2x' })).toBe(true);
+  });
+
+  it('rejects wrong or unparseable answers', () => {
+    expect(isAnswerCorrect(expression, { type: 'expression', text: '2x+3' })).toBe(false);
+    expect(isAnswerCorrect(expression, { type: 'expression', text: '' })).toBe(false);
+    expect(isAnswerCorrect(expression, { type: 'expression', text: '2x+' })).toBe(false);
+  });
+
+  it('rejects an answer of the wrong shape', () => {
+    expect(isAnswerCorrect(expression, { type: 'numeric', value: 6 })).toBe(false);
+  });
+
+  it('rejects copying the unexpanded prompt back, which shows no work', () => {
+    const expand: ExpressionQuestion = {
+      ...expression,
+      prompt: 'Expand 2(x + 3)',
+      correctExpression: '2x + 6',
+      rejectSameAs: '2(x + 3)',
+    };
+    expect(isAnswerCorrect(expand, { type: 'expression', text: '2(x + 3)' })).toBe(false);
+    // Spacing and notation shouldn't be a way around it.
+    expect(isAnswerCorrect(expand, { type: 'expression', text: '2(x+3)' })).toBe(false);
+    expect(isAnswerCorrect(expand, { type: 'expression', text: '2 ( X + 3 )' })).toBe(false);
+    // The actual expanded answer still passes.
+    expect(isAnswerCorrect(expand, { type: 'expression', text: '2x+6' })).toBe(true);
+    expect(isAnswerCorrect(expand, { type: 'expression', text: '6+2x' })).toBe(true);
   });
 });
 

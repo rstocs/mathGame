@@ -1,0 +1,77 @@
+.expression-answer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.expression-answer__input {
+  width: 100%;
+  max-width: 320px;
+  font-family: var(--font-display, inherit);
+  font-size: 1.4rem;
+  text-align: center;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(35, 50, 74, 0.15);
+  box-shadow: var(--shadow-pop);
+}
+
+.expression-answer__input:focus {
+  outline: 2px solid var(--color-success);
+}
+
+.expression-answer__input[aria-invalid='true'] {
+  border-color: rgba(224, 90, 90, 0.55);
+}
+
+.expression-answer__keypad {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.expression-answer__key {
+  background: white;
+  border: 2px solid rgba(35, 50, 74, 0.1);
+  border-radius: var(--radius-sm, 10px);
+  box-shadow: var(--shadow-pop);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  padding: 0;
+  min-width: 0;
+}
+
+.expression-answer__key:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.expression-answer__key:disabled {
+  opacity: 0.45;
+}
+
+/* Reserves its line so the layout doesn't jump when the message appears. */
+.expression-answer__status {
+  min-height: 1.1em;
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-ink-soft);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  /* Two rows of four: eight 44px targets won't fit across a 375px screen. */
+  .expression-answer__keypad {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .expression-answer__key {
+    height: 46px;
+    font-size: 1.15rem;
+  }
+}
