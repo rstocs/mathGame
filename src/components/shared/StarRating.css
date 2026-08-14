@@ -1,0 +1,14 @@
+.star-rating {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.star--filled {
+  color: var(--color-gold);
+  text-shadow: 0 2px 4px rgba(255, 201, 74, 0.5);
+}
+
+.star--empty {
+  color: rgba(35, 50, 74, 0.15);
+}

@@ -1,0 +1,82 @@
+.level-intro-screen {
+  width: 100%;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+.level-intro-screen__header {
+  text-align: center;
+  margin: 12px 0 20px;
+  padding: 0 20px;
+}
+
+.level-intro-screen__header h1 {
+  font-size: 1.7rem;
+  color: var(--world-primary, var(--color-ink));
+}
+
+.level-intro-screen__header p {
+  color: var(--color-ink-soft);
+  margin-top: 6px;
+}
+
+.level-intro-screen__list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 480px;
+  padding: 0 20px;
+}
+
+.level-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 16px 18px;
+  border: 2px solid transparent;
+  text-align: left;
+}
+
+.level-card:not(:disabled) {
+  border-color: var(--world-primary, transparent);
+}
+
+.level-card--locked {
+  opacity: 0.55;
+}
+
+.level-card__number {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--world-primary, var(--color-ink-soft));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.level-card__body {
+  flex: 1;
+}
+
+.level-card__body h2 {
+  font-size: 1rem;
+  color: var(--color-ink);
+}
+
+.level-card__body p {
+  font-size: 0.82rem;
+  color: var(--color-ink-soft);
+  margin-top: 2px;
+}
+
+.level-card__lock {
+  font-size: 1.2rem;
+}

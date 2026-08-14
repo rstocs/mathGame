@@ -1,0 +1,97 @@
+.level-complete-screen {
+  width: 100%;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.level-complete-screen__card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 36px 30px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+}
+
+.level-complete-screen__card h1 {
+  font-size: 1.6rem;
+  color: var(--world-primary, var(--color-ink));
+  margin-bottom: 4px;
+}
+
+.level-complete-screen__level-title {
+  color: var(--color-ink-soft);
+  margin-bottom: 16px;
+}
+
+.level-complete-screen__stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat__value {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.stat__label {
+  font-size: 0.75rem;
+  color: var(--color-ink-soft);
+}
+
+.level-complete-screen__badges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.badge-reveal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff8e6;
+  border: 2px solid var(--color-gold);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.badge-reveal__icon {
+  font-size: 1.8rem;
+}
+
+.badge-reveal__name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.badge-reveal__desc {
+  font-size: 0.75rem;
+  color: var(--color-ink-soft);
+}
+
+.level-complete-screen__retry-hint {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  margin-bottom: 16px;
+}
+
+.level-complete-screen__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}

@@ -1,0 +1,43 @@
+.onboarding-screen {
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.onboarding-screen__mascot {
+  font-size: 4rem;
+  margin-bottom: 8px;
+}
+
+.onboarding-screen h1 {
+  font-size: 2rem;
+  color: var(--color-ink);
+}
+
+.onboarding-screen__subtitle {
+  color: var(--color-ink-soft);
+  margin: 8px 0 28px;
+}
+
+.onboarding-screen__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.onboarding-screen__input {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(35, 50, 74, 0.15);
+  font-size: 1.1rem;
+  text-align: center;
+  box-shadow: var(--shadow-pop);
+}
+
+.onboarding-screen__input:focus {
+  outline: 2px solid var(--color-success);
+}

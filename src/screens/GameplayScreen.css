@@ -1,0 +1,31 @@
+.gameplay-screen {
+  width: 100%;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+.gameplay-screen__hud-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gameplay-screen__progress {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-ink-soft);
+}
+
+.gameplay-screen__body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 20px 0;
+}
+
+.gameplay-screen__question-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

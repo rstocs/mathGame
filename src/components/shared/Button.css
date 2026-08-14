@@ -1,0 +1,33 @@
+.btn {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 14px 28px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--primary {
+  background: var(--color-success);
+  color: white;
+}
+
+.btn--secondary {
+  background: white;
+  color: var(--color-ink);
+  border: 2px solid rgba(35, 50, 74, 0.12);
+}
+
+.btn--ghost {
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-ink-soft);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+}

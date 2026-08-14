@@ -1,0 +1,28 @@
+.mc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .mc-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mc-choice {
+  background: white;
+  border: 2px solid rgba(35, 50, 74, 0.1);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-align: left;
+  box-shadow: var(--shadow-pop);
+}
+
+.mc-choice:disabled {
+  opacity: 0.6;
+}

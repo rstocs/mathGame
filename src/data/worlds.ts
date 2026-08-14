@@ -1,0 +1,250 @@
+import type { World } from '../types/game';
+
+function levelQuestionIds(prefix: string, level: number): string[] {
+  return Array.from({ length: 9 }, (_, i) => `${prefix}-l${level}-q${i + 1}`);
+}
+
+export const worlds: World[] = [
+  {
+    id: 'ratios-proportions',
+    name: 'Ratio Ridge',
+    shortLabel: '7.RP',
+    description: 'Climb the ridge mastering unit rates, proportions, and percents.',
+    colorTheme: { primary: '#e8752c', secondary: '#ffb677', accent: '#7a3e1d' },
+    icon: 'mountain',
+    levels: [
+      {
+        id: 'rp-l1',
+        strand: 'ratios-proportions',
+        order: 1,
+        title: 'Unit Rates',
+        description: 'Compare prices, speeds, and rates to find the better deal.',
+        questionIds: levelQuestionIds('rp', 1),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'rp-l2',
+        strand: 'ratios-proportions',
+        order: 2,
+        title: 'Proportional Relationships',
+        description: 'Spot proportional relationships and solve for missing values.',
+        questionIds: levelQuestionIds('rp', 2),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'rp-l3',
+        strand: 'ratios-proportions',
+        order: 3,
+        title: 'Percent Problems',
+        description: 'Work out discounts, tax, tips, and percent change.',
+        questionIds: levelQuestionIds('rp', 3),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'rp-l4',
+        strand: 'ratios-proportions',
+        order: 4,
+        title: 'Ridge Challenge',
+        description: 'A mixed review of everything from Ratio Ridge.',
+        questionIds: levelQuestionIds('rp', 4),
+        passThreshold: 0.6,
+      },
+    ],
+  },
+  {
+    id: 'number-system',
+    name: 'Number Nexus',
+    shortLabel: '7.NS',
+    description: 'Navigate a world of positive and negative fractions and decimals.',
+    colorTheme: { primary: '#1e88e5', secondary: '#7fdcd4', accent: '#0d47a1' },
+    icon: 'wave',
+    levels: [
+      {
+        id: 'ns-l1',
+        strand: 'number-system',
+        order: 1,
+        title: 'Adding & Subtracting Signed Numbers',
+        description: 'Add and subtract positive and negative fractions and decimals.',
+        questionIds: levelQuestionIds('ns', 1),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'ns-l2',
+        strand: 'number-system',
+        order: 2,
+        title: 'Multiplying & Dividing Signed Numbers',
+        description: 'Apply sign rules to multiply and divide rational numbers.',
+        questionIds: levelQuestionIds('ns', 2),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'ns-l3',
+        strand: 'number-system',
+        order: 3,
+        title: 'Mixed Operations',
+        description: 'Combine operations and solve signed-number word problems.',
+        questionIds: levelQuestionIds('ns', 3),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'ns-l4',
+        strand: 'number-system',
+        order: 4,
+        title: 'Nexus Challenge',
+        description: 'A mixed review of everything from Number Nexus.',
+        questionIds: levelQuestionIds('ns', 4),
+        passThreshold: 0.6,
+      },
+    ],
+  },
+  {
+    id: 'expressions-equations',
+    name: 'Equation Expanse',
+    shortLabel: '7.EE',
+    description: 'Cross the expanse simplifying expressions and solving equations.',
+    colorTheme: { primary: '#8e5ce8', secondary: '#c9a6ff', accent: '#4a2a80' },
+    icon: 'crystal',
+    levels: [
+      {
+        id: 'ee-l1',
+        strand: 'expressions-equations',
+        order: 1,
+        title: 'Simplifying Expressions',
+        description: 'Combine like terms and use the distributive property.',
+        questionIds: levelQuestionIds('ee', 1),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'ee-l2',
+        strand: 'expressions-equations',
+        order: 2,
+        title: 'Two-Step Equations',
+        description: 'Solve two-step linear equations for the unknown.',
+        questionIds: levelQuestionIds('ee', 2),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'ee-l3',
+        strand: 'expressions-equations',
+        order: 3,
+        title: 'Inequalities',
+        description: 'Solve inequalities, including the negative flip rule.',
+        questionIds: levelQuestionIds('ee', 3),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'ee-l4',
+        strand: 'expressions-equations',
+        order: 4,
+        title: 'Expanse Challenge',
+        description: 'A mixed review of everything from Equation Expanse.',
+        questionIds: levelQuestionIds('ee', 4),
+        passThreshold: 0.6,
+      },
+    ],
+  },
+  {
+    id: 'geometry',
+    name: 'Geometry Grotto',
+    shortLabel: '7.G',
+    description: 'Explore a grotto of circles, angles, and 3D figures.',
+    colorTheme: { primary: '#2ecc71', secondary: '#a8e6b0', accent: '#1a7a3e' },
+    icon: 'temple',
+    levels: [
+      {
+        id: 'g-l1',
+        strand: 'geometry',
+        order: 1,
+        title: 'Circles',
+        description: 'Find the area and circumference of circles.',
+        questionIds: levelQuestionIds('g', 1),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'g-l2',
+        strand: 'geometry',
+        order: 2,
+        title: 'Angle Relationships',
+        description: 'Use complementary, supplementary, and vertical angles.',
+        questionIds: levelQuestionIds('g', 2),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'g-l3',
+        strand: 'geometry',
+        order: 3,
+        title: 'Volume & Surface Area',
+        description: 'Calculate volume and surface area of 3D figures.',
+        questionIds: levelQuestionIds('g', 3),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'g-l4',
+        strand: 'geometry',
+        order: 4,
+        title: 'Grotto Challenge',
+        description: 'A mixed review of everything from Geometry Grotto.',
+        questionIds: levelQuestionIds('g', 4),
+        passThreshold: 0.6,
+      },
+    ],
+  },
+  {
+    id: 'statistics-probability',
+    name: 'Statistics Summit',
+    shortLabel: '7.SP',
+    description: 'Reach the summit through sampling, probability, and data.',
+    colorTheme: { primary: '#3d4d8c', secondary: '#ffd670', accent: '#1c2350' },
+    icon: 'observatory',
+    levels: [
+      {
+        id: 'sp-l1',
+        strand: 'statistics-probability',
+        order: 1,
+        title: 'Random Sampling',
+        description: 'Evaluate sampling methods and make predictions.',
+        questionIds: levelQuestionIds('sp', 1),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'sp-l2',
+        strand: 'statistics-probability',
+        order: 2,
+        title: 'Simple Probability',
+        description: 'Calculate the probability of a single simple event.',
+        questionIds: levelQuestionIds('sp', 2),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'sp-l3',
+        strand: 'statistics-probability',
+        order: 3,
+        title: 'Compound Probability',
+        description: 'Find the probability of two independent events.',
+        questionIds: levelQuestionIds('sp', 3),
+        passThreshold: 0.6,
+      },
+      {
+        id: 'sp-l4',
+        strand: 'statistics-probability',
+        order: 4,
+        title: 'Summit Challenge',
+        description: 'A mixed review of everything from Statistics Summit.',
+        questionIds: levelQuestionIds('sp', 4),
+        passThreshold: 0.6,
+      },
+    ],
+  },
+];
+
+export function getWorld(strandId: string): World | undefined {
+  return worlds.find((w) => w.id === strandId);
+}
+
+export function getLevel(levelId: string) {
+  for (const world of worlds) {
+    const level = world.levels.find((l) => l.id === levelId);
+    if (level) return level;
+  }
+  return undefined;
+}

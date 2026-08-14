@@ -1,0 +1,60 @@
+.dnd-answer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.dnd-answer__hint {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+}
+
+.dnd-answer__slots {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+}
+
+.dnd-answer__pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dnd-chip {
+  background: white;
+  border: 2px solid rgba(35, 50, 74, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-pop);
+}
+
+.dnd-chip--placed {
+  background: var(--color-success);
+  color: white;
+  border-color: var(--color-success);
+}
+
+.match-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+}
+
+.match-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.match-chip--selected {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+}

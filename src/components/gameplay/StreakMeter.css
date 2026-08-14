@@ -1,0 +1,32 @@
+.streak-meter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.streak-flame {
+  font-size: 1.1rem;
+  filter: grayscale(1) opacity(0.3);
+  transition: filter 0.2s ease;
+}
+
+.streak-flame--lit {
+  filter: none;
+}
+
+.streak-combo-toast {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: var(--color-gold);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-pop);
+  z-index: 10;
+}

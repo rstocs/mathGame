@@ -1,0 +1,32 @@
+.top-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  width: 100%;
+  max-width: 720px;
+  padding: 14px 20px;
+}
+
+.top-bar__back {
+  background: white;
+  border-radius: 999px;
+  box-shadow: var(--shadow-pop);
+  font-size: 1.2rem;
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.top-bar__right {
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .top-bar .xp-bar {
+    order: 3;
+    flex-basis: 100%;
+  }
+}

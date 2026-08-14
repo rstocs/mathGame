@@ -1,0 +1,52 @@
+:root {
+  --color-bg-top: #bfe3ff;
+  --color-bg-bottom: #eaf7ff;
+  --color-ink: #23324a;
+  --color-ink-soft: #5c6b85;
+  --color-white: #ffffff;
+  --color-success: #2ecc71;
+  --color-success-dark: #1a9c53;
+  --color-danger: #ff5c5c;
+  --color-danger-dark: #d63b3b;
+  --color-gold: #ffc94a;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow-card: 0 8px 24px rgba(35, 50, 74, 0.14);
+  --shadow-pop: 0 4px 12px rgba(35, 50, 74, 0.2);
+
+  --font-display: 'Baloo 2', 'Segoe UI Rounded', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, -apple-system, sans-serif;
+}
+
+/* Per-world color themes */
+.world-theme--ratios-proportions {
+  --world-primary: #e8752c;
+  --world-secondary: #ffb677;
+  --world-accent: #7a3e1d;
+}
+
+.world-theme--number-system {
+  --world-primary: #1e88e5;
+  --world-secondary: #7fdcd4;
+  --world-accent: #0d47a1;
+}
+
+.world-theme--expressions-equations {
+  --world-primary: #8e5ce8;
+  --world-secondary: #c9a6ff;
+  --world-accent: #4a2a80;
+}
+
+.world-theme--geometry {
+  --world-primary: #2ecc71;
+  --world-secondary: #a8e6b0;
+  --world-accent: #1a7a3e;
+}
+
+.world-theme--statistics-probability {
+  --world-primary: #3d4d8c;
+  --world-secondary: #ffd670;
+  --world-accent: #1c2350;
+}
