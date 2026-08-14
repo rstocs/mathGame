@@ -1,7 +1,11 @@
-import { MAP_LAYOUT } from './mapLayout';
+import { MAP_LAYOUT, type MapNode } from './mapLayout';
 
-export function LevelPath() {
-  const d = MAP_LAYOUT.map((node, i) => `${i === 0 ? 'M' : 'L'}${node.x},${node.y}`).join(' ');
+interface LevelPathProps {
+  nodes?: MapNode[];
+}
+
+export function LevelPath({ nodes = MAP_LAYOUT }: LevelPathProps) {
+  const d = nodes.map((node, i) => `${i === 0 ? 'M' : 'L'}${node.x},${node.y}`).join(' ');
   return (
     <path
       d={d}

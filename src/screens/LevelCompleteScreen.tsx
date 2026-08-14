@@ -4,6 +4,7 @@ import { useGameStore } from '../store/gameStore';
 import { getLevel, getWorld } from '../data/worlds';
 import { badges } from '../data/badges';
 import { burstBig } from '../lib/confetti';
+import { playSfx } from '../lib/sound';
 import { StarRating } from '../components/shared/StarRating';
 import { Button } from '../components/shared/Button';
 import './LevelCompleteScreen.css';
@@ -13,9 +14,16 @@ export function LevelCompleteScreen() {
   const result = state.lastLevelResult;
 
   useEffect(() => {
-    if (result && result.stars === 3) {
+    if (!result) return;
+    if (result.stars === 3) {
       burstBig();
     }
+    // Only on a pass. A failed level already says "Almost There!"; answering it
+    // with a buzz would just pile on.
+    if (result.passed) {
+      playSfx('levelUp', state.soundEnabled);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
 
   if (!result) return null;

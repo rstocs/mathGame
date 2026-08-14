@@ -6,12 +6,13 @@ import { TopBar } from '../components/hud/TopBar';
 import { WorldNode } from '../components/map/WorldNode';
 import { LevelPath } from '../components/map/LevelPath';
 import { Avatar } from '../components/map/Avatar';
-import { MAP_LAYOUT, MAP_VIEWBOX, getNodePosition } from '../components/map/mapLayout';
+import { getNodePosition, useMapLayout } from '../components/map/mapLayout';
 import './WorldMapScreen.css';
 
 export function WorldMapScreen() {
   const state = useGameStore();
-  const avatarPos = getNodePosition(state.currentWorldId);
+  const { nodes, viewBox } = useMapLayout();
+  const avatarPos = getNodePosition(state.currentWorldId, nodes);
 
   return (
     <motion.div
@@ -27,12 +28,12 @@ export function WorldMapScreen() {
       </div>
       <svg
         className="world-map-screen__svg"
-        viewBox={`0 0 ${MAP_VIEWBOX.width} ${MAP_VIEWBOX.height}`}
+        viewBox={`0 0 ${viewBox.width} ${viewBox.height}`}
         preserveAspectRatio="xMidYMid meet"
       >
-        <LevelPath />
+        <LevelPath nodes={nodes} />
         {worlds.map((world, index) => {
-          const node = MAP_LAYOUT[index];
+          const node = nodes[index];
           const unlocked = isWorldUnlocked(worlds, state, index);
           const passedLevels = world.levels.filter(
             (level) => (state.levelProgress[level.id]?.bestAccuracy ?? 0) >= level.passThreshold,

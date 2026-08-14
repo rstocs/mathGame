@@ -32,3 +32,24 @@
   font-size: 0.8rem;
   text-decoration: underline;
 }
+
+@media (max-width: 640px) {
+  .world-map-screen__header {
+    margin: 4px 0 0;
+  }
+
+  .world-map-screen__header h1 {
+    font-size: 1.25rem;
+  }
+
+  .world-map-screen__header p {
+    font-size: 0.9rem;
+  }
+
+  /* The portrait trail is tall; cap it to the remaining viewport height so the
+     whole map stays on screen without the page scrolling. */
+  .world-map-screen__svg {
+    margin-top: 8px;
+    max-height: calc(100dvh - 190px);
+  }
+}

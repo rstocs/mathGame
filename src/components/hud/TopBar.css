@@ -24,9 +24,39 @@
   flex-shrink: 0;
 }
 
+.top-bar__sound {
+  background: white;
+  border-radius: 999px;
+  box-shadow: var(--shadow-pop);
+  font-size: 1.05rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 @media (max-width: 480px) {
+  .top-bar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  /* The XP bar shrinks rather than wrapping to its own row: wrapping used to
+     strand the sound button alone on the line above it. */
   .top-bar .xp-bar {
-    order: 3;
-    flex-basis: 100%;
+    gap: 6px;
+  }
+
+  .top-bar .xp-bar__xp {
+    font-size: 0.72rem;
+  }
+
+  /* During gameplay the bar also carries the question counter and streak, which
+     squeezed the XP track to ~25px of unreadable stub. Drop the track there and
+     keep the level badge and XP number, which still convey the same thing. */
+  .top-bar:has(.top-bar__right) .xp-bar__track {
+    display: none;
   }
 }

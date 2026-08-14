@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { burstSmall } from '../../lib/confetti';
+import { playSfx } from '../../lib/sound';
+import { useGameStore } from '../../store/gameStore';
 import { Button } from '../shared/Button';
 import './FeedbackOverlay.css';
 
@@ -12,10 +14,16 @@ interface FeedbackOverlayProps {
 }
 
 export function FeedbackOverlay({ isCorrect, explanation, xpGained, onContinue }: FeedbackOverlayProps) {
+  const soundEnabled = useGameStore((state) => state.soundEnabled);
+
   useEffect(() => {
     if (isCorrect) {
       burstSmall();
     }
+    playSfx(isCorrect ? 'correct' : 'incorrect', soundEnabled);
+    // Deliberately keyed on isCorrect only: toggling sound mid-feedback should
+    // not replay the chime.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCorrect]);
 
   return (
