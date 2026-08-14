@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
-import { getLevel, getWorld } from '../data/worlds';
+import { getLevel, getWorldForLevel } from '../data/worlds';
 import type { UserAnswer } from '../lib/scoring';
 import { TopBar } from '../components/hud/TopBar';
 import { StreakMeter } from '../components/gameplay/StreakMeter';
@@ -17,7 +17,7 @@ export function GameplayScreen() {
   if (!run) return null;
 
   const level = getLevel(run.levelId);
-  const world = level ? getWorld(level.strand) : undefined;
+  const world = level ? getWorldForLevel(level.id) : undefined;
   const question = run.questions[run.currentIndex];
 
   const handleAnswer = (answer: UserAnswer) => {
@@ -32,14 +32,14 @@ export function GameplayScreen() {
 
   return (
     <motion.div
-      className={`screen gameplay-screen ${world ? `world-theme--${world.id}` : ''}`}
+      className={`screen gameplay-screen ${world ? `world-theme--${world.strand}` : ''}`}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
     >
       <TopBar
         totalXP={state.totalXP}
-        onBack={() => level && state.selectWorld(level.strand)}
+        onBack={() => world && state.selectWorld(world.id)}
         rightContent={
           <div className="gameplay-screen__hud-right">
             <span className="gameplay-screen__progress">

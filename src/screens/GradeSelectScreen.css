@@ -1,0 +1,147 @@
+.grade-select-screen {
+  width: 100%;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+.grade-select-screen__header {
+  text-align: center;
+  margin: 12px 0 6px;
+}
+
+.grade-select-screen__header h1 {
+  font-size: 1.6rem;
+  color: var(--color-ink);
+}
+
+.grade-select-screen__header p {
+  color: var(--color-ink-soft);
+  margin-top: 4px;
+}
+
+.grade-select-screen__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 860px;
+  padding: 20px;
+}
+
+.grade-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 20px 18px;
+  border: none;
+  border-radius: var(--radius-lg, 20px);
+  background: white;
+  box-shadow: var(--shadow-pop);
+  cursor: pointer;
+  text-align: left;
+  min-height: 190px;
+}
+
+.grade-card__number {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: white;
+  background: var(--grade-color, #4a90d9);
+  border-radius: 14px;
+  padding: 6px 16px;
+}
+
+/* One colour per grade, echoing the world themes so the map feels continuous. */
+.grade-card--7 {
+  --grade-color: #e8752c;
+}
+.grade-card--8 {
+  --grade-color: #8e5ce8;
+}
+.grade-card--9 {
+  --grade-color: #2ecc71;
+}
+
+.grade-card__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-ink);
+}
+
+.grade-card__blurb {
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  line-height: 1.35;
+  flex: 1;
+}
+
+.grade-card__progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.grade-card__track {
+  flex: 1;
+  height: 10px;
+  background: rgba(35, 50, 74, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.grade-card__fill {
+  display: block;
+  height: 100%;
+  background: var(--grade-color, #4a90d9);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.grade-card__stats {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-ink-soft);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  /* Stack on a phone: three cards side by side leaves each too narrow to read. */
+  .grade-select-screen__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .grade-card {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 0;
+    padding: 14px;
+    gap: 4px 14px;
+  }
+
+  .grade-card__number {
+    font-size: 1.8rem;
+    padding: 4px 12px;
+  }
+
+  .grade-card__label {
+    font-size: 1rem;
+  }
+
+  .grade-card__blurb {
+    flex-basis: 100%;
+    font-size: 0.8rem;
+  }
+
+  .grade-card__progress {
+    flex-basis: 100%;
+  }
+}

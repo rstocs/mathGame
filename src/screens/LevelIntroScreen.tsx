@@ -14,7 +14,7 @@ export function LevelIntroScreen() {
 
   return (
     <motion.div
-      className={`screen level-intro-screen world-theme--${world.id}`}
+      className={`screen level-intro-screen world-theme--${world.strand}`}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}

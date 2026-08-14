@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
-import { getLevel, getWorld } from '../data/worlds';
+import { getLevel, getWorldForLevel } from '../data/worlds';
 import { badges } from '../data/badges';
 import { burstBig } from '../lib/confetti';
 import { playSfx } from '../lib/sound';
@@ -29,14 +29,14 @@ export function LevelCompleteScreen() {
   if (!result) return null;
 
   const level = getLevel(result.levelId);
-  const world = level ? getWorld(level.strand) : undefined;
+  const world = level ? getWorldForLevel(level.id) : undefined;
   const unlockedBadges = badges.filter((b) => result.newlyUnlockedBadgeIds.includes(b.id));
 
   const hasNextLevel = world && level ? level.order < world.levels.length : false;
 
   return (
     <motion.div
-      className={`screen level-complete-screen ${world ? `world-theme--${world.id}` : ''}`}
+      className={`screen level-complete-screen ${world ? `world-theme--${world.strand}` : ''}`}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}

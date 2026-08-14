@@ -16,7 +16,9 @@ function makeLevel(id: string, strand: StrandId, order: number): Level {
 
 function makeWorld(id: StrandId, levelIds: string[]): World {
   return {
-    id,
+    id: `g7-${id}`,
+    grade: 7,
+    strand: id,
     name: id,
     shortLabel: id,
     description: id,
@@ -38,7 +40,8 @@ function makeState(levelProgress: Record<string, LevelProgress> = {}): Persisted
     bestStreakEver: 0,
     unlockedBadgeIds: [],
     levelProgress,
-    currentWorldId: 'ratios-proportions',
+    currentWorldId: 'g7-ratios-proportions',
+    selectedGradeId: 7,
     soundEnabled: true,
   };
 }

@@ -117,9 +117,13 @@ describe('generated questions', () => {
     eachGenerated((q, meta) => {
       const where = `${meta.generatorId} d${meta.difficulty} seed ${meta.seed}`;
       expect(q.explanation, where).toBeTruthy();
-      // An explanation that never cites a number is boilerplate, and the
-      // explanation is the whole pedagogical point of the app.
-      expect(/\d/.test(q.explanation), `${where} explanation has no numbers`).toBe(true);
+      // An explanation that never cites a number, for a question that HAS
+      // numbers, is boilerplate — and the explanation is the whole pedagogical
+      // point. Conceptual questions ("positive or negative association?")
+      // legitimately have no numbers on either side.
+      if (/\d/.test(q.prompt)) {
+        expect(/\d/.test(q.explanation), `${where} explanation has no numbers`).toBe(true);
+      }
       expect(q.explanation.length, where).toBeGreaterThan(40);
       expect(q.explanation, where).not.toContain('undefined');
       expect(q.explanation, where).not.toContain('NaN');
@@ -142,15 +146,20 @@ describe('multiple-choice generators', () => {
       if (q.type !== 'multiple-choice') return;
       const where = `${meta.generatorId} d${meta.difficulty} seed ${meta.seed}`;
 
-      expect(q.choices.length, where).toBe(4);
-      expect(new Set(q.choices).size, `${where} has duplicate choices: ${q.choices.join(' | ')}`).toBe(4);
+      // Usually four options, but a genuinely binary question (rational or
+      // irrational?) has two, and padding it with filler would be silly.
+      expect(q.choices.length, where).toBeGreaterThanOrEqual(2);
+      expect(q.choices.length, where).toBeLessThanOrEqual(4);
+      expect(new Set(q.choices).size, `${where} has duplicate choices: ${q.choices.join(' | ')}`).toBe(
+        q.choices.length,
+      );
 
       // A distractor equal to the correct value would mean two right answers.
       const correctText = q.choices[q.correctIndex];
       const duplicates = q.choices.filter((c) => c === correctText).length;
       expect(duplicates, `${where} repeats the correct answer`).toBe(1);
       expect(q.correctIndex, where).toBeGreaterThanOrEqual(0);
-      expect(q.correctIndex, where).toBeLessThan(4);
+      expect(q.correctIndex, where).toBeLessThan(q.choices.length);
     });
   });
 });
@@ -235,6 +244,16 @@ describe('question quality', () => {
       const match = q.prompt.match(/(\d+)\/(\d+) = x\/(\d+)/);
       expect(match, `unexpected prompt shape: ${q.prompt}`).not.toBeNull();
       expect(match![1], `${meta.seed}: ratio of 1 in "${q.prompt}"`).not.toBe(match![2]);
+    });
+  });
+
+  it('writes algebra the way it is written by hand', () => {
+    eachGenerated((q) => {
+      const text = `${q.prompt} ${q.type === 'multiple-choice' ? q.choices.join(' ') : ''}`;
+      // "x² − 1x − 2" should read "x² − x − 2"; a 1 coefficient is implied.
+      expect(text, `implied-1 coefficient in: ${q.prompt}`).not.toMatch(/(?<!\d)1x\b/);
+      // A stray "+ -3" instead of "− 3".
+      expect(text, `unformatted negative in: ${q.prompt}`).not.toMatch(/[+−-]\s+-\d/);
     });
   });
 

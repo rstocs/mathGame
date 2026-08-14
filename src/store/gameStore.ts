@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { LevelRunResult, PersistedState, Question, ScreenId, StrandId } from '../types/game';
-import { worlds, getLevel } from '../data/worlds';
+import type { GradeId, LevelRunResult, PersistedState, Question, ScreenId } from '../types/game';
+import { getLevel, getWorldForLevel, worldsForGrade } from '../data/worlds';
 import { attemptSeedFor, resolveLevelQuestions } from '../data/questions';
 import { checkBadgeUnlocks } from '../data/badges';
 import { isAnswerCorrect, starsForAccuracy, type UserAnswer } from '../lib/scoring';
@@ -27,7 +27,7 @@ interface RunState {
 
 interface RuntimeState {
   currentScreen: ScreenId;
-  selectedWorldId: StrandId | null;
+  selectedWorldId: string | null;
   selectedLevelId: string | null;
   run: RunState | null;
   lastLevelResult: LevelRunResult | null;
@@ -36,7 +36,9 @@ interface RuntimeState {
 interface GameActions {
   setPlayerName: (name: string) => void;
   goToWorldMap: () => void;
-  selectWorld: (worldId: StrandId) => void;
+  selectWorld: (worldId: string) => void;
+  selectGrade: (grade: GradeId) => void;
+  goToGradeSelect: () => void;
   startLevel: (levelId: string) => void;
   submitAnswer: (answer: UserAnswer) => { correct: boolean; xpGained: number };
   advanceAfterFeedback: () => void;
@@ -56,7 +58,8 @@ function defaultPersistedState(): PersistedState {
     bestStreakEver: 0,
     unlockedBadgeIds: [],
     levelProgress: {},
-    currentWorldId: 'ratios-proportions',
+    currentWorldId: 'g7-ratios-proportions',
+    selectedGradeId: 7,
     soundEnabled: true,
   };
 }
@@ -88,6 +91,23 @@ export const useGameStore = create<GameStore>()(
 
       goToWorldMap: () => {
         set({ currentScreen: 'world-map', selectedWorldId: null, selectedLevelId: null });
+      },
+
+      goToGradeSelect: () => {
+        set({ currentScreen: 'grade-select', selectedWorldId: null, selectedLevelId: null });
+      },
+
+      selectGrade: (grade) => {
+        const first = worldsForGrade(grade)[0];
+        set({
+          selectedGradeId: grade,
+          currentScreen: 'world-map',
+          selectedWorldId: null,
+          selectedLevelId: null,
+          // Park the avatar on this grade's first world rather than leaving it
+          // pointing at a world from the grade we just left.
+          currentWorldId: first ? first.id : get().currentWorldId,
+        });
       },
 
       selectWorld: (worldId) => {
@@ -172,14 +192,19 @@ export const useGameStore = create<GameStore>()(
           },
         };
 
-        const world = worlds.find((w) => w.id === level.strand);
+        // Advance the avatar within this level's own grade. Progression never
+        // crosses grades: finishing grade 7 should not drag the marker onto the
+        // grade 8 map, which the kid may not have chosen to play.
+        const world = getWorldForLevel(level.id);
         let newCurrentWorldId = state.currentWorldId;
         if (world && passed) {
-          const worldIndex = worlds.findIndex((w) => w.id === world.id);
+          const gradeWorlds = worldsForGrade(world.grade);
+          const worldIndex = gradeWorlds.findIndex((w) => w.id === world.id);
           const isFinalLevelOfWorld = level.order === world.levels.length;
-          if (isFinalLevelOfWorld && worldIndex < worlds.length - 1) {
-            newCurrentWorldId = worlds[worldIndex + 1].id;
-          } else if (worlds.findIndex((w) => w.id === newCurrentWorldId) < worldIndex) {
+          const currentIndex = gradeWorlds.findIndex((w) => w.id === newCurrentWorldId);
+          if (isFinalLevelOfWorld && worldIndex < gradeWorlds.length - 1) {
+            newCurrentWorldId = gradeWorlds[worldIndex + 1].id;
+          } else if (currentIndex < worldIndex) {
             newCurrentWorldId = world.id;
           }
         }
@@ -224,7 +249,7 @@ export const useGameStore = create<GameStore>()(
       goToNextLevel: () => {
         const level = getLevel(get().selectedLevelId ?? '');
         if (!level) return;
-        const world = worlds.find((w) => w.id === level.strand);
+        const world = getWorldForLevel(level.id);
         if (!world) return;
         const nextLevel = world.levels.find((l) => l.order === level.order + 1);
         if (nextLevel) {

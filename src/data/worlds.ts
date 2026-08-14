@@ -1,4 +1,5 @@
-import type { GeneratedSlot, World } from '../types/game';
+import type { GeneratedSlot, GradeId, World } from '../types/game';
+import { grade8Worlds, grade9Worlds } from './worldsUpper';
 
 function levelQuestionIds(prefix: string, level: number): string[] {
   return Array.from({ length: 9 }, (_, i) => `${prefix}-l${level}-q${i + 1}`);
@@ -17,9 +18,11 @@ function challengeSlots(generatorIds: [string, string, string]): GeneratedSlot[]
   ];
 }
 
-export const worlds: World[] = [
+const grade7Worlds: World[] = [
   {
-    id: 'ratios-proportions',
+    id: 'g7-ratios-proportions',
+    grade: 7,
+    strand: 'ratios-proportions',
     name: 'Ratio Ridge',
     shortLabel: '7.RP',
     description: 'Climb the ridge mastering unit rates, proportions, and percents.',
@@ -66,7 +69,9 @@ export const worlds: World[] = [
     ],
   },
   {
-    id: 'number-system',
+    id: 'g7-number-system',
+    grade: 7,
+    strand: 'number-system',
     name: 'Number Nexus',
     shortLabel: '7.NS',
     description: 'Navigate a world of positive and negative fractions and decimals.',
@@ -113,7 +118,9 @@ export const worlds: World[] = [
     ],
   },
   {
-    id: 'expressions-equations',
+    id: 'g7-expressions-equations',
+    grade: 7,
+    strand: 'expressions-equations',
     name: 'Equation Expanse',
     shortLabel: '7.EE',
     description: 'Cross the expanse simplifying expressions and solving equations.',
@@ -160,7 +167,9 @@ export const worlds: World[] = [
     ],
   },
   {
-    id: 'geometry',
+    id: 'g7-geometry',
+    grade: 7,
+    strand: 'geometry',
     name: 'Geometry Grotto',
     shortLabel: '7.G',
     description: 'Explore a grotto of circles, angles, and 3D figures.',
@@ -207,7 +216,9 @@ export const worlds: World[] = [
     ],
   },
   {
-    id: 'statistics-probability',
+    id: 'g7-statistics-probability',
+    grade: 7,
+    strand: 'statistics-probability',
     name: 'Statistics Summit',
     shortLabel: '7.SP',
     description: 'Reach the summit through sampling, probability, and data.',
@@ -255,8 +266,20 @@ export const worlds: World[] = [
   },
 ];
 
-export function getWorld(strandId: string): World | undefined {
-  return worlds.find((w) => w.id === strandId);
+export const worlds: World[] = [...grade7Worlds, ...grade8Worlds, ...grade9Worlds];
+
+/** The worlds shown on one grade's map, in map order. */
+export function worldsForGrade(grade: GradeId): World[] {
+  return worlds.filter((w) => w.grade === grade);
+}
+
+export function getWorld(worldId: string): World | undefined {
+  return worlds.find((w) => w.id === worldId);
+}
+
+/** The world a level belongs to. Levels are unique across worlds. */
+export function getWorldForLevel(levelId: string): World | undefined {
+  return worlds.find((w) => w.levels.some((l) => l.id === levelId));
 }
 
 export function getLevel(levelId: string) {

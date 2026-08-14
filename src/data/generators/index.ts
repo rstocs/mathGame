@@ -5,12 +5,16 @@ import { ratioGenerators } from './ratios';
 import { numberSystemGenerators } from './numberSystem';
 import { equationGenerators } from './equations';
 import { geometryStatsGenerators } from './geometryStats';
+import { grade8Generators } from './grade8';
+import { grade9Generators } from './grade9';
 
 export const allGenerators: QuestionGenerator[] = [
   ...ratioGenerators,
   ...numberSystemGenerators,
   ...equationGenerators,
   ...geometryStatsGenerators,
+  ...grade8Generators,
+  ...grade9Generators,
 ];
 
 const generatorsById = new Map(allGenerators.map((g) => [g.id, g]));

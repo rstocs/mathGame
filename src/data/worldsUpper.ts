@@ -1,0 +1,352 @@
+import type { GeneratedSlot, Level, StrandId, World } from '../types/game';
+
+/**
+ * Grades 8 and 9 are generator-driven: every level is a set of generated slots
+ * rather than a hand-authored bank. That is deliberate — these strands are
+ * mostly procedural skills (exponent rules, slope, factoring) where the value
+ * is in unlimited fresh practice, and each generator already carries a
+ * number-specific explanation.
+ */
+function generatedLevel(args: {
+  id: string;
+  strand: StrandId;
+  order: number;
+  title: string;
+  description: string;
+  /** Generators cycled across the level, difficulty ramping as it goes. */
+  generators: string[];
+  questionCount?: number;
+}): Level {
+  const count = args.questionCount ?? 9;
+  const generated: GeneratedSlot[] = Array.from({ length: count }, (_, i) => ({
+    generatorId: args.generators[i % args.generators.length],
+    // Ramp 1 -> 3 across the level so it opens gently and ends hard.
+    difficulty: (i < count / 3 ? 1 : i < (count * 2) / 3 ? 2 : 3) as 1 | 2 | 3,
+  }));
+
+  return {
+    id: args.id,
+    strand: args.strand,
+    order: args.order,
+    title: args.title,
+    description: args.description,
+    questionIds: [],
+    generated,
+    passThreshold: 0.6,
+  };
+}
+
+export const grade8Worlds: World[] = [
+  {
+    id: 'g8-number-system',
+    grade: 8,
+    strand: 'number-system',
+    name: 'Radical Reef',
+    shortLabel: '8.NS',
+    description: 'Dive into square roots, and rational versus irrational numbers.',
+    colorTheme: { primary: '#1e88e5', secondary: '#7fdcd4', accent: '#0d47a1' },
+    icon: 'wave',
+    levels: [
+      generatedLevel({
+        id: 'g8ns-l1',
+        strand: 'number-system',
+        order: 1,
+        title: 'Rational or Irrational',
+        description: 'Decide whether a square root is rational or irrational.',
+        generators: ['g8-rational-irrational'],
+      }),
+      generatedLevel({
+        id: 'g8ns-l2',
+        strand: 'number-system',
+        order: 2,
+        title: 'Reef Challenge',
+        description: 'Mixed practice with roots and signed numbers.',
+        generators: ['g8-rational-irrational', 'ns-signed-mul-div', 'ns-order-rationals'],
+      }),
+    ],
+  },
+  {
+    id: 'g8-expressions-equations',
+    grade: 8,
+    strand: 'expressions-equations',
+    name: 'Power Peak',
+    shortLabel: '8.EE',
+    description: 'Scale the peak of exponents, scientific notation, and slope.',
+    colorTheme: { primary: '#8e5ce8', secondary: '#c9a6ff', accent: '#4a2a80' },
+    icon: 'crystal',
+    levels: [
+      generatedLevel({
+        id: 'g8ee-l1',
+        strand: 'expressions-equations',
+        order: 1,
+        title: 'Exponent Rules',
+        description: 'Multiply, divide, and raise powers to powers.',
+        generators: ['g8-exponent-rules'],
+      }),
+      generatedLevel({
+        id: 'g8ee-l2',
+        strand: 'expressions-equations',
+        order: 2,
+        title: 'Scientific Notation',
+        description: 'Write very large and very small numbers compactly.',
+        generators: ['g8-scientific-notation'],
+      }),
+      generatedLevel({
+        id: 'g8ee-l3',
+        strand: 'expressions-equations',
+        order: 3,
+        title: 'Slope',
+        description: 'Find the slope of the line through two points.',
+        generators: ['g8-slope-from-points'],
+      }),
+      generatedLevel({
+        id: 'g8ee-l4',
+        strand: 'expressions-equations',
+        order: 4,
+        title: 'Peak Challenge',
+        description: 'Everything from Power Peak, mixed together.',
+        generators: ['g8-exponent-rules', 'g8-scientific-notation', 'g8-slope-from-points'],
+      }),
+    ],
+  },
+  {
+    id: 'g8-functions',
+    grade: 8,
+    strand: 'ratios-proportions',
+    name: 'Function Falls',
+    shortLabel: '8.F',
+    description: 'Follow the falls through functions, rate of change, and graphs.',
+    colorTheme: { primary: '#e8752c', secondary: '#ffb677', accent: '#7a3e1d' },
+    icon: 'mountain',
+    levels: [
+      generatedLevel({
+        id: 'g8f-l1',
+        strand: 'expressions-equations',
+        order: 1,
+        title: 'Graphing Lines',
+        description: 'Graph a line from its slope-intercept equation.',
+        generators: ['g8-graph-line'],
+        questionCount: 6,
+      }),
+      generatedLevel({
+        id: 'g8f-l2',
+        strand: 'expressions-equations',
+        order: 2,
+        title: 'Falls Challenge',
+        description: 'Slope, graphing, and proportional relationships together.',
+        generators: ['g8-slope-from-points', 'g8-graph-line', 'ee-plot-proportional'],
+        questionCount: 6,
+      }),
+    ],
+  },
+  {
+    id: 'g8-geometry',
+    grade: 8,
+    strand: 'geometry',
+    name: 'Pythagoras Point',
+    shortLabel: '8.G',
+    description: 'Right triangles, and the volume of cones, cylinders, and spheres.',
+    colorTheme: { primary: '#2ecc71', secondary: '#a8e6b0', accent: '#1a7a3e' },
+    icon: 'temple',
+    levels: [
+      generatedLevel({
+        id: 'g8g-l1',
+        strand: 'geometry',
+        order: 1,
+        title: 'Pythagorean Theorem',
+        description: 'Find the missing side of a right triangle.',
+        generators: ['g8-pythagorean'],
+      }),
+      generatedLevel({
+        id: 'g8g-l2',
+        strand: 'geometry',
+        order: 2,
+        title: 'Volume of Solids',
+        description: 'Cylinders, cones, and spheres.',
+        generators: ['g8-volume-solids'],
+      }),
+      generatedLevel({
+        id: 'g8g-l3',
+        strand: 'geometry',
+        order: 3,
+        title: 'Point Challenge',
+        description: 'Right triangles and volume, mixed.',
+        generators: ['g8-pythagorean', 'g8-volume-solids', 'g-circle'],
+      }),
+    ],
+  },
+  {
+    id: 'g8-statistics-probability',
+    grade: 8,
+    strand: 'statistics-probability',
+    name: 'Scatter Summit',
+    shortLabel: '8.SP',
+    description: 'Read scatter plots and the stories they tell.',
+    colorTheme: { primary: '#3d4d8c', secondary: '#ffd670', accent: '#1c2350' },
+    icon: 'observatory',
+    levels: [
+      generatedLevel({
+        id: 'g8sp-l1',
+        strand: 'statistics-probability',
+        order: 1,
+        title: 'Scatter Plots',
+        description: 'Spot positive, negative, and absent associations.',
+        generators: ['g8-scatter-association'],
+        questionCount: 6,
+      }),
+      generatedLevel({
+        id: 'g8sp-l2',
+        strand: 'statistics-probability',
+        order: 2,
+        title: 'Summit Challenge',
+        description: 'Associations, averages, and probability together.',
+        generators: ['g8-scatter-association', 'sp-mean', 'sp-simple-probability'],
+      }),
+    ],
+  },
+];
+
+export const grade9Worlds: World[] = [
+  {
+    id: 'g9-linear',
+    grade: 9,
+    strand: 'expressions-equations',
+    name: 'Linear Landing',
+    shortLabel: 'A1: Linear',
+    description: 'Equations with the variable on both sides, and lines from their rules.',
+    colorTheme: { primary: '#8e5ce8', secondary: '#c9a6ff', accent: '#4a2a80' },
+    icon: 'crystal',
+    levels: [
+      generatedLevel({
+        id: 'g9lin-l1',
+        strand: 'expressions-equations',
+        order: 1,
+        title: 'Variables Both Sides',
+        description: 'Collect like terms across the equals sign.',
+        generators: ['g9-variable-both-sides'],
+      }),
+      generatedLevel({
+        id: 'g9lin-l2',
+        strand: 'expressions-equations',
+        order: 2,
+        title: 'Slope-Intercept Form',
+        description: 'Write the rule of a line from its slope and intercept.',
+        generators: ['g9-slope-intercept'],
+        questionCount: 6,
+      }),
+      generatedLevel({
+        id: 'g9lin-l3',
+        strand: 'expressions-equations',
+        order: 3,
+        title: 'Systems of Equations',
+        description: 'Solve two linear equations at once.',
+        generators: ['g9-linear-system'],
+        questionCount: 6,
+      }),
+    ],
+  },
+  {
+    id: 'g9-functions',
+    grade: 9,
+    strand: 'ratios-proportions',
+    name: 'Function Fields',
+    shortLabel: 'A1: Functions',
+    description: 'Function notation, sequences, and exponential growth.',
+    colorTheme: { primary: '#e8752c', secondary: '#ffb677', accent: '#7a3e1d' },
+    icon: 'mountain',
+    levels: [
+      generatedLevel({
+        id: 'g9fn-l1',
+        strand: 'expressions-equations',
+        order: 1,
+        title: 'Function Notation',
+        description: 'Evaluate f(x) at a value.',
+        generators: ['g9-evaluate-function'],
+      }),
+      generatedLevel({
+        id: 'g9fn-l2',
+        strand: 'expressions-equations',
+        order: 2,
+        title: 'Sequences',
+        description: 'Continue an arithmetic sequence.',
+        generators: ['g9-arithmetic-sequence'],
+        questionCount: 6,
+      }),
+      generatedLevel({
+        id: 'g9fn-l3',
+        strand: 'expressions-equations',
+        order: 3,
+        title: 'Exponential Growth',
+        description: 'Growth by a constant factor, not a constant amount.',
+        generators: ['g9-exponential-growth'],
+        questionCount: 6,
+      }),
+    ],
+  },
+  {
+    id: 'g9-quadratics',
+    grade: 9,
+    strand: 'geometry',
+    name: 'Quadratic Quarry',
+    shortLabel: 'A1: Quadratics',
+    description: 'Factor and solve quadratic equations.',
+    colorTheme: { primary: '#2ecc71', secondary: '#a8e6b0', accent: '#1a7a3e' },
+    icon: 'temple',
+    levels: [
+      generatedLevel({
+        id: 'g9quad-l1',
+        strand: 'expressions-equations',
+        order: 1,
+        title: 'Factoring',
+        description: 'Break a quadratic into two binomials.',
+        generators: ['g9-factor-quadratic'],
+      }),
+      generatedLevel({
+        id: 'g9quad-l2',
+        strand: 'expressions-equations',
+        order: 2,
+        title: 'Solving by Factoring',
+        description: 'Use the zero-product property to find the roots.',
+        generators: ['g9-solve-quadratic'],
+      }),
+      generatedLevel({
+        id: 'g9quad-l3',
+        strand: 'expressions-equations',
+        order: 3,
+        title: 'Quarry Challenge',
+        description: 'Factoring and solving, mixed.',
+        generators: ['g9-factor-quadratic', 'g9-solve-quadratic', 'g9-evaluate-function'],
+      }),
+    ],
+  },
+  {
+    id: 'g9-statistics',
+    grade: 9,
+    strand: 'statistics-probability',
+    name: 'Data Observatory',
+    shortLabel: 'A1: Statistics',
+    description: 'Summarise data and read the association between two variables.',
+    colorTheme: { primary: '#3d4d8c', secondary: '#ffd670', accent: '#1c2350' },
+    icon: 'observatory',
+    levels: [
+      generatedLevel({
+        id: 'g9stat-l1',
+        strand: 'statistics-probability',
+        order: 1,
+        title: 'Summarising Data',
+        description: 'Means, spread, and what they hide.',
+        generators: ['sp-mean', 'sp-simple-probability'],
+        questionCount: 6,
+      }),
+      generatedLevel({
+        id: 'g9stat-l2',
+        strand: 'statistics-probability',
+        order: 2,
+        title: 'Bivariate Data',
+        description: 'Association between two variables.',
+        generators: ['g8-scatter-association', 'sp-mean'],
+        questionCount: 6,
+      }),
+    ],
+  },
+];

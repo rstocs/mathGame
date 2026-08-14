@@ -73,7 +73,11 @@ export const combineLikeTerms: QuestionGenerator = {
     const xSum = a1 + a2;
     const constSum = b1 + b2;
 
-    const parts = `${a1}x ${b1 < 0 ? '−' : '+'} ${Math.abs(b1)} ${a2 < 0 ? '−' : '+'} ${Math.abs(a2)}x ${b2 < 0 ? '−' : '+'} ${Math.abs(b2)}`;
+    // A coefficient of 1 is implied: "+ x", not "+ 1x".
+    const coefficient = (n: number) => (Math.abs(n) === 1 ? '' : `${Math.abs(n)}`);
+    const parts =
+      `${coefficient(a1)}x ${b1 < 0 ? '−' : '+'} ${Math.abs(b1)} ` +
+      `${a2 < 0 ? '−' : '+'} ${coefficient(a2)}x ${b2 < 0 ? '−' : '+'} ${Math.abs(b2)}`;
 
     return {
       strand: 'expressions-equations',

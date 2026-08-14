@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { StrandId } from '../../types/game';
 
 export interface MapNode {
-  id: StrandId;
   x: number;
   y: number;
 }
@@ -12,15 +10,19 @@ export interface MapViewBox {
   height: number;
 }
 
+/**
+ * Node positions are indexed by position on the map rather than keyed by world,
+ * so the same layouts serve every grade regardless of how many worlds it has.
+ */
 export const MAP_VIEWBOX: MapViewBox = { width: 900, height: 320 };
 
 /** Wide zig-zag trail, used from tablet width up. */
 export const MAP_LAYOUT: MapNode[] = [
-  { id: 'ratios-proportions', x: 90, y: 240 },
-  { id: 'number-system', x: 280, y: 100 },
-  { id: 'expressions-equations', x: 470, y: 240 },
-  { id: 'geometry', x: 660, y: 100 },
-  { id: 'statistics-probability', x: 830, y: 240 },
+  { x: 90, y: 240 },
+  { x: 280, y: 100 },
+  { x: 470, y: 240 },
+  { x: 660, y: 100 },
+  { x: 830, y: 240 },
 ];
 
 export const MAP_VIEWBOX_PORTRAIT: MapViewBox = { width: 380, height: 820 };
@@ -31,17 +33,39 @@ export const MAP_VIEWBOX_PORTRAIT: MapViewBox = { width: 380, height: 820 };
  * clipped "Statistics Summit" against the right edge.
  */
 export const MAP_LAYOUT_PORTRAIT: MapNode[] = [
-  { id: 'ratios-proportions', x: 115, y: 95 },
-  { id: 'number-system', x: 265, y: 245 },
-  { id: 'expressions-equations', x: 115, y: 395 },
-  { id: 'geometry', x: 265, y: 545 },
-  { id: 'statistics-probability', x: 115, y: 695 },
+  { x: 115, y: 95 },
+  { x: 265, y: 245 },
+  { x: 115, y: 395 },
+  { x: 265, y: 545 },
+  { x: 115, y: 695 },
 ];
 
 const PORTRAIT_QUERY = '(max-width: 640px)';
 
+/**
+ * Trims the trail to the number of worlds actually on this grade's map, and
+ * shrinks the viewBox to match so a 2-world grade is not mostly empty space.
+ */
+function fit(
+  nodes: MapNode[],
+  viewBox: MapViewBox,
+  count: number,
+  portrait: boolean,
+): { nodes: MapNode[]; viewBox: MapViewBox } {
+  const used = nodes.slice(0, Math.max(1, Math.min(count, nodes.length)));
+  if (used.length === nodes.length) return { nodes: used, viewBox };
+
+  const pad = portrait ? 110 : 90;
+  return {
+    nodes: used,
+    viewBox: portrait
+      ? { width: viewBox.width, height: Math.max(...used.map((n) => n.y)) + pad }
+      : { width: Math.max(...used.map((n) => n.x)) + pad, height: viewBox.height },
+  };
+}
+
 /** Picks the trail that fits the viewport, and re-picks on rotate/resize. */
-export function useMapLayout(): { nodes: MapNode[]; viewBox: MapViewBox } {
+export function useMapLayout(worldCount: number): { nodes: MapNode[]; viewBox: MapViewBox } {
   const [isPortrait, setIsPortrait] = useState(
     () => typeof window !== 'undefined' && window.matchMedia(PORTRAIT_QUERY).matches,
   );
@@ -55,10 +79,11 @@ export function useMapLayout(): { nodes: MapNode[]; viewBox: MapViewBox } {
   }, []);
 
   return isPortrait
-    ? { nodes: MAP_LAYOUT_PORTRAIT, viewBox: MAP_VIEWBOX_PORTRAIT }
-    : { nodes: MAP_LAYOUT, viewBox: MAP_VIEWBOX };
+    ? fit(MAP_LAYOUT_PORTRAIT, MAP_VIEWBOX_PORTRAIT, worldCount, true)
+    : fit(MAP_LAYOUT, MAP_VIEWBOX, worldCount, false);
 }
 
-export function getNodePosition(worldId: StrandId, nodes: MapNode[] = MAP_LAYOUT): MapNode {
-  return nodes.find((n) => n.id === worldId) ?? nodes[0];
+/** Position of a world on the current map, by its index in that grade's list. */
+export function getNodePosition(worldIndex: number, nodes: MapNode[]): MapNode {
+  return nodes[Math.max(0, Math.min(worldIndex, nodes.length - 1))] ?? nodes[0];
 }

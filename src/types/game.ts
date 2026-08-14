@@ -1,9 +1,18 @@
+/**
+ * The strand a world belongs to. This drives theming and icons, and is shared
+ * across grades — grade 7 and grade 8 geometry both use the geometry theme.
+ */
 export type StrandId =
   | 'ratios-proportions'
   | 'number-system'
   | 'expressions-equations'
   | 'geometry'
   | 'statistics-probability';
+
+/** Massachusetts frameworks grade. 9 is the Algebra I course. */
+export type GradeId = 7 | 8 | 9;
+
+export const GRADE_IDS: GradeId[] = [7, 8, 9];
 
 export type QuestionType =
   | 'multiple-choice'
@@ -135,7 +144,11 @@ export interface WorldColorTheme {
 }
 
 export interface World {
-  id: StrandId;
+  /** Unique across all grades, e.g. 'g8-geometry'. */
+  id: string;
+  grade: GradeId;
+  /** Drives the colour theme and icon; shared across grades. */
+  strand: StrandId;
   name: string;
   shortLabel: string;
   description: string;
@@ -167,11 +180,19 @@ export interface PersistedState {
   bestStreakEver: number;
   unlockedBadgeIds: string[];
   levelProgress: Record<string, LevelProgress>;
-  currentWorldId: StrandId;
+  currentWorldId: string;
+  /** Which grade's map the kid is on. Grades are freely selectable. */
+  selectedGradeId: GradeId;
   soundEnabled: boolean;
 }
 
-export type ScreenId = 'onboarding' | 'world-map' | 'level-intro' | 'gameplay' | 'level-complete';
+export type ScreenId =
+  | 'onboarding'
+  | 'grade-select'
+  | 'world-map'
+  | 'level-intro'
+  | 'gameplay'
+  | 'level-complete';
 
 export interface LevelRunResult {
   levelId: string;

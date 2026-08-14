@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
-import { worlds } from '../data/worlds';
+import { worldsForGrade } from '../data/worlds';
 import { isWorldUnlocked, hasAllStarsInWorld } from '../lib/unlocks';
 import { TopBar } from '../components/hud/TopBar';
 import { WorldNode } from '../components/map/WorldNode';
@@ -11,8 +11,10 @@ import './WorldMapScreen.css';
 
 export function WorldMapScreen() {
   const state = useGameStore();
-  const { nodes, viewBox } = useMapLayout();
-  const avatarPos = getNodePosition(state.currentWorldId, nodes);
+  const worlds = worldsForGrade(state.selectedGradeId);
+  const { nodes, viewBox } = useMapLayout(worlds.length);
+  const currentIndex = worlds.findIndex((w) => w.id === state.currentWorldId);
+  const avatarPos = getNodePosition(currentIndex === -1 ? 0 : currentIndex, nodes);
 
   return (
     <motion.div
@@ -21,9 +23,9 @@ export function WorldMapScreen() {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
     >
-      <TopBar totalXP={state.totalXP} />
+      <TopBar totalXP={state.totalXP} onBack={state.goToGradeSelect} />
       <div className="world-map-screen__header">
-        <h1>{state.playerName}'s Adventure</h1>
+        <h1>Grade {state.selectedGradeId}</h1>
         <p>Tap a world to begin!</p>
       </div>
       <svg
