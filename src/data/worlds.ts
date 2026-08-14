@@ -1,6 +1,7 @@
 import type { GeneratedSlot, GradeId, World } from '../types/game';
 import { grade5Worlds, grade6Worlds } from './worldsLower';
 import { grade8Worlds, grade9Worlds } from './worldsUpper';
+import { grade10Worlds, grade11Worlds } from './worldsHigh';
 
 function levelQuestionIds(prefix: string, level: number): string[] {
   return Array.from({ length: 9 }, (_, i) => `${prefix}-l${level}-q${i + 1}`);
@@ -273,6 +274,8 @@ export const worlds: World[] = [
   ...grade7Worlds,
   ...grade8Worlds,
   ...grade9Worlds,
+  ...grade10Worlds,
+  ...grade11Worlds,
 ];
 
 /** The worlds shown on one grade's map, in map order. */

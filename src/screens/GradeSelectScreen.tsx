@@ -13,6 +13,15 @@ const BLURBS: Record<GradeId, string> = {
   7: 'Ratios, negative numbers, expressions, geometry, and probability.',
   8: 'Exponents, scientific notation, slope, Pythagoras, and scatter plots.',
   9: 'Algebra I: systems, functions, sequences, and quadratics.',
+  10: 'Geometry: distance, trigonometry, circles, and transformations.',
+  11: 'Algebra II: the quadratic formula, logarithms, and complex numbers.',
+};
+
+/** The high-school years are courses, not just year numbers. */
+const COURSE_NAMES: Partial<Record<GradeId, string>> = {
+  9: 'Algebra I',
+  10: 'Geometry',
+  11: 'Algebra II',
 };
 
 export function GradeSelectScreen() {
@@ -53,7 +62,10 @@ export function GradeSelectScreen() {
               }}
             >
               <span className="grade-card__number">{grade}</span>
-              <span className="grade-card__label">Grade {grade}</span>
+              <span className="grade-card__label">
+                Grade {grade}
+                {COURSE_NAMES[grade] && <small className="grade-card__course">{COURSE_NAMES[grade]}</small>}
+              </span>
               <span className="grade-card__blurb">{BLURBS[grade]}</span>
 
               <span className="grade-card__progress">

@@ -257,6 +257,37 @@ describe('question quality', () => {
     });
   });
 
+  it('labels the discriminant according to its actual value', () => {
+    // The self-answer check only proves a question agrees with itself. This
+    // checks the claim is TRUE: a discriminant of 0 must not be sold as "no
+    // real roots", which is what a=1, b=4, c=4 used to produce.
+    eachGenerated((q, meta) => {
+      if (meta.generatorId !== 'g11-discriminant' || q.type !== 'multiple-choice') return;
+      const match = q.prompt.match(/does (\d*)x² ([−+]) (\d*)x ([−+]) (\d+) = 0/);
+      expect(match, `unexpected prompt shape: ${q.prompt}`).not.toBeNull();
+      const a = match![1] === '' ? 1 : Number(match![1]);
+      const b = (match![2] === '−' ? -1 : 1) * (match![3] === '' ? 1 : Number(match![3]));
+      const c = (match![4] === '−' ? -1 : 1) * Number(match![5]);
+      const value = b * b - 4 * a * c;
+
+      const expected = value > 0 ? 'Two real roots' : value === 0 ? 'One real root' : 'No real roots';
+      expect(
+        q.choices[q.correctIndex],
+        `${meta.seed}: "${q.prompt}" has discriminant ${value} but claims`,
+      ).toBe(expected);
+    });
+  });
+
+  it('asks for the larger root only when the roots actually differ', () => {
+    eachGenerated((q, meta) => {
+      if (meta.generatorId !== 'g11-quadratic-formula') return;
+      // The explanation names both roots; a repeated root makes "the LARGER"
+      // meaningless.
+      const roots = [...q.explanation.matchAll(/x = (−?-?\d+)/g)].map((m) => Number(m[1]));
+      expect(new Set(roots).size, `${meta.seed}: repeated root in "${q.prompt}"`).toBeGreaterThan(1);
+    });
+  });
+
   it('never poses a GCF question whose answer is 1', () => {
     eachGenerated((q, meta) => {
       if (meta.generatorId !== 'g6-gcf-lcm' || q.type !== 'numeric') return;

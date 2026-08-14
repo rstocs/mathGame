@@ -56,7 +56,7 @@ describe('world and level identity', () => {
 });
 
 describe('grades', () => {
-  it('covers every grade from 5 to 9', () => {
+  it('covers every grade from 5 to 11', () => {
     for (const grade of GRADE_IDS) {
       expect(worldsForGrade(grade).length, `grade ${grade} has no worlds`).toBeGreaterThan(0);
     }

@@ -23,12 +23,12 @@
   display: grid;
   /* Flows to however many grades exist rather than a fixed 3 across, so five
      cards wrap sensibly instead of leaving a ragged row of two. */
-  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
   gap: 14px;
   width: 100%;
-  /* Wide enough for all five grades on one row on a laptop; the auto-fit
-     wraps them to 3+2 or 2+3 as the window narrows. */
-  max-width: 1120px;
+  /* Four across on a laptop, so seven grades wrap to a balanced 4+3 and each
+     card is wide enough that its blurb does not shred into five lines. */
+  max-width: 1060px;
   padding: 20px;
 }
 
@@ -73,6 +73,21 @@
 }
 .grade-card--9 {
   --grade-color: #2ecc71;
+}
+.grade-card--10 {
+  --grade-color: #c94f8f;
+}
+.grade-card--11 {
+  --grade-color: #0f9b8e;
+}
+
+.grade-card__course {
+  display: block;
+  font-family: var(--font-body, inherit);
+  font-weight: 600;
+  font-size: 0.72rem;
+  color: var(--color-ink-soft);
+  margin-top: 1px;
 }
 
 .grade-card__label {
