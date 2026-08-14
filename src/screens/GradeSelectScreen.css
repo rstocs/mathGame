@@ -21,10 +21,14 @@
 
 .grade-select-screen__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  /* Flows to however many grades exist rather than a fixed 3 across, so five
+     cards wrap sensibly instead of leaving a ragged row of two. */
+  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+  gap: 14px;
   width: 100%;
-  max-width: 860px;
+  /* Wide enough for all five grades on one row on a laptop; the auto-fit
+     wraps them to 3+2 or 2+3 as the window narrows. */
+  max-width: 1120px;
   padding: 20px;
 }
 
@@ -55,6 +59,12 @@
 }
 
 /* One colour per grade, echoing the world themes so the map feels continuous. */
+.grade-card--5 {
+  --grade-color: #1e88e5;
+}
+.grade-card--6 {
+  --grade-color: #3d4d8c;
+}
 .grade-card--7 {
   --grade-color: #e8752c;
 }

@@ -257,6 +257,16 @@ describe('question quality', () => {
     });
   });
 
+  it('never poses a GCF question whose answer is 1', () => {
+    eachGenerated((q, meta) => {
+      if (meta.generatorId !== 'g6-gcf-lcm' || q.type !== 'numeric') return;
+      // "The GCF of 5 and 12 is 1" is true but drills nothing.
+      if (q.prompt.includes('greatest common factor')) {
+        expect(q.correctAnswer, `${meta.seed}: coprime pair in "${q.prompt}"`).toBeGreaterThan(1);
+      }
+    });
+  });
+
   it('never asks for a percent change from a zero starting price', () => {
     eachGenerated((q, meta) => {
       if (meta.generatorId !== 'rp-percent-change') return;

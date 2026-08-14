@@ -10,9 +10,9 @@ export type StrandId =
   | 'statistics-probability';
 
 /** Massachusetts frameworks grade. 9 is the Algebra I course. */
-export type GradeId = 7 | 8 | 9;
+export type GradeId = 5 | 6 | 7 | 8 | 9;
 
-export const GRADE_IDS: GradeId[] = [7, 8, 9];
+export const GRADE_IDS: GradeId[] = [5, 6, 7, 8, 9];
 
 export type QuestionType =
   | 'multiple-choice'

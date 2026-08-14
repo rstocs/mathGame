@@ -8,6 +8,8 @@ import { playSfx } from '../lib/sound';
 import './GradeSelectScreen.css';
 
 const BLURBS: Record<GradeId, string> = {
+  5: 'Decimals, fractions, order of operations, volume, and plotting points.',
+  6: 'Dividing fractions, factors, negative numbers, variables, and data.',
   7: 'Ratios, negative numbers, expressions, geometry, and probability.',
   8: 'Exponents, scientific notation, slope, Pythagoras, and scatter plots.',
   9: 'Algebra I: systems, functions, sequences, and quadratics.',

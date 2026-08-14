@@ -1,40 +1,5 @@
-import type { GeneratedSlot, Level, StrandId, World } from '../types/game';
-
-/**
- * Grades 8 and 9 are generator-driven: every level is a set of generated slots
- * rather than a hand-authored bank. That is deliberate — these strands are
- * mostly procedural skills (exponent rules, slope, factoring) where the value
- * is in unlimited fresh practice, and each generator already carries a
- * number-specific explanation.
- */
-function generatedLevel(args: {
-  id: string;
-  strand: StrandId;
-  order: number;
-  title: string;
-  description: string;
-  /** Generators cycled across the level, difficulty ramping as it goes. */
-  generators: string[];
-  questionCount?: number;
-}): Level {
-  const count = args.questionCount ?? 9;
-  const generated: GeneratedSlot[] = Array.from({ length: count }, (_, i) => ({
-    generatorId: args.generators[i % args.generators.length],
-    // Ramp 1 -> 3 across the level so it opens gently and ends hard.
-    difficulty: (i < count / 3 ? 1 : i < (count * 2) / 3 ? 2 : 3) as 1 | 2 | 3,
-  }));
-
-  return {
-    id: args.id,
-    strand: args.strand,
-    order: args.order,
-    title: args.title,
-    description: args.description,
-    questionIds: [],
-    generated,
-    passThreshold: 0.6,
-  };
-}
+import type { World } from '../types/game';
+import { generatedLevel } from './generatedLevel';
 
 export const grade8Worlds: World[] = [
   {

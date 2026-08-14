@@ -5,10 +5,14 @@ import { ratioGenerators } from './ratios';
 import { numberSystemGenerators } from './numberSystem';
 import { equationGenerators } from './equations';
 import { geometryStatsGenerators } from './geometryStats';
+import { grade5Generators } from './grade5';
+import { grade6Generators } from './grade6';
 import { grade8Generators } from './grade8';
 import { grade9Generators } from './grade9';
 
 export const allGenerators: QuestionGenerator[] = [
+  ...grade5Generators,
+  ...grade6Generators,
   ...ratioGenerators,
   ...numberSystemGenerators,
   ...equationGenerators,
