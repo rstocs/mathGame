@@ -19,6 +19,8 @@ export function generatedLevel(args: {
   /** Generators cycled across the level, difficulty ramping as it goes. */
   generators: string[];
   questionCount?: number;
+  /** Set on mixed-review and cross-topic levels; see Level.crossTopic. */
+  crossTopic?: boolean;
 }): Level {
   const count = args.questionCount ?? 9;
   const generated: GeneratedSlot[] = Array.from({ length: count }, (_, i) => ({
@@ -35,6 +37,7 @@ export function generatedLevel(args: {
     description: args.description,
     questionIds: [],
     generated,
+    crossTopic: args.crossTopic,
     passThreshold: 0.6,
   };
 }

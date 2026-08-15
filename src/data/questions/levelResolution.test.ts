@@ -44,21 +44,25 @@ describe('level content integrity', () => {
     }
   });
 
-  it('keeps focused levels on a single strand, and allows Challenge levels to mix', () => {
-    // A "Challenge" level is a deliberate mixed review and a "Connections"
-    // level exists precisely to span topics, so both may pull from several
-    // strands. Anywhere else, a level drilling one skill should not quietly
-    // serve questions from an unrelated strand.
+  it('keeps focused levels on a single strand unless they opt out', () => {
+    // Mixed reviews and cross-topic levels set crossTopic and may span strands.
+    // Anywhere else, a level drilling one skill should not quietly serve
+    // questions from an unrelated strand. The flag is checked rather than the
+    // title so that renaming a level cannot silently change what is enforced.
     const byId = new Map(allGenerators.map((g) => [g.id, g]));
     for (const level of allLevels) {
-      if (level.title.includes('Challenge') || level.title.includes('Connections')) continue;
+      if (level.crossTopic) continue;
       const strands = new Set((level.generated ?? []).map((s) => byId.get(s.generatorId)!.strand));
       expect(
         strands.size,
-        `${level.id} ("${level.title}") mixes strands: ${[...strands].join(', ')}`,
+        `${level.id} ("${level.title}") mixes strands without setting crossTopic: ${[...strands].join(', ')}`,
       ).toBeLessThanOrEqual(1);
     }
   });
+
+  // Deliberately NOT asserting that every crossTopic level actually mixes:
+  // a world's "Challenge" level is a mixed review of that world, whose topics
+  // often all sit in one strand. crossTopic means "allowed to mix", not "must".
 });
 
 describe('resolveLevelQuestions', () => {

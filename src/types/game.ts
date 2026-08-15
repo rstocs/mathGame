@@ -135,6 +135,13 @@ export interface Level {
    * attempt, so replaying a level is practice rather than recall.
    */
   generated?: GeneratedSlot[];
+  /**
+   * Set on levels that deliberately span strands — mixed reviews and
+   * cross-topic "connections" levels. Focused levels must stay on one strand,
+   * and `levelResolution.test.ts` enforces that; this flag is how a level opts
+   * out on purpose rather than by accident.
+   */
+  crossTopic?: boolean;
   passThreshold: number;
 }
 
