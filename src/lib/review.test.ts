@@ -297,6 +297,31 @@ describe('planReviewSession', () => {
     const plan = planReviewSession({ due: [], homeGradeOf, currentGrade: 6, size: 10 });
     expect(plan).toEqual({ generatorIds: [], aboveGrade: 0, heldBack: 0 });
   });
+
+  it('skips types the code no longer has', () => {
+    // Saved schedules outlive the question pool. A generator renamed or retired
+    // in a later release is still sitting in every existing save, and asking
+    // for it would throw — so the session must step over it, not choke.
+    const plan = planReviewSession({
+      due: ['g6a', 'retired-in-a-later-release', 'g6b'],
+      homeGradeOf,
+      currentGrade: 6,
+      size: 10,
+      isKnown: (id) => id !== 'retired-in-a-later-release',
+    });
+    expect(plan.generatorIds).toEqual(['g6a', 'g6b']);
+  });
+
+  it('does not count a retired above-grade type as held back', () => {
+    const plan = planReviewSession({
+      due: ['g6a', 'retired'],
+      homeGradeOf: (id) => (id === 'retired' ? 9 : 6),
+      currentGrade: 6,
+      size: 10,
+      isKnown: (id) => id !== 'retired',
+    });
+    expect(plan.heldBack).toBe(0);
+  });
 });
 
 describe('the whole point', () => {

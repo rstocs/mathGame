@@ -12,6 +12,7 @@ import {
   todayIso,
 } from '../../lib/review';
 import { homeGradeOf } from '../../data/generatorGrades';
+import { hasGenerator } from '../../data/generators';
 import './ReviewCard.css';
 
 /** "in 3 days", "tomorrow" — friendlier than a bare date for a kid. */
@@ -40,6 +41,7 @@ export function ReviewCard() {
     homeGradeOf,
     currentGrade: state.selectedGradeId,
     size: 10,
+    isKnown: hasGenerator,
   });
   const ready = plan.generatorIds.length;
 

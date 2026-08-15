@@ -33,6 +33,15 @@ export const allGenerators: QuestionGenerator[] = [
 
 const generatorsById = new Map(allGenerators.map((g) => [g.id, g]));
 
+/**
+ * Whether a generator still exists. Saved data outlives the code: a schedule
+ * written today can be read after a generator has been renamed or retired, and
+ * asking for one that has gone would throw.
+ */
+export function hasGenerator(id: string): boolean {
+  return generatorsById.has(id);
+}
+
 export function getGenerator(id: string): QuestionGenerator {
   const generator = generatorsById.get(id);
   if (!generator) throw new Error(`Unknown generator id: ${id}`);

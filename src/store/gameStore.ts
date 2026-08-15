@@ -10,7 +10,7 @@ import {
   type ReviewMode,
   type ReviewSchedule,
 } from '../lib/review';
-import { generateQuestion, parseGeneratedId, hashSeed } from '../data/generators';
+import { generateQuestion, hasGenerator, parseGeneratedId, hashSeed } from '../data/generators';
 import { homeGradeOf } from '../data/generatorGrades';
 import { getLevel, getWorldForLevel, worldsForGrade } from '../data/worlds';
 import { attemptSeedFor, resolveLevelQuestions } from '../data/questions';
@@ -182,6 +182,7 @@ export const useGameStore = create<GameStore>()(
           homeGradeOf,
           currentGrade: state.selectedGradeId,
           size: REVIEW_SESSION_SIZE,
+          isKnown: hasGenerator,
         });
         if (plan.generatorIds.length === 0) return;
 

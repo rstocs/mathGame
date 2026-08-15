@@ -171,12 +171,19 @@ export function planReviewSession(args: {
   homeGradeOf: (generatorId: string) => number | undefined;
   currentGrade: number;
   size: number;
+  /**
+   * Whether a type still exists in the code. A saved schedule outlives the
+   * question pool: a generator renamed or retired in a later release is still
+   * sitting in every existing save, and asking for it would throw.
+   */
+  isKnown?: (generatorId: string) => boolean;
 }): SessionPlan {
-  const { due, homeGradeOf, currentGrade, size } = args;
+  const { due, homeGradeOf, currentGrade, size, isKnown } = args;
 
   const atOrBelow: string[] = [];
   const above: string[] = [];
   for (const id of due) {
+    if (isKnown && !isKnown(id)) continue;
     const home = homeGradeOf(id);
     if (home !== undefined && home > currentGrade) above.push(id);
     else atOrBelow.push(id);
