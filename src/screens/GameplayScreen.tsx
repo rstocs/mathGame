@@ -39,7 +39,7 @@ export function GameplayScreen() {
     >
       <TopBar
         totalXP={state.totalXP}
-        onBack={() => world && state.selectWorld(world.id)}
+        onBack={() => (run.isReview ? state.goToGradeSelect() : world && state.selectWorld(world.id))}
         rightContent={
           <div className="gameplay-screen__hud-right">
             <span className="gameplay-screen__progress">

@@ -28,11 +28,12 @@ export function LevelCompleteScreen() {
 
   if (!result) return null;
 
+  const isReview = result.levelId === '__review__';
   const level = getLevel(result.levelId);
   const world = level ? getWorldForLevel(level.id) : undefined;
   const unlockedBadges = badges.filter((b) => result.newlyUnlockedBadgeIds.includes(b.id));
 
-  const hasNextLevel = world && level ? level.order < world.levels.length : false;
+  const hasNextLevel = !isReview && world && level ? level.order < world.levels.length : false;
 
   return (
     <motion.div
@@ -42,9 +43,13 @@ export function LevelCompleteScreen() {
       exit={{ opacity: 0, scale: 0.95 }}
     >
       <div className="level-complete-screen__card">
-        <h1>{result.passed ? 'Level Complete!' : 'Almost There!'}</h1>
-        <p className="level-complete-screen__level-title">{level?.title}</p>
-        <StarRating stars={result.stars} />
+        <h1>{isReview ? 'Review Done!' : result.passed ? 'Level Complete!' : 'Almost There!'}</h1>
+        <p className="level-complete-screen__level-title">
+          {isReview
+            ? 'Topics you got right move further away; ones you missed come back tomorrow.'
+            : level?.title}
+        </p>
+        {!isReview && <StarRating stars={result.stars} />}
 
         <div className="level-complete-screen__stats">
           <div className="stat">
@@ -90,12 +95,17 @@ export function LevelCompleteScreen() {
         )}
 
         <div className="level-complete-screen__actions">
-          <Button variant="secondary" onClick={state.retryLevel}>
-            Retry
-          </Button>
+          {!isReview && (
+            <Button variant="secondary" onClick={state.retryLevel}>
+              Retry
+            </Button>
+          )}
           {result.passed && hasNextLevel && <Button onClick={state.goToNextLevel}>Next Level</Button>}
-          <Button variant={result.passed ? 'secondary' : 'primary'} onClick={state.goToWorldMap}>
-            Back to Map
+          <Button
+            variant={isReview || result.passed ? 'secondary' : 'primary'}
+            onClick={isReview ? state.goToGradeSelect : state.goToWorldMap}
+          >
+            {isReview ? 'Done' : 'Back to Map'}
           </Button>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import type { ReviewMode, ReviewSchedule } from '../lib/review';
+
 /**
  * The strand a world belongs to. This drives theming and icons, and is shared
  * across grades — grade 7 and grade 8 geometry both use the geometry theme.
@@ -204,11 +206,16 @@ export interface PersistedState {
   /** Which grade's map the kid is on. Grades are freely selectable. */
   selectedGradeId: GradeId;
   soundEnabled: boolean;
+  /** Spaced-repetition state, keyed by generator id. See `src/lib/review.ts`. */
+  reviewSchedule: ReviewSchedule;
+  /** How widely spaced reviews should be; the kid picks this. */
+  reviewMode: ReviewMode;
 }
 
 export type ScreenId =
   | 'onboarding'
   | 'grade-select'
+  | 'review'
   | 'world-map'
   | 'level-intro'
   | 'gameplay'

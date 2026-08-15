@@ -16,6 +16,8 @@ function emptyState(): PersistedState {
     currentWorldId: 'g7-ratios-proportions',
     selectedGradeId: 7,
     soundEnabled: true,
+    reviewSchedule: {},
+    reviewMode: 'standard',
   };
 }
 

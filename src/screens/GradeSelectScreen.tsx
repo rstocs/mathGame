@@ -4,6 +4,7 @@ import { worldsForGrade } from '../data/worlds';
 import { gradeCompletion, gradeStars } from '../lib/unlocks';
 import { GRADE_IDS, type GradeId } from '../types/game';
 import { TopBar } from '../components/hud/TopBar';
+import { ReviewCard } from '../components/review/ReviewCard';
 import { playSfx } from '../lib/sound';
 import './GradeSelectScreen.css';
 
@@ -39,6 +40,8 @@ export function GradeSelectScreen() {
         <h1>{state.playerName}'s Adventure</h1>
         <p>Pick a grade. You can switch any time.</p>
       </div>
+
+      <ReviewCard />
 
       <div className="grade-select-screen__grid">
         {GRADE_IDS.map((grade, index) => {

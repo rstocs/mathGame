@@ -32,5 +32,14 @@ export function migratePersistedState(
     state.selectedGradeId ??= 7;
   }
 
+  if (fromVersion < 3) {
+    // v2 predates spaced repetition. An existing player starts with an empty
+    // schedule rather than a backfilled one: we have no record of WHEN they
+    // met each question type, so any due dates we invented would be fiction.
+    // Their next few sessions populate it naturally.
+    state.reviewSchedule ??= {};
+    state.reviewMode ??= 'standard';
+  }
+
   return state;
 }

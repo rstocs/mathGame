@@ -1,6 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { GradeId, LevelRunResult, PersistedState, Question, ScreenId } from '../types/game';
+import {
+  dueGenerators,
+  difficultyForBox,
+  recordReview,
+  todayIso,
+  type ReviewMode,
+  type ReviewSchedule,
+} from '../lib/review';
+import { generateQuestion, parseGeneratedId, hashSeed } from '../data/generators';
 import { getLevel, getWorldForLevel, worldsForGrade } from '../data/worlds';
 import { attemptSeedFor, resolveLevelQuestions } from '../data/questions';
 import { checkBadgeUnlocks } from '../data/badges';
@@ -8,7 +17,7 @@ import { isAnswerCorrect, starsForAccuracy, type UserAnswer } from '../lib/scori
 import { xpForCorrectAnswer, xpForLevelCompletion } from '../lib/xp';
 import { migratePersistedState } from './migration';
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 interface RunState {
   levelId: string;
@@ -18,6 +27,14 @@ interface RunState {
    * from. Runtime-only, so none of this is persisted.
    */
   questions: Question[];
+  /**
+   * Whether each question was answered correctly, parallel to `questions`.
+   * Needed to update the review schedule per question TYPE at the end of a run
+   * — a bare correct count cannot say which skill was the weak one.
+   */
+  answeredCorrect: boolean[];
+  /** A review session rather than a level; scores no stars and no progress. */
+  isReview: boolean;
   currentIndex: number;
   correctCount: number;
   streak: number;
@@ -40,6 +57,8 @@ interface GameActions {
   selectWorld: (worldId: string) => void;
   selectGrade: (grade: GradeId) => void;
   goToGradeSelect: () => void;
+  startReview: () => void;
+  setReviewMode: (mode: ReviewMode) => void;
   startLevel: (levelId: string) => void;
   submitAnswer: (answer: UserAnswer) => { correct: boolean; xpGained: number };
   advanceAfterFeedback: () => void;
@@ -62,6 +81,8 @@ function defaultPersistedState(): PersistedState {
     currentWorldId: 'g7-ratios-proportions',
     selectedGradeId: 7,
     soundEnabled: true,
+    reviewSchedule: {},
+    reviewMode: 'standard',
   };
 }
 
@@ -75,6 +96,39 @@ function readInitialScreen(): ScreenId {
     return 'onboarding';
   }
 }
+
+
+/**
+ * Folds one finished run into the review schedule, one entry per question TYPE.
+ *
+ * A type counts as remembered only if EVERY question of that type in the run
+ * was right: meeting three ratio questions and missing one means the skill is
+ * not yet solid, and pretending otherwise would push it a week away.
+ */
+function applyRunToSchedule(
+  schedule: ReviewSchedule,
+  questions: Question[],
+  answeredCorrect: boolean[],
+  mode: ReviewMode,
+  today: string,
+): ReviewSchedule {
+  const byGenerator = new Map<string, boolean>();
+  questions.forEach((question, i) => {
+    const parsed = parseGeneratedId(question.id);
+    // Authored questions have no generator to schedule against.
+    if (!parsed) return;
+    const wasCorrect = answeredCorrect[i] ?? false;
+    byGenerator.set(parsed.generatorId, (byGenerator.get(parsed.generatorId) ?? true) && wasCorrect);
+  });
+
+  let next = schedule;
+  for (const [generatorId, correct] of byGenerator) {
+    next = recordReview(next, generatorId, correct, mode, today);
+  }
+  return next;
+}
+
+const REVIEW_SESSION_SIZE = 10;
 
 export const useGameStore = create<GameStore>()(
   persist(
@@ -115,6 +169,40 @@ export const useGameStore = create<GameStore>()(
         set({ selectedWorldId: worldId, currentScreen: 'level-intro' });
       },
 
+      startReview: () => {
+        const state = get();
+        const today = todayIso();
+        const due = dueGenerators(state.reviewSchedule, today).slice(0, REVIEW_SESSION_SIZE);
+        if (due.length === 0) return;
+
+        const questions = due.map((generatorId, index) => {
+          const box = state.reviewSchedule[generatorId]?.box ?? 0;
+          // Seeded from the date and a per-session salt, so two reviews on the
+          // same day are not the same ten questions.
+          const seed = hashSeed(`${today}:${generatorId}:${index}:${Date.now()}`);
+          return generateQuestion(generatorId, difficultyForBox(box), seed);
+        });
+
+        set({
+          currentScreen: 'gameplay',
+          selectedLevelId: null,
+          run: {
+            levelId: '__review__',
+            questions,
+            answeredCorrect: [],
+            isReview: true,
+            currentIndex: 0,
+            correctCount: 0,
+            streak: 0,
+            bestStreakThisRun: 0,
+            xpEarnedThisRun: 0,
+            lastAnswerCorrect: null,
+          },
+        });
+      },
+
+      setReviewMode: (mode) => set({ reviewMode: mode }),
+
       startLevel: (levelId) => {
         const level = getLevel(levelId);
         if (!level) return;
@@ -127,6 +215,8 @@ export const useGameStore = create<GameStore>()(
           run: {
             levelId,
             questions: resolveLevelQuestions(level, attemptSeedFor(levelId, attempt)),
+            answeredCorrect: [],
+            isReview: false,
             currentIndex: 0,
             correctCount: 0,
             streak: 0,
@@ -151,6 +241,7 @@ export const useGameStore = create<GameStore>()(
           run: {
             ...run,
             correctCount: run.correctCount + (correct ? 1 : 0),
+            answeredCorrect: [...run.answeredCorrect, correct],
             streak: newStreak,
             bestStreakThisRun: Math.max(run.bestStreakThisRun, newStreak),
             xpEarnedThisRun: run.xpEarnedThisRun + xpGained,
@@ -170,6 +261,38 @@ export const useGameStore = create<GameStore>()(
         const isLastQuestion = run.currentIndex >= run.questions.length - 1;
         if (!isLastQuestion) {
           set({ run: { ...run, currentIndex: run.currentIndex + 1, lastAnswerCorrect: null } });
+          return;
+        }
+
+        const today = todayIso();
+        const scheduleAfter = applyRunToSchedule(
+          state.reviewSchedule,
+          run.questions,
+          run.answeredCorrect,
+          state.reviewMode,
+          today,
+        );
+
+        if (run.isReview) {
+          // A review session earns its XP but no stars and no level progress —
+          // it is not a level, and treating it as one would inflate the map.
+          const reviewXp = run.xpEarnedThisRun;
+          set({
+            reviewSchedule: scheduleAfter,
+            totalXP: state.totalXP + reviewXp,
+            lastLevelResult: {
+              levelId: '__review__',
+              correctCount: run.correctCount,
+              totalCount: run.questions.length,
+              accuracy: run.correctCount / run.questions.length,
+              stars: 0,
+              xpEarned: reviewXp,
+              bestStreak: run.bestStreakThisRun,
+              passed: true,
+              newlyUnlockedBadgeIds: [],
+            },
+            currentScreen: 'level-complete',
+          });
           return;
         }
 
@@ -234,6 +357,7 @@ export const useGameStore = create<GameStore>()(
 
         set({
           totalXP: newTotalXP,
+          reviewSchedule: scheduleAfter,
           levelProgress: newLevelProgress,
           currentWorldId: newCurrentWorldId,
           unlockedBadgeIds: [...state.unlockedBadgeIds, ...newlyUnlockedBadgeIds],
@@ -286,6 +410,8 @@ export const useGameStore = create<GameStore>()(
         currentWorldId: state.currentWorldId,
         selectedGradeId: state.selectedGradeId,
         soundEnabled: state.soundEnabled,
+        reviewSchedule: state.reviewSchedule,
+        reviewMode: state.reviewMode,
       }),
       migrate: (persistedState, fromVersion) =>
         migratePersistedState(persistedState as Partial<PersistedState>, fromVersion) as GameStore,
