@@ -1,29 +1,11 @@
 import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
-import { worldsForGrade } from '../data/worlds';
+import { GRADES } from '../data/grades';
 import { gradeCompletion, gradeStars } from '../lib/unlocks';
-import { GRADE_IDS, type GradeId } from '../types/game';
 import { TopBar } from '../components/hud/TopBar';
 import { ReviewCard } from '../components/review/ReviewCard';
 import { playSfx } from '../lib/sound';
 import './GradeSelectScreen.css';
-
-const BLURBS: Record<GradeId, string> = {
-  5: 'Decimals, fractions, order of operations, volume, and plotting points.',
-  6: 'Dividing fractions, factors, negative numbers, variables, and data.',
-  7: 'Ratios, negative numbers, expressions, geometry, and probability.',
-  8: 'Exponents, scientific notation, slope, Pythagoras, and scatter plots.',
-  9: 'Algebra I: systems, functions, sequences, and quadratics.',
-  10: 'Geometry: distance, trigonometry, circles, and transformations.',
-  11: 'Algebra II: the quadratic formula, logarithms, and complex numbers.',
-};
-
-/** The high-school years are courses, not just year numbers. */
-const COURSE_NAMES: Partial<Record<GradeId, string>> = {
-  9: 'Algebra I',
-  10: 'Geometry',
-  11: 'Algebra II',
-};
 
 export function GradeSelectScreen() {
   const state = useGameStore();
@@ -44,8 +26,9 @@ export function GradeSelectScreen() {
       <ReviewCard />
 
       <div className="grade-select-screen__grid">
-        {GRADE_IDS.map((grade, index) => {
-          const worlds = worldsForGrade(grade);
+        {GRADES.map((definition, index) => {
+          const grade = definition.id;
+          const worlds = definition.worlds;
           const completion = gradeCompletion(worlds, state);
           const stars = gradeStars(worlds, state);
 
@@ -53,7 +36,8 @@ export function GradeSelectScreen() {
             <motion.button
               key={grade}
               type="button"
-              className={`grade-card grade-card--${grade}`}
+              className="grade-card"
+              style={{ ["--grade-color" as string]: definition.accentColor }}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.06 }}
@@ -66,10 +50,12 @@ export function GradeSelectScreen() {
             >
               <span className="grade-card__number">{grade}</span>
               <span className="grade-card__label">
-                Grade {grade}
-                {COURSE_NAMES[grade] && <small className="grade-card__course">{COURSE_NAMES[grade]}</small>}
+                {definition.label}
+                {definition.courseName && (
+                  <small className="grade-card__course">{definition.courseName}</small>
+                )}
               </span>
-              <span className="grade-card__blurb">{BLURBS[grade]}</span>
+              <span className="grade-card__blurb">{definition.blurb}</span>
 
               <span className="grade-card__progress">
                 <span className="grade-card__track">
