@@ -6,9 +6,12 @@ import {
   REVIEW_MODES,
   REVIEW_MODE_INFO,
   REVIEW_LADDERS,
+  dueGenerators,
+  planReviewSession,
   reviewStats,
   todayIso,
 } from '../../lib/review';
+import { homeGradeOf } from '../../data/generatorGrades';
 import './ReviewCard.css';
 
 /** "in 3 days", "tomorrow" — friendlier than a bare date for a kid. */
@@ -29,6 +32,16 @@ export function ReviewCard() {
   const today = todayIso();
   const stats = reviewStats(state.reviewSchedule, today);
   const ladder = REVIEW_LADDERS[state.reviewMode];
+  // What this session would actually cover, which is not simply "everything
+  // due": above-grade topics are capped so the review stays mostly on ground
+  // the kid has been taught.
+  const plan = planReviewSession({
+    due: dueGenerators(state.reviewSchedule, today),
+    homeGradeOf,
+    currentGrade: state.selectedGradeId,
+    size: 10,
+  });
+  const ready = plan.generatorIds.length;
 
   return (
     <section className="review-card">
@@ -41,8 +54,8 @@ export function ReviewCard() {
           <p>
             {stats.tracked === 0
               ? 'Play a level and the topics you meet will come back here, spaced out over time.'
-              : stats.due > 0
-                ? `${stats.due} topic${stats.due === 1 ? '' : 's'} ready to revisit.`
+              : ready > 0
+                ? `${ready} topic${ready === 1 ? '' : 's'} ready to revisit.`
                 : stats.nextDueOn
                   ? `Nothing due today — next up ${describeGap(today, stats.nextDueOn)}.`
                   : 'Nothing due today.'}
@@ -53,7 +66,10 @@ export function ReviewCard() {
       {stats.tracked > 0 && (
         <div className="review-card__stats">
           <span>
-            <strong>{stats.due}</strong> due
+            {/* Deliberately the session count, not the raw due count: showing
+                "7 due" beside a "Review 4 now" button just reads as a bug. The
+                remainder is explained by the held-back line below. */}
+            <strong>{ready}</strong> ready
           </span>
           <span>
             <strong>{stats.learning}</strong> learning
@@ -64,19 +80,27 @@ export function ReviewCard() {
         </div>
       )}
 
+      {plan.heldBack > 0 && (
+        <p className="review-card__held-back">
+          {plan.heldBack} topic{plan.heldBack === 1 ? '' : 's'} from a higher grade{' '}
+          {plan.heldBack === 1 ? 'is' : 'are'} waiting — they will come up when you move to that
+          grade.
+        </p>
+      )}
+
       <div className="review-card__actions">
         <motion.button
           type="button"
           className="review-card__start tap-target"
-          disabled={stats.due === 0}
-          whileHover={stats.due === 0 ? undefined : { scale: 1.03 }}
-          whileTap={stats.due === 0 ? undefined : { scale: 0.97 }}
+          disabled={ready === 0}
+          whileHover={ready === 0 ? undefined : { scale: 1.03 }}
+          whileTap={ready === 0 ? undefined : { scale: 0.97 }}
           onClick={() => {
             playSfx('click', state.soundEnabled);
             state.startReview();
           }}
         >
-          {stats.due > 0 ? `Review ${Math.min(stats.due, 10)} now` : 'All caught up'}
+          {ready > 0 ? `Review ${ready} now` : 'All caught up'}
         </motion.button>
 
         <button

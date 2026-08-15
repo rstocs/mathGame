@@ -147,3 +147,10 @@
     flex-basis: 100%;
   }
 }
+
+.review-card__held-back {
+  margin: 8px 0 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--color-ink-soft);
+}

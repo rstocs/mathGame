@@ -4,12 +4,14 @@ import type { GradeId, LevelRunResult, PersistedState, Question, ScreenId } from
 import {
   dueGenerators,
   difficultyForBox,
+  planReviewSession,
   recordReview,
   todayIso,
   type ReviewMode,
   type ReviewSchedule,
 } from '../lib/review';
 import { generateQuestion, parseGeneratedId, hashSeed } from '../data/generators';
+import { homeGradeOf } from '../data/generatorGrades';
 import { getLevel, getWorldForLevel, worldsForGrade } from '../data/worlds';
 import { attemptSeedFor, resolveLevelQuestions } from '../data/questions';
 import { checkBadgeUnlocks } from '../data/badges';
@@ -172,10 +174,18 @@ export const useGameStore = create<GameStore>()(
       startReview: () => {
         const state = get();
         const today = todayIso();
-        const due = dueGenerators(state.reviewSchedule, today).slice(0, REVIEW_SESSION_SIZE);
-        if (due.length === 0) return;
+        // Keep the session mostly at the kid's own grade. A grade 6 student
+        // who once tried a grade 9 topic should meet it again now and then, not
+        // face a review made mostly of material they have not been taught.
+        const plan = planReviewSession({
+          due: dueGenerators(state.reviewSchedule, today),
+          homeGradeOf,
+          currentGrade: state.selectedGradeId,
+          size: REVIEW_SESSION_SIZE,
+        });
+        if (plan.generatorIds.length === 0) return;
 
-        const questions = due.map((generatorId, index) => {
+        const questions = plan.generatorIds.map((generatorId, index) => {
           const box = state.reviewSchedule[generatorId]?.box ?? 0;
           // Seeded from the date and a per-session salt, so two reviews on the
           // same day are not the same ten questions.

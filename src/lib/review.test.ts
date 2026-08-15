@@ -4,6 +4,7 @@ import {
   compareIso,
   difficultyForBox,
   dueGenerators,
+  planReviewSession,
   recordReview,
   reviewStats,
   todayIso,
@@ -196,6 +197,105 @@ describe('reviewStats', () => {
       b: { box: 1, dueOn: '2026-03-04', lapses: 0, seen: 1 },
     };
     expect(reviewStats(schedule, DAY1).nextDueOn).toBe('2026-03-04');
+  });
+});
+
+describe('planReviewSession', () => {
+  // g6a/g6b are grade 6; g9a.. are grade 9.
+  const grades: Record<string, number> = {
+    g6a: 6,
+    g6b: 6,
+    g6c: 6,
+    g9a: 9,
+    g9b: 9,
+    g9c: 9,
+    g9d: 9,
+  };
+  const homeGradeOf = (id: string) => grades[id];
+
+  it('fills a session with grade-appropriate types first', () => {
+    const plan = planReviewSession({
+      due: ['g9a', 'g6a', 'g9b', 'g6b', 'g6c'],
+      homeGradeOf,
+      currentGrade: 6,
+      size: 10,
+    });
+    expect(plan.generatorIds.slice(0, 3)).toEqual(['g6a', 'g6b', 'g6c']);
+  });
+
+  it('lets only a small share of above-grade material in', () => {
+    const plan = planReviewSession({
+      due: ['g9a', 'g9b', 'g9c', 'g9d', 'g6a'],
+      homeGradeOf,
+      currentGrade: 6,
+      size: 10,
+    });
+    // 20% of 10 is 2, so at most two grade 9 topics however many are due.
+    expect(plan.aboveGrade).toBe(2);
+    expect(plan.heldBack).toBe(2);
+    expect(plan.generatorIds).toContain('g6a');
+  });
+
+  it('never leaves a kid with an empty session', () => {
+    // Only above-grade work is due, and the session is short.
+    const plan = planReviewSession({
+      due: ['g9a', 'g9b', 'g9c'],
+      homeGradeOf,
+      currentGrade: 6,
+      size: 3,
+    });
+    expect(plan.generatorIds.length).toBeGreaterThan(0);
+    expect(plan.aboveGrade).toBeGreaterThan(0);
+  });
+
+  it('treats everything as in-grade for a kid working at the top grade', () => {
+    const plan = planReviewSession({
+      due: ['g9a', 'g9b', 'g6a'],
+      homeGradeOf,
+      currentGrade: 11,
+      size: 10,
+    });
+    expect(plan.generatorIds).toHaveLength(3);
+    expect(plan.aboveGrade).toBe(0);
+    expect(plan.heldBack).toBe(0);
+  });
+
+  it('includes below-grade types without restriction', () => {
+    // A grade 9 kid reviewing grade 6 material is revision, not frustration.
+    const plan = planReviewSession({
+      due: ['g6a', 'g6b', 'g6c'],
+      homeGradeOf,
+      currentGrade: 9,
+      size: 10,
+    });
+    expect(plan.generatorIds).toHaveLength(3);
+    expect(plan.aboveGrade).toBe(0);
+  });
+
+  it('treats an unknown generator as in-grade rather than dropping it', () => {
+    const plan = planReviewSession({
+      due: ['mystery'],
+      homeGradeOf: () => undefined,
+      currentGrade: 6,
+      size: 10,
+    });
+    expect(plan.generatorIds).toEqual(['mystery']);
+    expect(plan.aboveGrade).toBe(0);
+  });
+
+  it('respects the session size', () => {
+    const plan = planReviewSession({
+      due: ['g6a', 'g6b', 'g6c', 'g9a'],
+      homeGradeOf,
+      currentGrade: 6,
+      size: 2,
+    });
+    expect(plan.generatorIds).toHaveLength(2);
+  });
+
+  it('reports nothing for an empty queue', () => {
+    const plan = planReviewSession({ due: [], homeGradeOf, currentGrade: 6, size: 10 });
+    expect(plan).toEqual({ generatorIds: [], aboveGrade: 0, heldBack: 0 });
   });
 });
 

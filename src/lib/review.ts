@@ -140,6 +140,61 @@ export function difficultyForBox(box: number): 1 | 2 | 3 {
   return 3;
 }
 
+/**
+ * At most this share of a review session may be from a grade above the one the
+ * kid is working in. A little reach is good — a grade 6 student who once tried
+ * a grade 9 topic should meet it again occasionally — but a review that is
+ * mostly material they have not been taught reads as failure, not practice.
+ */
+export const MAX_ABOVE_GRADE_SHARE = 0.2;
+
+export interface SessionPlan {
+  /** The types to ask about, in the order they should be asked. */
+  generatorIds: string[];
+  /** How many came from above the kid's current grade. */
+  aboveGrade: number;
+  /** Due, but left out because the above-grade allowance was already used. */
+  heldBack: number;
+}
+
+/**
+ * Chooses what a review session should actually cover.
+ *
+ * Grade-appropriate types come first and fill most of the session; above-grade
+ * types top it up to a small allowance. Anything above-grade that does not fit
+ * simply waits — it stays due, and becomes ordinary material the moment the kid
+ * switches to that grade.
+ */
+export function planReviewSession(args: {
+  due: string[];
+  /** Lowest grade that teaches a type; undefined means "treat as in-grade". */
+  homeGradeOf: (generatorId: string) => number | undefined;
+  currentGrade: number;
+  size: number;
+}): SessionPlan {
+  const { due, homeGradeOf, currentGrade, size } = args;
+
+  const atOrBelow: string[] = [];
+  const above: string[] = [];
+  for (const id of due) {
+    const home = homeGradeOf(id);
+    if (home !== undefined && home > currentGrade) above.push(id);
+    else atOrBelow.push(id);
+  }
+
+  const chosen = atOrBelow.slice(0, size);
+  // Always allow at least one, so a kid who has only ever reached above-grade
+  // topics still gets a review rather than an empty screen.
+  const allowance = Math.max(1, Math.floor(size * MAX_ABOVE_GRADE_SHARE));
+  const extras = above.slice(0, Math.min(allowance, size - chosen.length));
+
+  return {
+    generatorIds: [...chosen, ...extras],
+    aboveGrade: extras.length,
+    heldBack: above.length - extras.length,
+  };
+}
+
 export interface ReviewStats {
   due: number;
   learning: number;
