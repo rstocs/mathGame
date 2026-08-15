@@ -83,6 +83,9 @@ export const discriminant: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'multiple-choice',
+      primer:
+        'The "roots" of an equation are the x-values that make it true. The DISCRIMINANT is the quantity b² − 4ac ' +
+        'built from the coefficients, and its sign alone tells you how many real roots there are — no solving needed.',
       prompt: `How many real roots does ${a === 1 ? '' : a}x² ${signed(b, 'x')} ${signed(c)} = 0 have?`,
       choices,
       correctIndex: choices.indexOf(correct),
@@ -145,6 +148,9 @@ export const rationalExponents: QuestionGenerator = {
     return {
       strand: 'number-system',
       type: 'numeric',
+      primer:
+        'An exponent can be a fraction. The BOTTOM number is a root: x^(1/2) is the square root of x, and x^(1/3) is ' +
+        'the cube root. The TOP number is an ordinary power.',
       prompt: `What is ${value}^(${power}/${root})?`,
       correctAnswer: answer,
       explanation:
@@ -169,6 +175,9 @@ export const logarithms: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        `A logarithm asks a question about powers. log₍${base}₎(N) means "what power do I raise ${base} to, in order ` +
+        `to get N?" For example log₍${base}₎(${base}) = 1, because ${base}¹ = ${base}.`,
       prompt: `What is log₍${base}₎(${value.toLocaleString('en-US')})?`,
       correctAnswer: exponent,
       explanation:
@@ -228,6 +237,9 @@ export const functionComposition: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        'f(x) and g(x) are two different rules. f(g(3)) means: put 3 into g first, then take whatever comes out and ' +
+        'put THAT into f. Work from the inside outwards, like nested brackets.',
       prompt:
         `If f(x) = ${a}x ${signed(b)} and g(x) = ${c}x ${signed(d)}, what is f(g(${input}))?`,
       correctAnswer: answer,
@@ -281,6 +293,9 @@ export const complexNumbers: QuestionGenerator = {
       return {
         strand: 'number-system',
         type: 'multiple-choice',
+        primer:
+          'i is the imaginary unit, defined by i² = −1 — it is the number whose square is negative one. ' +
+          'Powers of i cycle: i¹ = i, i² = −1, i³ = −i, i⁴ = 1, and then it repeats.',
         prompt: `Simplify i^${n}.`,
         choices,
         correctIndex: choices.indexOf(correct),
@@ -302,6 +317,9 @@ export const complexNumbers: QuestionGenerator = {
       type: 'numeric',
       // Leading terms use the same unicode minus as the signed() helper, so one
       // expression does not mix "-9" with "− 2i".
+      primer:
+        'A complex number looks like a + bi, where i is the imaginary unit. The plain number a is called the REAL ' +
+        'part and b is the imaginary part. They are kept separate, like apples and oranges.',
       prompt: `What is the REAL part of (${lead(a)} ${signed(b, 'i')}) + (${lead(c)} ${signed(d, 'i')})?`,
       correctAnswer: realPart,
       explanation:

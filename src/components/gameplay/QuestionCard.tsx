@@ -24,6 +24,12 @@ export function QuestionCard({ question, onAnswer, feedback }: QuestionCardProps
       animate={feedback && !feedback.isCorrect ? { x: [0, -8, 8, -8, 0] } : { x: 0 }}
       transition={{ duration: 0.4 }}
     >
+      {question.primer && (
+        <aside className="question-card__primer">
+          <span className="question-card__primer-label">New idea</span>
+          <p>{question.primer}</p>
+        </aside>
+      )}
       <p className="question-card__prompt">{question.prompt}</p>
       {question.imageHint && <VisualHint hint={question.imageHint} />}
       {renderAnswer(question, onAnswer, disabled)}

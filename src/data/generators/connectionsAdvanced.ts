@@ -21,6 +21,9 @@ export const slopeAsTangent: QuestionGenerator = {
       return {
         strand: 'ratios-proportions',
         type: 'numeric',
+        primer:
+          'Slope means rise ÷ run — how far a line goes up for each step across. ' +
+          'A slope of 1 means it goes up exactly as fast as it goes across.',
         prompt: 'A line has slope 1. What angle does it make with the x-axis, in degrees?',
         correctAnswer: 45,
         unit: 'degrees',
@@ -49,6 +52,9 @@ export const slopeAsTangent: QuestionGenerator = {
     return {
       strand: 'ratios-proportions',
       type: 'numeric',
+      primer:
+        'θ ("theta") is just a name for an angle. In a right triangle, tan(θ) means the side OPPOSITE the ' +
+        'angle divided by the side NEXT TO it. No calculator needed — it is one division.',
       prompt:
         `${scene.thing} rises ${rise} m for every ${run} m it travels horizontally. ` +
         `If θ is the angle it makes with ${scene.ground}, what is tan(θ)? Round to 4 decimal places.`,
@@ -82,6 +88,10 @@ export const averageRateToDerivative: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        `f(x) = ${fx} is a rule: put a number in for x and get one out, so f(${a}) means ${k === 1 ? '' : `${k} × `}${a}². ` +
+        'The "average rate of change" between two x-values is just the slope between those two points: ' +
+        '(change in the output) ÷ (change in x).',
       prompt:
         `For f(x) = ${fx}, what is the average rate of change from x = ${a} to x = ${end}? ` +
         `(That is, the slope of the line joining the two points.)`,
@@ -115,6 +125,9 @@ export const areaUnderRate: QuestionGenerator = {
     return {
       strand: 'geometry',
       type: 'numeric',
+      primer:
+        'A speed–time graph puts time along the bottom and speed up the side. Driving at a steady speed draws a ' +
+        'flat line, so the region beneath it is a rectangle — and the area of a rectangle is width × height.',
       prompt: twoStage
         ? `A car drives at ${v1} km/h for ${t1} hour${t1 === 1 ? '' : 's'}, then at ${v2} km/h for ${t2} hour${t2 === 1 ? '' : 's'}. ` +
           `On a speed–time graph, what is the total AREA under the graph?`
@@ -149,6 +162,9 @@ export const vertexFromStandardForm: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        'The graph of y = x² + bx + c is a U-shaped curve called a parabola. Its VERTEX is the very bottom of ' +
+        'the U, and the curve is a mirror image either side of it. You are asked only for the x-coordinate.',
       prompt: `What is the x-coordinate of the vertex of  y = x²${middle}${constant}?`,
       correctAnswer: vertexX,
       explanation:
@@ -179,6 +195,9 @@ export const sequenceAsFunction: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        `A sequence is a list of numbers in order. The "${n}th term" means the number sitting in position ${n} ` +
+        'if you kept the pattern going. The first term is position 1.',
       prompt: `A sequence starts ${shown.join(', ')}, … What is the ${n}th term?`,
       correctAnswer: answer,
       explanation:
@@ -222,6 +241,9 @@ export const logAsReflection: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'graph-plot',
+      primer:
+        `log₍${base}₎(x) asks "what power of ${base} gives x?" — for example log₍${base}₎(${base}) = 1, because ${base}¹ = ${base}. ` +
+        'It is the exact reverse of raising to a power, and reversing a function swaps the x and y of every point.',
       prompt:
         `The point (${given.x}, ${given.y}) lies on y = ${fromExponential ? `${base}^x` : `log₍${base}₎(x)`}. ` +
         `Plot the matching point that must lie on y = ${fromExponential ? `log₍${base}₎(x)` : `${base}^x`}.`,
@@ -258,6 +280,11 @@ export const pascalBinomial: QuestionGenerator = {
     return {
       strand: 'statistics-probability',
       type: 'numeric',
+      primer: askCoefficient
+        ? `Expanding (x + 1)^${n} means multiplying ${n} copies of (x + 1) together and tidying up. ` +
+          'The "coefficient" of a term is the plain number in front of it — in 6x², the coefficient is 6.'
+        : 'Choosing means picking a group where the ORDER does not matter: picking Ana then Bo is the same ' +
+          'group as picking Bo then Ana.',
       prompt: askCoefficient
         ? `In the expansion of (x + 1)^${n}, what is the coefficient of x^${n - k}?`
         : `How many ways can you choose ${k} items from ${n}?`,
@@ -298,6 +325,10 @@ export const geometricProbability: QuestionGenerator = {
     return {
       strand: 'statistics-probability',
       type: 'multiple-choice',
+      primer:
+        'Probability is (the outcomes you want) ÷ (all the outcomes). Here there is no counting to do, because a ball ' +
+        'can land anywhere — so "how many outcomes" becomes "how much space", and you compare AREAS. ' +
+        'The area of a square is side × side.',
       prompt:
         `A square target of side ${inner} m sits inside a square field of side ${outer} m. ` +
         `A ball lands at a completely random spot in the field. What is the probability it lands on the target?`,
@@ -329,6 +360,10 @@ export const similarTrianglesSlope: QuestionGenerator = {
     return {
       strand: 'geometry',
       type: 'numeric',
+      primer:
+        'A "slope triangle" is the right triangle you draw between two points on a line: the RUN is how far you go ' +
+        'across, the RISE is how far you go up. Two shapes are SIMILAR when one is a scaled copy of the other — ' +
+        'same shape, different size.',
       prompt:
         `On a straight line, one slope triangle has a run of ${run1} and a rise of ${rise1}. ` +
         `A second slope triangle on the SAME line has a run of ${run2}. What is its rise?`,

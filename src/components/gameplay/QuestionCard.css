@@ -19,3 +19,34 @@
   color: var(--color-ink);
   margin-bottom: 6px;
 }
+
+/* Shown before the kid answers, for questions that use an idea above their
+   grade. Visually set apart from the prompt so it reads as help, not as part
+   of the question being asked. */
+.question-card__primer {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 201, 74, 0.16);
+  border-left: 4px solid var(--color-gold, #ffc94a);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.question-card__primer-label {
+  display: block;
+  font-family: var(--font-display, inherit);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a6b00;
+  margin-bottom: 3px;
+}
+
+.question-card__primer p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}

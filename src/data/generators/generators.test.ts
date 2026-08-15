@@ -236,6 +236,74 @@ describe('graph-plot generators', () => {
   });
 });
 
+describe('primers for above-grade ideas', () => {
+  // Generators that use a word or a notation the kid may genuinely never have
+  // met. The explanation teaches after the fact, which is fine for a known
+  // skill and useless for a new one — without a primer these can only be
+  // guessed at. Adding a generator that introduces new vocabulary means adding
+  // it here too.
+  const MUST_HAVE_PRIMER = [
+    'cx-slope-tangent',
+    'cx-average-rate-derivative',
+    'cx-area-under-rate',
+    'cx-vertex-axis-symmetry',
+    'cx-sequence-as-function',
+    'cx-log-reflection',
+    'cx-pascal-binomial',
+    'cx-geometric-probability',
+    'cx-similar-triangles-slope',
+    'cx-chickens-rabbits',
+    'cx-excess-deficit',
+    'cx-work-rate',
+    'cx-meeting-problem',
+    'cx-gauss-sum',
+    'cx-bar-model',
+    'g9-evaluate-function',
+    'g9-parabola-vertex',
+    'g10-right-triangle-trig',
+    'g10-circle-equation',
+    'g11-logarithm',
+    'g11-complex-numbers',
+    'g11-function-composition',
+    'g11-rational-exponents',
+    'g11-discriminant',
+  ];
+
+  it('covers every generator that introduces new vocabulary', () => {
+    eachGenerated((q, meta) => {
+      if (!MUST_HAVE_PRIMER.includes(meta.generatorId)) return;
+      const where = `${meta.generatorId} d${meta.difficulty} seed ${meta.seed}`;
+      expect(q.primer, `${where} has no primer`).toBeTruthy();
+      expect(q.primer!.length, `${where} primer is too thin to teach anything`).toBeGreaterThan(60);
+      expect(q.primer, where).not.toContain('undefined');
+      expect(q.primer, where).not.toContain('NaN');
+    });
+  });
+
+  it('never lets a primer give the answer away', () => {
+    eachGenerated((q, meta) => {
+      if (!q.primer) return;
+      const where = `${meta.generatorId} seed ${meta.seed}`;
+      // A numeric answer appearing verbatim in the primer would hand it over.
+      // Small values (0, 1, 2) legitimately appear in worked definitions like
+      // "log(b) = 1", so only check answers big enough to be a giveaway.
+      if (q.type === 'numeric' && Math.abs(q.correctAnswer) > 12) {
+        expect(q.primer, `${where} primer contains the answer ${q.correctAnswer}`).not.toContain(
+          `${q.correctAnswer}`,
+        );
+      }
+      // Only for options long enough that containment means something. A
+      // primer explaining i necessarily writes "−1" and "1"; that is the fact
+      // the question is built on, not a leak. "Two real roots" appearing
+      // verbatim would be.
+      const correctOption = q.type === 'multiple-choice' ? q.choices[q.correctIndex] : '';
+      if (correctOption.length > 4) {
+        expect(q.primer, `${where} primer contains the correct option`).not.toContain(correctOption);
+      }
+    });
+  });
+});
+
 describe('question quality', () => {
   it('never poses a degenerate proportion with a ratio of 1', () => {
     eachGenerated((q, meta) => {

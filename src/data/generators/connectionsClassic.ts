@@ -25,6 +25,9 @@ export const chickensAndRabbits: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        'Every animal has exactly 1 head. A chicken has 2 legs; a rabbit has 4. ' +
+        'So the heads tell you how many animals there are altogether, and the legs tell you the mix.',
       prompt:
         `Chickens and rabbits are in the same cage. There are ${heads} heads and ${legs} legs in total. ` +
         `How many rabbits are there?`,
@@ -60,6 +63,9 @@ export const excessAndDeficit: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        '"Left over" means the bag had more than enough. "Short" means it did not have enough. ' +
+        'The bag holds the same number of sweets in both situations — only the sharing changes.',
       prompt:
         `Some children share a bag of sweets. If each child takes ${perPersonLow}, there are ${surplus} left over. ` +
         `If each child takes ${perPersonHigh}, they are ${deficit} short. How many children are there?`,
@@ -107,6 +113,9 @@ export const workRate: QuestionGenerator = {
     return {
       strand: 'ratios-proportions',
       type: 'numeric',
+      primer:
+        `A "rate" here is how much of the job gets done in one hour. If a job takes ${a} hours, then in one hour ` +
+        `you finish 1/${a} of it. Careful: the two times cannot simply be added or averaged.`,
       prompt:
         `Working alone, ${pair.one} can ${pair.task} in ${a} hours and ${pair.two} can do it in ${b} hours. ` +
         `Working together at the same rates, how many hours do they take?`,
@@ -139,6 +148,9 @@ export const meetingProblem: QuestionGenerator = {
     return {
       strand: 'ratios-proportions',
       type: 'numeric',
+      primer:
+        'They meet when the gap between them reaches zero. Instead of following each train separately, watch the ' +
+        'GAP: both trains are eating into it at the same time.',
       prompt:
         `Two trains start ${distance} km apart and drive toward each other, one at ${speed1} km/h and the other at ` +
         `${speed2} km/h. After how many hours do they meet?`,
@@ -168,6 +180,9 @@ export const gaussSum: QuestionGenerator = {
     return {
       strand: 'number-system',
       type: 'numeric',
+      primer:
+        `The "…" means keep going in the same pattern. So this is every whole number from 1 up to ${n}, all added ` +
+        'together. Adding them one at a time works, but there is a much faster way.',
       prompt: `What is 1 + 2 + 3 + … + ${n}?`,
       correctAnswer: total,
       explanation:
@@ -196,6 +211,9 @@ export const barModelSumDifference: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        'Try drawing it. Give each person a bar whose length is how many stickers they have. Siti gets one bar; ' +
+        'Ravi gets a bar the same length PLUS a bit extra. The two bars together make the total.',
       prompt:
         `Ravi and Siti have ${sum} stickers between them. Ravi has ${difference} more than Siti. ` +
         `How many does Ravi have?`,

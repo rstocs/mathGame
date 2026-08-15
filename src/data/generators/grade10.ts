@@ -86,6 +86,10 @@ export const circleEquation: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        'A circle on a grid is written (x − h)² + (y − k)² = r², where (h, k) is its centre and r its radius. ' +
+        'Two traps: the number on the right is r SQUARED, and the signs inside the brackets are the opposite of ' +
+        'the centre\'s coordinates.',
       prompt: askRadius
         ? `What is the radius of the circle ${equation}?`
         : `What is the x-coordinate of the centre of the circle ${equation}?`,
@@ -119,6 +123,10 @@ export const rightTriangleTrig: QuestionGenerator = {
     return {
       strand: 'ratios-proportions',
       type: 'numeric',
+      primer:
+        'sin, cos and tan are three ratios of a right triangle\'s sides, remembered as SOH-CAH-TOA: ' +
+        'Sin = Opposite/Hypotenuse, Cos = Adjacent/Hypotenuse, Tan = Opposite/Adjacent. ' +
+        'Each is just one division — the hypotenuse is the long side opposite the right angle.',
       prompt:
         `In a right triangle, angle A has an opposite side of ${opposite}, an adjacent side of ${adjacent}, ` +
         `and the hypotenuse is ${hypotenuse}. What is ${ratio}(A)? Round to 4 decimal places.`,

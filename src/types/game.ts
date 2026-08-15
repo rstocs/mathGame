@@ -38,6 +38,16 @@ export interface BaseQuestion {
   type: QuestionType;
   prompt: string;
   explanation: string;
+  /**
+   * Shown *before* the kid answers, for a question that uses an idea or a
+   * notation they may not have met yet. The `explanation` teaches after the
+   * fact, which is right for reinforcing a known skill and wrong for
+   * introducing a new one — without a primer a kid meeting "f(x)" or
+   * "derivative" for the first time can only guess, then be told they were
+   * wrong. Keep it to a couple of sentences: define the word, show the
+   * notation, and say nothing that gives the answer away.
+   */
+  primer?: string;
   imageHint?: VisualHint;
 }
 

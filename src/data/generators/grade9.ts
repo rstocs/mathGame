@@ -234,6 +234,9 @@ export const evaluateFunction: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'numeric',
+      primer:
+        'f(x) is function notation: a rule with a name. f(x) = 3x + 1 means "take the input, times 3, add 1". ' +
+        'f(4) means run that rule with 4 as the input — it does NOT mean f times 4.',
       prompt: quadratic
         ? `If f(x) = ${a}x² ${b < 0 ? '−' : '+'} ${Math.abs(b)}, what is f(${input})?`
         : `If f(x) = ${term(a)} ${b < 0 ? '−' : '+'} ${Math.abs(b)}, what is f(${input})?`,
@@ -357,6 +360,9 @@ export const parabolaVertex: QuestionGenerator = {
     return {
       strand: 'expressions-equations',
       type: 'graph-plot',
+      primer:
+        'A parabola is the U-shaped curve you get from a squared term, and its VERTEX is the point where it turns ' +
+        'around. Written as y = a(x − h)² + k, the vertex sits at (h, k) — note the sign inside the bracket flips.',
       prompt: `Plot the vertex of  y = ${lead}(x ${h < 0 ? '+' : '−'} ${Math.abs(h)})² ${k < 0 ? '−' : '+'} ${Math.abs(k)}`,
       mode: { kind: 'points', count: 1 },
       bounds: { xMin: -10, xMax: 10, yMin: -10, yMax: 10 },
