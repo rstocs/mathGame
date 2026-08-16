@@ -32,8 +32,18 @@ jobs:
 
       - name: Dump the database
         env:
-          # Settings -> Database -> Connection string -> URI, with the password
-          # substituted in. Stored as a repository secret; never in the repo.
+          # Use the SESSION POOLER string from the dashboard's Connect dialog,
+          # not the "direct connection" one. Two reasons, both of which cause a
+          # failure that looks like a mystery rather than a misconfiguration:
+          #
+          #   * Direct connections are IPv6-only unless you buy the IPv4
+          #     add-on, and GitHub's runners are IPv4. The direct string simply
+          #     cannot be reached from here.
+          #   * The other pooler mode (transaction, port 6543) does not support
+          #     the prepared statements pg_dump relies on.
+          #
+          # Session pooler is IPv4 and speaks full Postgres, so it is the one
+          # that works. Stored as a repository secret; never in the repo.
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           if [ -z "$SUPABASE_DB_URL" ]; then

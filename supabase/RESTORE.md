@@ -35,9 +35,13 @@ this costs nothing and never touches the real database.
 3. Run the backup by hand: **Actions → Nightly database backup → Run workflow**.
    Download the artifact and unzip it.
 
-4. Restore into the practice project. Its connection string is
-   **Settings → Database → Connection string → URI**, with your saved password
-   substituted for `[YOUR-PASSWORD]`:
+4. Restore into the practice project. Get its connection string from the
+   **Connect** button at the top of the dashboard → **Session pooler**, with
+   your saved password substituted for `[YOUR-PASSWORD]`.
+
+   Use the session pooler rather than the direct connection: direct is
+   IPv6-only without the paid add-on, and the transaction pooler (port 6543)
+   cannot run `pg_restore`.
 
    ```bash
    pg_restore -d "postgresql://postgres:PASSWORD@db.SCRATCHREF.supabase.co:5432/postgres" \
