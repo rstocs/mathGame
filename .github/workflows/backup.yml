@@ -52,6 +52,23 @@ jobs:
               echo "Fix: use the Session pooler URI instead - same host, port 5432." >&2
               exit 1 ;;
           esac
+          # Through the pooler the username must carry the project ref:
+          # postgres.<ref>, not plain postgres. Getting this wrong fails as
+          # "password authentication failed", which sends you off resetting a
+          # password that was correct all along.
+          case "$SUPABASE_DB_URL" in
+            *pooler.supabase.com*)
+              user=$(printf '%s' "$SUPABASE_DB_URL" | sed -n 's|.*://\([^:]*\):.*|\1|p')
+              case "$user" in
+                postgres.*) ;;
+                *)
+                  echo "Username is '$user', but pooler connections need" >&2
+                  echo "postgres.<project-ref> - the ref after a dot." >&2
+                  echo "Copy the URI from the Connect panel rather than" >&2
+                  echo "editing it by hand." >&2
+                  exit 1 ;;
+              esac ;;
+          esac
 
       - name: Install a pg_dump matching the server
         # pg_dump refuses to dump a server newer than itself. Pinning a version

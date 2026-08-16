@@ -100,6 +100,23 @@ jobs:
                 echo "run pg_dump or pg_restore. Use Session pooler, port 5432." >&2
                 return 1 ;;
             esac
+            # Through the pooler the username must carry the project ref:
+            # postgres.<ref>, not plain postgres. Getting this wrong fails as
+            # "password authentication failed", which sends you off resetting a
+            # password that was correct all along.
+            case "$2" in
+              *pooler.supabase.com*)
+                user=$(printf '%s' "$2" | sed -n 's|.*://\([^:]*\):.*|\1|p')
+                case "$user" in
+                  postgres.*) ;;
+                  *)
+                    echo "$1 has username '$user', but pooler connections need" >&2
+                    echo "postgres.<project-ref> - the ref after a dot." >&2
+                    echo "Copy the URI from that project's Connect panel rather" >&2
+                    echo "than editing another project's string by hand." >&2
+                    return 1 ;;
+                esac ;;
+            esac
             return 0
           }
           bad=0
@@ -121,9 +138,14 @@ jobs:
             echo "Could not reach the restore-test project. The psql error" >&2
             echo "above is the real reason. Common ones:" >&2
             echo "" >&2
-            echo "  password authentication failed" >&2
-            echo "    -> wrong password. Each project has its OWN; this needs" >&2
-            echo "       the scratch project's, not the real project's." >&2
+            echo "  password authentication failed for user \"postgres\"" >&2
+            echo "    -> note the username. Pooler connections need" >&2
+            echo "       postgres.<project-ref>; plain postgres fails as a" >&2
+            echo "       password error even when the password is right." >&2
+            echo "" >&2
+            echo "  password authentication failed for user \"postgres.xxx\"" >&2
+            echo "    -> genuinely the wrong password. Each project has its" >&2
+            echo "       OWN; this needs the scratch project's." >&2
             echo "" >&2
             echo "  Network is unreachable / could not translate host name" >&2
             echo "    -> wrong string shape, or the project is still being" >&2
