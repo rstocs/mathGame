@@ -75,11 +75,24 @@ never touched.
    pg_restore --version
    ```
 
-   It must be 17 or higher. If it is missing or older:
+   It must be 17 or higher — a client older than the server refuses the
+   archive outright. If the command is not found:
 
    ```bash
-   brew install libpq && brew link --force libpq
+   brew install libpq
    ```
+
+   Homebrew keeps libpq unlinked on purpose, because it collides with the full
+   PostgreSQL package, so installing it does not put `pg_restore` on your PATH.
+   Either add it once:
+
+   ```bash
+   echo 'export PATH="/usr/local/opt/libpq/bin:$PATH"' >> ~/.zshrc && exec zsh
+   ```
+
+   Or skip that and call it by full path, `/usr/local/opt/libpq/bin/pg_restore`,
+   wherever this file says `pg_restore`. On Apple Silicon the prefix is
+   `/opt/homebrew/opt/libpq/bin` instead.
 
    **4b. Get the PRACTICE project's session pooler string.** Open that project
    (not the real one) and use the **Connect** button, or go straight to:
