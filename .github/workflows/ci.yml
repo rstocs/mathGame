@@ -29,3 +29,9 @@ jobs:
 
       - name: Test
         run: npm test
+
+      # Pure string reasoning, so it needs no database and no secrets. These
+      # guards decide whether a restore is allowed to overwrite a live
+      # database, which is not something to leave as untested shell.
+      - name: Connection-string guards
+        run: .github/scripts/guards.test.sh
