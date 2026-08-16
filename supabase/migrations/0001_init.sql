@@ -140,6 +140,33 @@ create policy review_schedule_update on public.review_schedule
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
+-- Table privileges
+-- ---------------------------------------------------------------------------
+-- The project has "Automatically expose new tables" turned OFF, so a new table
+-- reaches the API only if it is granted here. That is deliberate: forgetting a
+-- grant breaks the feature loudly in development, whereas the setting's
+-- alternative — everything exposed by default — fails silently and in the
+-- wrong direction.
+--
+-- Two things to notice:
+--
+-- `anon` is granted NOTHING. Every table here is per-kid data that requires a
+-- signed-in user, so a signed-out visitor should not reach these tables at all,
+-- not even to be turned away by a row policy.
+--
+-- No DELETE is granted, to anyone. This matches the missing DELETE policies
+-- above: resetting progress overwrites rows with zeroes. Deletion is the only
+-- mistake with no undo, so it is blocked at two independent layers.
+--
+-- ANY LATER MIGRATION THAT ADDS A TABLE MUST ADD ITS GRANT HERE TOO.
+grant usage on schema public to authenticated;
+
+grant select, insert, update on public.profiles        to authenticated;
+grant select, insert, update on public.stats           to authenticated;
+grant select, insert, update on public.level_progress  to authenticated;
+grant select, insert, update on public.review_schedule to authenticated;
+
+-- ---------------------------------------------------------------------------
 -- Give every new sign-up their rows, so the app never has to handle "signed in
 -- but has no profile yet" as a special case.
 -- ---------------------------------------------------------------------------

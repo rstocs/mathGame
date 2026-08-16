@@ -25,16 +25,24 @@ jobs:
             echo "SUPABASE_URL secret is not set - the project may pause." >&2
             exit 1
           fi
-          # An unauthenticated read of a protected table. RLS returns an empty
-          # list rather than data, which is all we need: the point is to prove
-          # the project answered, not to read anything.
-          code=$(curl -s -o /dev/null -w '%{http_code}' \
+          # An unauthenticated read of a protected table. It is SUPPOSED to be
+          # refused: `anon` is granted nothing on these tables, so the answer
+          # comes back as 401 or 404 rather than data.
+          #
+          # That refusal is the success case. The only thing being tested is
+          # that the project replied at all, so any answer below 500 counts —
+          # asserting a specific code here would turn a correct security
+          # posture into a failing nightly job.
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
             "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1" \
             -H "apikey: $SUPABASE_ANON_KEY")
           echo "HTTP $code"
-          # 200 (empty list) and 401/403 (RLS said no) all prove it is awake.
-          # Only a timeout or 5xx means it is not.
-          case "$code" in
-            200|401|403) echo "Project is awake." ;;
-            *) echo "Unexpected response - check the project." >&2; exit 1 ;;
-          esac
+          if [ "$code" = "000" ]; then
+            echo "No response at all - the project may be paused or unreachable." >&2
+            exit 1
+          fi
+          if [ "$code" -ge 500 ]; then
+            echo "Server error - check the project." >&2
+            exit 1
+          fi
+          echo "Project is awake."
