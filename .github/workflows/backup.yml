@@ -1,0 +1,73 @@
+name: Nightly database backup
+
+# On Supabase's free plan there are NO backups. These dumps are therefore not a
+# second safety net, they are the ONLY one — which is why this workflow fails
+# loudly rather than skipping quietly, and why restore.md must be rehearsed
+# before real student data exists.
+#
+# Retention is GitHub's artifact retention (90 days), plus whatever you keep by
+# downloading one. Data is tiny, so nothing here is expensive.
+
+on:
+  schedule:
+    # 07:10 UTC — roughly 2-3am US Eastern, after any evening practice session
+    # has finished and long before anyone plays again.
+    - cron: '10 7 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install pg_dump 17
+        # Ubuntu ships an older client than Supabase's server. pg_dump refuses
+        # to dump a server newer than itself, so pin a current one rather than
+        # discovering the mismatch on the night you need the backup.
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/pgdg.gpg
+          sudo sed -i 's|deb |deb [signed-by=/usr/share/keyrings/pgdg.gpg] |' /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-17
+
+      - name: Dump the database
+        env:
+          # Settings -> Database -> Connection string -> URI, with the password
+          # substituted in. Stored as a repository secret; never in the repo.
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "SUPABASE_DB_URL secret is not set - there is no backup running." >&2
+            exit 1
+          fi
+          mkdir -p out
+          # Custom format (-Fc): compressed, and pg_restore can read it
+          # selectively. Include auth so accounts come back with the progress —
+          # restoring progress whose owning users no longer exist would leave
+          # every row unreachable behind its own RLS policy.
+          pg_dump "$SUPABASE_DB_URL" \
+            --format=custom \
+            --no-owner \
+            --schema=public \
+            --schema=auth \
+            --file="out/mathgame-$(date -u +%Y-%m-%d).dump"
+          ls -lh out/
+
+      - name: Verify the dump is readable
+        # A file that exists is not a backup. Listing its contents proves it
+        # parses and that the tables we care about are actually inside it —
+        # cheap here, and the difference between a backup and a hope.
+        run: |
+          dump=$(ls out/*.dump)
+          pg_restore --list "$dump" > out/contents.txt
+          for t in profiles stats level_progress review_schedule; do
+            grep -q "TABLE DATA public $t" out/contents.txt \
+              || { echo "MISSING TABLE IN BACKUP: $t" >&2; exit 1; }
+          done
+          echo "All four tables present."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: out/
+          retention-days: 90

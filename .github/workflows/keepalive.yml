@@ -1,0 +1,40 @@
+name: Keep the free project awake
+
+# Supabase pauses free projects after a week with no activity, and an unpausing
+# has to be done by hand in the dashboard. Without this, a kid coming back from
+# a two-week holiday finds a broken app and no way to fix it themselves.
+#
+# One tiny read every three days is enough to count as activity. This becomes
+# unnecessary the day the project moves to a paid plan; delete it then.
+
+on:
+  schedule:
+    - cron: '30 6 */3 * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Touch the REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ]; then
+            echo "SUPABASE_URL secret is not set - the project may pause." >&2
+            exit 1
+          fi
+          # An unauthenticated read of a protected table. RLS returns an empty
+          # list rather than data, which is all we need: the point is to prove
+          # the project answered, not to read anything.
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "HTTP $code"
+          # 200 (empty list) and 401/403 (RLS said no) all prove it is awake.
+          # Only a timeout or 5xx means it is not.
+          case "$code" in
+            200|401|403) echo "Project is awake." ;;
+            *) echo "Unexpected response - check the project." >&2; exit 1 ;;
+          esac

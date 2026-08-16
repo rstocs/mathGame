@@ -25,3 +25,10 @@ dist-ssr
 
 # Local Claude Code state
 .claude/scheduled_tasks.lock
+
+# Supabase credentials and local dumps. The anon key is publishable, but the
+# database password and service_role key are not, and a stray .dump is a
+# complete copy of every kid's progress.
+.env
+.env.local
+*.dump
