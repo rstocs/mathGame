@@ -19,15 +19,15 @@ somewhere durable. A month-end copy in cloud storage is enough at this size.
 ## Proving a backup restores (automated)
 
 `.github/workflows/verify-restore.yml` does this for you, in the cloud, with no
-Postgres tooling on your machine. It runs monthly and on demand.
+Postgres tooling on your machine. It runs twice a week and on demand.
 
 It writes a unique marker into the real database, dumps it, restores that dump
 into a throwaway project, and reads the marker back out of the restored copy.
 Reading that exact value out the far end is the proof; it then also checks the
 four progress tables have matching row counts.
 
-**Monthly, rather than once, on purpose.** A backup verified once is verified
-once. Schemas change and Postgres versions change, and the failure mode is
+**Repeatedly, rather than once, on purpose.** A backup verified once is
+verified once. Schemas change and Postgres versions change, and the failure mode is
 silent: the nightly dump keeps going green while producing something that
 cannot be restored. Nobody finds out until the day it matters.
 

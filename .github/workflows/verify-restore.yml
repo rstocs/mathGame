@@ -11,7 +11,7 @@ name: Verify a backup restores
 # the free plan these dumps are the only copy of every kid's progress, so
 # "probably fine" is not a good enough answer to "can we get it back?".
 #
-# So this runs monthly, and on demand, and it proves the whole chain:
+# So this runs on a schedule, and on demand, and it proves the whole chain:
 #   write a unique marker into the real database
 #     -> dump the real database
 #       -> restore that dump into a THROWAWAY database
