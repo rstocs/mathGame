@@ -50,6 +50,25 @@ jobs:
             echo "SUPABASE_DB_URL secret is not set - there is no backup running." >&2
             exit 1
           fi
+          # Catch the direct-connection string before pg_dump does. Left alone
+          # it fails as "Network is unreachable" against an IPv6 address, which
+          # reads like an outage rather than the wrong string being copied.
+          case "$SUPABASE_DB_URL" in
+            *@db.*.supabase.co*)
+              echo "This is the DIRECT connection string, which cannot be reached" >&2
+              echo "from GitHub Actions: it is IPv6-only without the paid add-on." >&2
+              echo "" >&2
+              echo "Fix: dashboard -> Connect -> Session pooler, and copy that URI." >&2
+              echo "It differs in two places, both easy to miss:" >&2
+              echo "  host: aws-0-<region>.pooler.supabase.com  (not db.<ref>.supabase.co)" >&2
+              echo "  user: postgres.<ref>                      (not plain postgres)" >&2
+              exit 1 ;;
+            *:6543/*)
+              echo "This is the TRANSACTION pooler (port 6543), which does not" >&2
+              echo "support the prepared statements pg_dump needs." >&2
+              echo "Fix: use the Session pooler URI instead - same host, port 5432." >&2
+              exit 1 ;;
+          esac
           mkdir -p out
           # Custom format (-Fc): compressed, and pg_restore can read it
           # selectively. Include auth so accounts come back with the progress —
