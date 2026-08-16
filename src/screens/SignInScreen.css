@@ -1,0 +1,84 @@
+.sign-in-screen {
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.sign-in-screen__mascot {
+  font-size: 4rem;
+  margin-bottom: 8px;
+}
+
+.sign-in-screen h1 {
+  font-size: 2rem;
+  color: var(--color-ink);
+}
+
+.sign-in-screen__subtitle {
+  color: var(--color-ink-soft);
+  margin: 8px 0 28px;
+  max-width: 320px;
+}
+
+.sign-in-screen__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.sign-in-screen__input {
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(35, 50, 74, 0.15);
+  /* 1rem or larger, otherwise iOS Safari zooms the whole page in on focus and
+     leaves the kid looking at a magnified form they then have to pinch out of. */
+  font-size: 1.1rem;
+  text-align: center;
+  box-shadow: var(--shadow-pop);
+}
+
+.sign-in-screen__error {
+  color: var(--color-danger-dark);
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.sign-in-screen__switch {
+  background: none;
+  border: none;
+  color: var(--color-ink-soft);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* Visibly a lesser option than signing in, but not hidden: a kid who cannot
+   sign in still needs to be able to practise, and hunting for the way past a
+   login screen is not something to make them do. */
+.sign-in-screen__skip {
+  margin-top: 32px;
+  background: none;
+  border: 2px solid rgba(35, 50, 74, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 12px 20px;
+  cursor: pointer;
+}
+
+.sign-in-screen__skip-note {
+  color: var(--color-ink-soft);
+  font-size: 0.85rem;
+  margin: 10px 0 0;
+  max-width: 300px;
+}

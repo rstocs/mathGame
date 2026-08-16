@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { SignOutButton } from '../components/shared/SignOutButton';
 import { useGameStore } from '../store/gameStore';
 import { worldsForGrade } from '../data/worlds';
 import { isWorldUnlocked, hasAllStarsInWorld } from '../lib/unlocks';
@@ -55,9 +56,12 @@ export function WorldMapScreen() {
         })}
         <Avatar x={avatarPos.x} y={avatarPos.y} />
       </svg>
-      <button type="button" className="world-map-screen__reset" onClick={state.resetProgress}>
-        Reset Progress
-      </button>
+      <div className="world-map-screen__footer">
+        <button type="button" className="world-map-screen__reset" onClick={state.resetProgress}>
+          Reset Progress
+        </button>
+        <SignOutButton />
+      </div>
     </motion.div>
   );
 }

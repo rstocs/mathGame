@@ -1,0 +1,19 @@
+.sync-badge {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-ink-soft);
+  box-shadow: var(--shadow-pop);
+  /* Never in the way of an answer button. */
+  pointer-events: none;
+}
+
+.sync-badge--error {
+  color: var(--color-ink);
+}
