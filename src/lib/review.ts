@@ -226,3 +226,53 @@ export function reviewStats(schedule: ReviewSchedule, today: string): ReviewStat
     nextDueOn: upcoming[0]?.dueOn ?? null,
   };
 }
+
+/**
+ * Folds one finished run into the schedule, one entry per question TYPE.
+ *
+ * Two rules matter here.
+ *
+ * A type counts as remembered only if EVERY question of that type in the run
+ * was right: meeting three ratio questions and missing one means the skill is
+ * not solid, and pretending otherwise would push it a week away.
+ *
+ * And authored questions count too. They carry no generator id, so they used to
+ * be skipped entirely — a grade 7 kid could miss all nine hand-written unit-rate
+ * questions, get the three generated ones right, and watch the topic get
+ * PROMOTED. Their wrong answers were invisible to the one system meant to bring
+ * the topic back. An authored question is now evidence about every topic its
+ * level teaches, which is well-aligned because grade 7 levels are topic-focused
+ * (the "Unit Rates" level generates only unit-rate questions).
+ */
+export function applyRunToSchedule(args: {
+  schedule: ReviewSchedule;
+  /** Question ids in the order they were asked. */
+  questionIds: string[];
+  /** Parallel to questionIds. */
+  answeredCorrect: boolean[];
+  /** Generator behind a question, or null when it is hand-authored. */
+  generatorIdOf: (questionId: string) => string | null;
+  /** Topics this level teaches; authored questions are evidence about these. */
+  levelTopicIds: string[];
+  mode: ReviewMode;
+  today: string;
+}): ReviewSchedule {
+  const { schedule, questionIds, answeredCorrect, generatorIdOf, levelTopicIds, mode, today } = args;
+
+  const verdict = new Map<string, boolean>();
+  const note = (id: string, correct: boolean) =>
+    verdict.set(id, (verdict.get(id) ?? true) && correct);
+
+  questionIds.forEach((questionId, i) => {
+    const correct = answeredCorrect[i] ?? false;
+    const generatorId = generatorIdOf(questionId);
+    if (generatorId) note(generatorId, correct);
+    else for (const topic of levelTopicIds) note(topic, correct);
+  });
+
+  let next = schedule;
+  for (const [generatorId, correct] of verdict) {
+    next = recordReview(next, generatorId, correct, mode, today);
+  }
+  return next;
+}

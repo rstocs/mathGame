@@ -2,13 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { GradeId, LevelRunResult, PersistedState, Question, ScreenId } from '../types/game';
 import {
+  applyRunToSchedule,
   dueGenerators,
   difficultyForBox,
   planReviewSession,
-  recordReview,
   todayIso,
   type ReviewMode,
-  type ReviewSchedule,
+
 } from '../lib/review';
 import { generateQuestion, hasGenerator, parseGeneratedId, hashSeed } from '../data/generators';
 import { homeGradeOf } from '../data/generatorGrades';
@@ -99,36 +99,6 @@ function readInitialScreen(): ScreenId {
   }
 }
 
-
-/**
- * Folds one finished run into the review schedule, one entry per question TYPE.
- *
- * A type counts as remembered only if EVERY question of that type in the run
- * was right: meeting three ratio questions and missing one means the skill is
- * not yet solid, and pretending otherwise would push it a week away.
- */
-function applyRunToSchedule(
-  schedule: ReviewSchedule,
-  questions: Question[],
-  answeredCorrect: boolean[],
-  mode: ReviewMode,
-  today: string,
-): ReviewSchedule {
-  const byGenerator = new Map<string, boolean>();
-  questions.forEach((question, i) => {
-    const parsed = parseGeneratedId(question.id);
-    // Authored questions have no generator to schedule against.
-    if (!parsed) return;
-    const wasCorrect = answeredCorrect[i] ?? false;
-    byGenerator.set(parsed.generatorId, (byGenerator.get(parsed.generatorId) ?? true) && wasCorrect);
-  });
-
-  let next = schedule;
-  for (const [generatorId, correct] of byGenerator) {
-    next = recordReview(next, generatorId, correct, mode, today);
-  }
-  return next;
-}
 
 const REVIEW_SESSION_SIZE = 10;
 
@@ -276,13 +246,18 @@ export const useGameStore = create<GameStore>()(
         }
 
         const today = todayIso();
-        const scheduleAfter = applyRunToSchedule(
-          state.reviewSchedule,
-          run.questions,
-          run.answeredCorrect,
-          state.reviewMode,
+        // Authored questions have no generator of their own, so they count as
+        // evidence about whatever topics their level teaches.
+        const runLevel = getLevel(run.levelId);
+        const scheduleAfter = applyRunToSchedule({
+          schedule: state.reviewSchedule,
+          questionIds: run.questions.map((q) => q.id),
+          answeredCorrect: run.answeredCorrect,
+          generatorIdOf: (id) => parseGeneratedId(id)?.generatorId ?? null,
+          levelTopicIds: [...new Set((runLevel?.generated ?? []).map((s) => s.generatorId))],
+          mode: state.reviewMode,
           today,
-        );
+        });
 
         if (run.isReview) {
           // A review session earns its XP but no stars and no level progress —

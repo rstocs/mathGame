@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
+  MASTERED_BOX,
+  REVIEW_LADDERS,
+  REVIEW_MODES,
   addDays,
+  applyRunToSchedule,
   compareIso,
   difficultyForBox,
   dueGenerators,
@@ -8,9 +12,6 @@ import {
   recordReview,
   reviewStats,
   todayIso,
-  REVIEW_LADDERS,
-  REVIEW_MODES,
-  MASTERED_BOX,
   type ReviewSchedule,
 } from './review';
 
@@ -341,5 +342,83 @@ describe('the whole point', () => {
 
     expect(compareIso(schedule.forgotten.dueOn, schedule.remembered.dueOn)).toBeLessThan(0);
     expect(dueGenerators(schedule, addDays(day, 1))).toEqual(['forgotten']);
+  });
+});
+
+describe('folding a finished run into the schedule', () => {
+  const gen = (id: string) => `gen:${id}:1:7`;
+  const generatorIdOf = (qid: string) => (qid.startsWith('gen:') ? qid.split(':')[1] : null);
+
+  it('brings a topic back tomorrow when hand-written questions were missed', () => {
+    // The regression that mattered: grade 7 is mostly authored, and authored
+    // questions carry no generator id. A kid missed all nine written unit-rate
+    // questions, got the three generated ones right, and the topic was PROMOTED
+    // — the one system meant to re-ask it never heard about the failures.
+    const schedule = applyRunToSchedule({
+      schedule: {},
+      questionIds: ['rp-l1-q1', 'rp-l1-q2', gen('rp-unit-rate')],
+      answeredCorrect: [false, false, true],
+      generatorIdOf,
+      levelTopicIds: ['rp-unit-rate'],
+      mode: 'standard',
+      today: '2026-08-15',
+    });
+    expect(schedule['rp-unit-rate'].box).toBe(0);
+    expect(schedule['rp-unit-rate'].dueOn).toBe('2026-08-16');
+  });
+
+  it('still promotes a topic when every question was right', () => {
+    const schedule = applyRunToSchedule({
+      schedule: {},
+      questionIds: ['rp-l1-q1', gen('rp-unit-rate')],
+      answeredCorrect: [true, true],
+      generatorIdOf,
+      levelTopicIds: ['rp-unit-rate'],
+      mode: 'standard',
+      today: '2026-08-15',
+    });
+    expect(schedule['rp-unit-rate'].box).toBe(1);
+  });
+
+  it('counts an authored miss against every topic its level teaches', () => {
+    const schedule = applyRunToSchedule({
+      schedule: {},
+      questionIds: ['ee-l3-q1'],
+      answeredCorrect: [false],
+      generatorIdOf,
+      levelTopicIds: ['ee-solve-two-step', 'ee-solve-inequality'],
+      mode: 'standard',
+      today: '2026-08-15',
+    });
+    expect(Object.keys(schedule).sort()).toEqual(['ee-solve-inequality', 'ee-solve-two-step']);
+  });
+
+  it('needs every question of a type right, not just the last one', () => {
+    const schedule = applyRunToSchedule({
+      schedule: {},
+      questionIds: [gen('rp-unit-rate'), gen('rp-unit-rate')],
+      answeredCorrect: [false, true],
+      generatorIdOf,
+      levelTopicIds: [],
+      mode: 'standard',
+      today: '2026-08-15',
+    });
+    expect(schedule['rp-unit-rate'].box).toBe(0);
+  });
+
+  it('leaves the schedule alone when a level has no topics to attribute to', () => {
+    // Authored-only level with no generated slots: nothing to schedule against,
+    // and inventing an entry would be worse than skipping it.
+    expect(
+      applyRunToSchedule({
+        schedule: {},
+        questionIds: ['rp-l1-q1'],
+        answeredCorrect: [false],
+        generatorIdOf,
+        levelTopicIds: [],
+        mode: 'standard',
+        today: '2026-08-15',
+      }),
+    ).toEqual({});
   });
 });
