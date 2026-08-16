@@ -32,8 +32,23 @@ this costs nothing and never touches the real database.
    insert into restore_check values (1, 'the restore worked');
    ```
 
+   This exists because an empty database restores "successfully" whether or
+   not data actually moves. Restoring nothing into nowhere and seeing nothing
+   proves nothing. One known row turns the rehearsal into a real test.
+
+   Confirm it landed before going on:
+
+   ```sql
+   select * from restore_check;
+   ```
+
 3. Run the backup by hand: **Actions → Nightly database backup → Run workflow**.
    Download the artifact and unzip it.
+
+   **It must be a NEW run, started after step 2.** A backup taken earlier
+   cannot contain the marker, and restoring it will show an empty result that
+   looks exactly like a broken backup — sending you hunting for a fault that
+   is not there.
 
 4. Restore into the practice project. Get its connection string from the
    **Connect** button at the top of the dashboard → **Session pooler**, with
