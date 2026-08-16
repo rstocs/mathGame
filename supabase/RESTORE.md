@@ -16,9 +16,49 @@ GitHub Actions artifact, kept 90 days. Download from the repo's **Actions** tab
 For anything you want to keep longer than 90 days, download one and put it
 somewhere durable. A month-end copy in cloud storage is enough at this size.
 
-## Rehearsal: prove a restore works
+## Proving a backup restores (automated)
 
-Do this **before real student data exists**, and treat a failure as a blocker.
+`.github/workflows/verify-restore.yml` does this for you, in the cloud, with no
+Postgres tooling on your machine. It runs monthly and on demand.
+
+It writes a unique marker into the real database, dumps it, restores that dump
+into a throwaway project, and reads the marker back out of the restored copy.
+Reading that exact value out the far end is the proof; it then also checks the
+four progress tables have matching row counts.
+
+**Monthly, rather than once, on purpose.** A backup verified once is verified
+once. Schemas change and Postgres versions change, and the failure mode is
+silent: the nightly dump keeps going green while producing something that
+cannot be restored. Nobody finds out until the day it matters.
+
+### One-time setup
+
+1. Create a second free Supabase project, `math-adventure-restore-test`, in the
+   same region. It gets its **own** database password — save it separately.
+2. Add its **session pooler** URI as the repository secret
+   `SUPABASE_RESTORE_TEST_DB_URL`.
+3. Run **Actions → Verify a backup restores → Run workflow**.
+
+Everything in that project gets destroyed on every run. That is what it is for.
+
+### The guard
+
+The job refuses to run if the target and source are the same database, checking
+both the whole string and the project ref inside it — the same project can be
+addressed by more than one string, so comparing text alone is not enough.
+
+This matters more than it looks. It is the only job here that destroys a
+database on purpose, and a wrong paste into one secret would otherwise
+overwrite live progress with an older copy: the exact disaster the backups
+exist to prevent, caused by the backups.
+
+---
+
+## Doing it by hand
+
+Prefer the automated job above. These steps are for when you need to drive a
+restore yourself: recovering a specific backup, inspecting one, or restoring
+somewhere the workflow does not reach.
 
 You will restore into a throwaway second project, so the real database is
 never touched.

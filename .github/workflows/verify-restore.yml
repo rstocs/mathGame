@@ -1,0 +1,177 @@
+name: Verify a backup restores
+
+# Proves the backups are actually restorable, end to end, without anyone
+# installing Postgres tooling or copying connection strings by hand.
+#
+# Why this exists as a job rather than a page of instructions:
+#
+# A backup verified once is verified once. The schema will change, the Postgres
+# version will change, and the failure mode of all of it is silent — the nightly
+# dump keeps going green while producing something that cannot be restored. On
+# the free plan these dumps are the only copy of every kid's progress, so
+# "probably fine" is not a good enough answer to "can we get it back?".
+#
+# So this runs monthly, and on demand, and it proves the whole chain:
+#   write a unique marker into the real database
+#     -> dump the real database
+#       -> restore that dump into a THROWAWAY database
+#         -> read the marker back out of the restored copy
+#
+# Reading that exact marker out the far end is the only thing that counts as
+# proof. Every other check here is a nicety.
+
+on:
+  schedule:
+    # 08:00 UTC on the 1st. Monthly is enough: this is about catching drift
+    # (a schema or version change breaking restores), not nightly health.
+    - cron: '0 8 1 * *'
+  workflow_dispatch: {}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      # The scratch project's session pooler URI. A SEPARATE free project,
+      # never the real one - see the guard below.
+      TARGET_DB_URL: ${{ secrets.SUPABASE_RESTORE_TEST_DB_URL }}
+
+    steps:
+      - name: Refuse to restore over the real database
+        # This is the one job in the repo that destroys a database on purpose.
+        # `pg_restore --clean` drops and recreates what it finds, so pointing it
+        # at production would overwrite live progress with an older copy - the
+        # exact disaster the backups exist to prevent, caused by the backups.
+        #
+        # The two connection strings differ by a few characters, and a paste
+        # into the wrong secret would be invisible. So compare them, and refuse
+        # to take a target that is not clearly a different database.
+        run: |
+          if [ -z "$TARGET_DB_URL" ]; then
+            echo "SUPABASE_RESTORE_TEST_DB_URL is not set." >&2
+            echo "Create a second free Supabase project and add its session" >&2
+            echo "pooler URI as that secret. It must NOT be the real project." >&2
+            exit 1
+          fi
+          if [ -z "$SOURCE_DB_URL" ]; then
+            echo "SUPABASE_DB_URL is not set - nothing to back up or verify." >&2
+            exit 1
+          fi
+          if [ "$TARGET_DB_URL" = "$SOURCE_DB_URL" ]; then
+            echo "REFUSING TO RUN: the restore target is the real database." >&2
+            echo "This job would have overwritten live student progress." >&2
+            exit 1
+          fi
+          # Compare the project refs too, since the same database can be
+          # addressed by more than one string (different pooler mode, port, or
+          # password) and a plain string comparison would miss that.
+          ref_of() { printf '%s' "$1" | sed -n 's|.*://postgres\.\([a-z0-9]*\):.*|\1|p'; }
+          src_ref=$(ref_of "$SOURCE_DB_URL")
+          tgt_ref=$(ref_of "$TARGET_DB_URL")
+          echo "source project: ${src_ref:-<unparsed>}"
+          echo "target project: ${tgt_ref:-<unparsed>}"
+          if [ -n "$src_ref" ] && [ "$src_ref" = "$tgt_ref" ]; then
+            echo "REFUSING TO RUN: both strings point at project $src_ref." >&2
+            exit 1
+          fi
+          echo "Target is a different database. Safe to continue."
+
+      - name: Install a Postgres client matching the server
+        # Same reasoning as the backup job: pg_dump refuses a server newer than
+        # itself, so ask rather than pin and be broken by a future upgrade.
+        run: |
+          major=$(( $(psql "$SOURCE_DB_URL" -tAc 'show server_version_num') / 10000 ))
+          echo "Server is Postgres $major"
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/pgdg.gpg
+          echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y "postgresql-client-$major"
+          echo "/usr/lib/postgresql/$major/bin" >> "$GITHUB_PATH"
+
+      - name: Plant a unique marker in the real database
+        # An empty database restores "successfully" whether or not any data
+        # moves, so restoring nothing and finding nothing proves nothing. A
+        # value that exists nowhere else, written now, is what makes this a
+        # test rather than a ceremony.
+        #
+        # One row per run in a table of its own. It is never read by the app.
+        run: |
+          marker="run-${GITHUB_RUN_ID}-$(date -u +%s)"
+          echo "MARKER=$marker" >> "$GITHUB_ENV"
+          psql "$SOURCE_DB_URL" -v ON_ERROR_STOP=1 <<SQL
+          create table if not exists public.backup_canary (
+            id bigserial primary key,
+            marker text not null,
+            written_at timestamptz not null default now()
+          );
+          insert into public.backup_canary (marker) values ('$marker');
+          SQL
+          echo "Planted: $marker"
+
+      - name: Dump the real database
+        run: |
+          pg_dump "$SOURCE_DB_URL" \
+            --format=custom --no-owner \
+            --schema=public --schema=auth \
+            --file=verify.dump
+          ls -lh verify.dump
+
+      - name: Restore into the throwaway database
+        # pg_restore exits non-zero over things that do not matter here: it
+        # drops objects that do not exist yet, and it does not own Supabase's
+        # auth schema. Those are expected, so the exit code is not the test -
+        # the next step is. Errors are kept and shown if that step fails.
+        run: |
+          set +e
+          pg_restore -d "$TARGET_DB_URL" \
+            --clean --if-exists --no-owner \
+            verify.dump > restore.log 2>&1
+          echo "pg_restore exit code: $? (not the verdict - see next step)"
+          tail -5 restore.log || true
+
+      - name: Read the marker back out of the restored copy
+        # The actual test. This value was written to one database and is being
+        # read from a different one, having travelled through a dump file.
+        run: |
+          found=$(psql "$TARGET_DB_URL" -tAc \
+            "select marker from public.backup_canary where marker = '$MARKER'")
+          if [ "$found" != "$MARKER" ]; then
+            echo "RESTORE VERIFICATION FAILED." >&2
+            echo "Expected marker: $MARKER" >&2
+            echo "Got: '${found:-<nothing>}'" >&2
+            echo "" >&2
+            echo "The backups cannot be relied on. Full restore log:" >&2
+            cat restore.log >&2
+            exit 1
+          fi
+          echo "Marker survived the round trip: $MARKER"
+
+      - name: Compare table contents
+        # Secondary check. The marker proves the pipe works; this proves the
+        # tables that hold real progress came across too, rather than one lucky
+        # row in a table nothing depends on.
+        run: |
+          fail=0
+          for t in profiles stats level_progress review_schedule; do
+            src=$(psql "$SOURCE_DB_URL" -tAc "select count(*) from public.$t")
+            tgt=$(psql "$TARGET_DB_URL" -tAc "select count(*) from public.$t")
+            if [ "$src" = "$tgt" ]; then
+              echo "  ok   $t: $src rows"
+            else
+              echo "  FAIL $t: source $src, restored $tgt" >&2
+              fail=1
+            fi
+          done
+          [ "$fail" -eq 0 ] || { echo "Restored copy does not match source." >&2; exit 1; }
+          echo "All four tables match."
+
+      - name: Tidy up the canary table
+        # Keep the last few rows as evidence of recent verifications, and stop
+        # this from growing without bound.
+        if: always()
+        run: |
+          psql "$SOURCE_DB_URL" -c \
+            "delete from public.backup_canary where id not in (
+               select id from public.backup_canary order by id desc limit 12)" || true
