@@ -18,40 +18,23 @@ on:
 jobs:
   dump:
     runs-on: ubuntu-latest
-    steps:
-      - name: Install pg_dump 17
-        # Ubuntu ships an older client than Supabase's server. pg_dump refuses
-        # to dump a server newer than itself, so pin a current one rather than
-        # discovering the mismatch on the night you need the backup.
-        run: |
-          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /usr/share/keyrings/pgdg.gpg
-          sudo sed -i 's|deb |deb [signed-by=/usr/share/keyrings/pgdg.gpg] |' /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update -qq
-          sudo apt-get install -y postgresql-client-17
+    env:
+      # Job-level so the version check can reach it too. Use the SESSION POOLER
+      # string from the dashboard, not "direct connection": direct is IPv6-only
+      # without the paid add-on and GitHub's runners are IPv4, and the other
+      # pooler mode (port 6543) lacks the prepared statements pg_dump needs.
+      # Stored as a repository secret; never in the repo.
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
 
-      - name: Dump the database
-        env:
-          # Use the SESSION POOLER string from the dashboard's Connect dialog,
-          # not the "direct connection" one. Two reasons, both of which cause a
-          # failure that looks like a mystery rather than a misconfiguration:
-          #
-          #   * Direct connections are IPv6-only unless you buy the IPv4
-          #     add-on, and GitHub's runners are IPv4. The direct string simply
-          #     cannot be reached from here.
-          #   * The other pooler mode (transaction, port 6543) does not support
-          #     the prepared statements pg_dump relies on.
-          #
-          # Session pooler is IPv4 and speaks full Postgres, so it is the one
-          # that works. Stored as a repository secret; never in the repo.
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - name: Check the connection string looks usable
         run: |
           if [ -z "$SUPABASE_DB_URL" ]; then
             echo "SUPABASE_DB_URL secret is not set - there is no backup running." >&2
             exit 1
           fi
-          # Catch the direct-connection string before pg_dump does. Left alone
-          # it fails as "Network is unreachable" against an IPv6 address, which
+          # Catch the wrong connection string here rather than letting pg_dump
+          # fail as "Network is unreachable" against an IPv6 address, which
           # reads like an outage rather than the wrong string being copied.
           case "$SUPABASE_DB_URL" in
             *@db.*.supabase.co*)
@@ -60,8 +43,8 @@ jobs:
               echo "" >&2
               echo "Fix: dashboard -> Connect -> Session pooler, and copy that URI." >&2
               echo "It differs in two places, both easy to miss:" >&2
-              echo "  host: aws-0-<region>.pooler.supabase.com  (not db.<ref>.supabase.co)" >&2
-              echo "  user: postgres.<ref>                      (not plain postgres)" >&2
+              echo "  host: aws-N-<region>.pooler.supabase.com (not db.<ref>.supabase.co)" >&2
+              echo "  user: postgres.<ref>                     (not plain postgres)" >&2
               exit 1 ;;
             *:6543/*)
               echo "This is the TRANSACTION pooler (port 6543), which does not" >&2
@@ -69,6 +52,48 @@ jobs:
               echo "Fix: use the Session pooler URI instead - same host, port 5432." >&2
               exit 1 ;;
           esac
+
+      - name: Install a pg_dump matching the server
+        # pg_dump refuses to dump a server newer than itself. Pinning a version
+        # here works until Supabase upgrades Postgres, and then the backup
+        # starts failing on a night nobody is watching — the worst possible
+        # time to discover the only copy of everyone's progress stopped being
+        # written. So ask the server what it is and install that.
+        #
+        # psql is happy across versions (only pg_dump is strict), so the
+        # preinstalled client is enough to run the query.
+        run: |
+          server_num=$(psql "$SUPABASE_DB_URL" -tAc 'show server_version_num')
+          major=$((server_num / 10000))
+          echo "Server is Postgres $major (server_version_num=$server_num)"
+
+          sudo install -d /usr/share/keyrings
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo gpg --dearmor -o /usr/share/keyrings/pgdg.gpg
+          echo "deb [signed-by=/usr/share/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y "postgresql-client-$major"
+
+          # Put the versioned binary first on PATH. Installing the package is
+          # not enough: the runner already has an older /usr/bin/pg_dump, and
+          # that is the one that was winning and refusing to run.
+          echo "/usr/lib/postgresql/$major/bin" >> "$GITHUB_PATH"
+
+      - name: Confirm the client is new enough
+        # Assert it rather than trusting the install, so a mismatch fails here
+        # with the reason spelled out instead of inside pg_dump's terser error.
+        run: |
+          server_major=$(( $(psql "$SUPABASE_DB_URL" -tAc 'show server_version_num') / 10000 ))
+          client_major=$(pg_dump --version | grep -oE '[0-9]+' | head -1)
+          echo "pg_dump $client_major vs server $server_major ($(command -v pg_dump))"
+          if [ "$client_major" -lt "$server_major" ]; then
+            echo "pg_dump is older than the server and will refuse to run." >&2
+            exit 1
+          fi
+
+      - name: Dump the database
+        run: |
           mkdir -p out
           # Custom format (-Fc): compressed, and pg_restore can read it
           # selectively. Include auth so accounts come back with the progress —
