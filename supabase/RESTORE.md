@@ -20,10 +20,19 @@ somewhere durable. A month-end copy in cloud storage is enough at this size.
 
 Do this **before real student data exists**, and treat a failure as a blocker.
 
-The free plan allows 2 projects, so use a second one as the practice target —
-this costs nothing and never touches the real database.
+You will restore into a throwaway second project, so the real database is
+never touched.
 
-1. Create a second free project, `math-adventure-restore-test`.
+1. Create a second free project. Dashboard → **New project**:
+
+   - Name: `math-adventure-restore-test`
+   - Region: same as the real project
+   - **Database password: generate a new one and save it.** This project has
+     its OWN password — the real project's password will not work here, and
+     confusing the two is the most common way this step stalls.
+
+   The free plan allows 2 projects, so this costs nothing. Keep it around: it
+   is where you rehearse again after any schema change.
 
 2. Put a marker in the real project (**SQL Editor**):
 
@@ -50,16 +59,40 @@ this costs nothing and never touches the real database.
    looks exactly like a broken backup — sending you hunting for a fault that
    is not there.
 
-4. Restore into the practice project. Get its connection string from the
-   **Connect** button at the top of the dashboard → **Session pooler**, with
-   your saved password substituted for `[YOUR-PASSWORD]`.
+4. Restore the dump into the **practice** project, from your own machine.
 
-   Use the session pooler rather than the direct connection: direct is
-   IPv6-only without the paid add-on, and the transaction pooler (port 6543)
-   cannot run `pg_restore`.
+   > **Check the target twice before pressing return.** `--clean` drops and
+   > recreates what it finds. Aimed at the practice project it costs nothing;
+   > aimed at the real one it overwrites live data with whatever the file
+   > holds. The connection string in the command is the only thing deciding
+   > which, and the two strings differ by a few characters.
 
-   The pooler string looks like this — note the username carries the project
-   reference after a dot, which the direct-connection string does not:
+   **4a. Confirm your local tools are new enough.** `pg_restore` refuses an
+   archive written by a newer Postgres than itself — the same trap the backup
+   workflow hit:
+
+   ```bash
+   pg_restore --version
+   ```
+
+   It must be 17 or higher. If it is missing or older:
+
+   ```bash
+   brew install libpq && brew link --force libpq
+   ```
+
+   **4b. Get the PRACTICE project's session pooler string.** Open that project
+   (not the real one) and use the **Connect** button, or go straight to:
+
+   `https://supabase.com/dashboard/project/YOUR-SCRATCH-REF?showConnect=true`
+
+   Take the **Session pooler** URI and substitute the practice project's
+   password. Direct connections are IPv6-only without the paid add-on, and the
+   transaction pooler on port 6543 cannot run `pg_restore`.
+
+   **4c. Run it**, from the folder holding the unzipped `.dump`. Note the
+   username carries the project reference after a dot, which the
+   direct-connection string does not:
 
    ```bash
    pg_restore -d "postgresql://postgres.SCRATCHREF:PASSWORD@aws-0-us-east-1.pooler.supabase.com:5432/postgres" \
@@ -67,9 +100,18 @@ this costs nothing and never touches the real database.
      mathgame-YYYY-MM-DD.dump
    ```
 
-   Some errors are normal and safe to ignore: complaints about `auth` objects
-   that already exist, and about roles the practice project does not have.
-   What matters is step 5.
+   Expect a wall of errors, and expect to ignore almost all of it. `--clean`
+   tries to drop objects that do not exist yet, and the `auth` schema belongs
+   to Supabase rather than to you. Harmless and normal:
+
+   - `does not exist, skipping`
+   - `role "supabase_admin" does not exist`
+   - `permission denied for schema auth`
+   - `must be owner of ...`
+
+   `pg_restore` may also exit non-zero purely because of these. **The exit code
+   is not the test — step 5 is.** Judge the restore only by whether the data
+   arrived.
 
 5. In the practice project's SQL Editor, confirm the data arrived:
 
