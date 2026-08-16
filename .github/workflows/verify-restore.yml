@@ -79,20 +79,59 @@ jobs:
             echo "REFUSING TO RUN: both strings point at project $src_ref." >&2
             exit 1
           fi
-          echo "Target is a different database. Safe to continue."
+          echo "Target is a different database."
+
+          # Both strings must be session-pooler URIs, for the same reasons the
+          # backup job checks: the direct connection is IPv6-only without the
+          # paid add-on and unreachable from here, and the transaction pooler
+          # on 6543 cannot run pg_dump or pg_restore. The dashboard shows the
+          # direct string first, so it is the one most likely to be pasted.
+          check_shape() {
+            case "$2" in
+              *@db.*.supabase.co*)
+                echo "$1 is the DIRECT connection string, unreachable from" >&2
+                echo "GitHub Actions (IPv6-only without the paid add-on)." >&2
+                echo "Fix: that project's Connect panel -> Session pooler." >&2
+                echo "  host: aws-N-<region>.pooler.supabase.com" >&2
+                echo "  user: postgres.<ref>" >&2
+                return 1 ;;
+              *:6543/*)
+                echo "$1 is the TRANSACTION pooler (port 6543), which cannot" >&2
+                echo "run pg_dump or pg_restore. Use Session pooler, port 5432." >&2
+                return 1 ;;
+            esac
+            return 0
+          }
+          bad=0
+          check_shape SUPABASE_DB_URL "$SOURCE_DB_URL" || bad=1
+          check_shape SUPABASE_RESTORE_TEST_DB_URL "$TARGET_DB_URL" || bad=1
+          [ "$bad" -eq 0 ] || exit 1
+          echo "Both connection strings look right. Safe to continue."
 
       - name: Check the scratch project is awake
         # Free projects pause after a week idle, and a paused one surfaces as a
         # connection timeout during the restore - deep enough into the job to
         # look like a broken backup rather than a sleeping database.
         run: |
-          if ! psql "$TARGET_DB_URL" -tAc 'select 1' > /dev/null 2>&1; then
-            echo "Cannot reach the restore-test project." >&2
+          # Show what psql actually said. Swallowing it and printing a guess is
+          # how a wrong password or a still-provisioning project gets diagnosed
+          # as "paused" and sends someone looking in the wrong place.
+          if ! psql "$TARGET_DB_URL" -tAc 'select 1'; then
             echo "" >&2
-            echo "On the free plan it pauses after a week with no activity." >&2
-            echo "Open it in the Supabase dashboard and press Restore, then" >&2
-            echo "re-run this job. If it keeps happening the schedule is too" >&2
-            echo "far apart to keep it awake." >&2
+            echo "Could not reach the restore-test project. The psql error" >&2
+            echo "above is the real reason. Common ones:" >&2
+            echo "" >&2
+            echo "  password authentication failed" >&2
+            echo "    -> wrong password. Each project has its OWN; this needs" >&2
+            echo "       the scratch project's, not the real project's." >&2
+            echo "" >&2
+            echo "  Network is unreachable / could not translate host name" >&2
+            echo "    -> wrong string shape, or the project is still being" >&2
+            echo "       created (give a new one a couple of minutes)." >&2
+            echo "" >&2
+            echo "  Connection timed out" >&2
+            echo "    -> free projects pause after a week idle. Open it in the" >&2
+            echo "       dashboard, press Restore, and re-run." >&2
             exit 1
           fi
           echo "Scratch project is awake."
