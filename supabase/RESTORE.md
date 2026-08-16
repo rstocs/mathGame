@@ -43,8 +43,11 @@ this costs nothing and never touches the real database.
    IPv6-only without the paid add-on, and the transaction pooler (port 6543)
    cannot run `pg_restore`.
 
+   The pooler string looks like this — note the username carries the project
+   reference after a dot, which the direct-connection string does not:
+
    ```bash
-   pg_restore -d "postgresql://postgres:PASSWORD@db.SCRATCHREF.supabase.co:5432/postgres" \
+   pg_restore -d "postgresql://postgres.SCRATCHREF:PASSWORD@aws-0-us-east-1.pooler.supabase.com:5432/postgres" \
      --clean --if-exists --no-owner \
      mathgame-YYYY-MM-DD.dump
    ```
