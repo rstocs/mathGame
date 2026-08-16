@@ -22,9 +22,14 @@ name: Verify a backup restores
 
 on:
   schedule:
-    # 08:00 UTC on the 1st. Monthly is enough: this is about catching drift
-    # (a schema or version change breaking restores), not nightly health.
-    - cron: '0 8 1 * *'
+    # Mondays and Thursdays, 08:00 UTC. Catching drift would only need this
+    # monthly, but the scratch project is on the free plan too and pauses after
+    # a week idle - a monthly job would find it asleep and fail every time,
+    # and a verification that cries wolf gets switched off.
+    #
+    # Twice a week leaves a maximum gap of four days, comfortably inside the
+    # limit, and the job's own connections are what keep that project awake.
+    - cron: '0 8 * * 1,4'
   workflow_dispatch: {}
 
 jobs:
@@ -75,6 +80,22 @@ jobs:
             exit 1
           fi
           echo "Target is a different database. Safe to continue."
+
+      - name: Check the scratch project is awake
+        # Free projects pause after a week idle, and a paused one surfaces as a
+        # connection timeout during the restore - deep enough into the job to
+        # look like a broken backup rather than a sleeping database.
+        run: |
+          if ! psql "$TARGET_DB_URL" -tAc 'select 1' > /dev/null 2>&1; then
+            echo "Cannot reach the restore-test project." >&2
+            echo "" >&2
+            echo "On the free plan it pauses after a week with no activity." >&2
+            echo "Open it in the Supabase dashboard and press Restore, then" >&2
+            echo "re-run this job. If it keeps happening the schedule is too" >&2
+            echo "far apart to keep it awake." >&2
+            exit 1
+          fi
+          echo "Scratch project is awake."
 
       - name: Install a Postgres client matching the server
         # Same reasoning as the backup job: pg_dump refuses a server newer than
