@@ -49,6 +49,17 @@ export interface BaseQuestion {
    * wrong. Keep it to a couple of sentences: define the word, show the
    * notation, and say nothing that gives the answer away.
    */
+  /**
+   * Question types this hand-written question actually practises, as generator
+   * ids. Only for authored questions — a generated one already knows its own
+   * type from its id.
+   *
+   * This is what lets a miss send back the RIGHT topic. Without it the only
+   * options are guessing from the level (which re-drills topics the kid got
+   * right) or ignoring the miss entirely (which is worse). Two ids means the
+   * question genuinely needs both, not that we could not decide.
+   */
+  topics?: string[];
   primer?: string;
   imageHint?: VisualHint;
 }

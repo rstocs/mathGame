@@ -240,35 +240,36 @@ export function reviewStats(schedule: ReviewSchedule, today: string): ReviewStat
  * be skipped entirely — a grade 7 kid could miss all nine hand-written unit-rate
  * questions, get the three generated ones right, and watch the topic get
  * PROMOTED. Their wrong answers were invisible to the one system meant to bring
- * the topic back. An authored question is now evidence about every topic its
- * level teaches, which is well-aligned because grade 7 levels are topic-focused
- * (the "Unit Rates" level generates only unit-rate questions).
+ * the topic back.
+ *
+ * Which topic a miss belongs to comes from the question's own `topics` tags, so
+ * getting a percent-change question wrong sends back percent change and leaves
+ * percent-of alone. `topicsOf` decides that; this function only folds.
  */
 export function applyRunToSchedule(args: {
   schedule: ReviewSchedule;
-  /** Question ids in the order they were asked. */
-  questionIds: string[];
-  /** Parallel to questionIds. */
+  /** How many questions the run asked. */
+  questionCount: number;
+  /** Whether each was right, indexed the same way. */
   answeredCorrect: boolean[];
-  /** Generator behind a question, or null when it is hand-authored. */
-  generatorIdOf: (questionId: string) => string | null;
-  /** Topics this level teaches; authored questions are evidence about these. */
-  levelTopicIds: string[];
+  /**
+   * Which question types each asked question exercises. A generated question
+   * reports its own generator; a hand-written one reports its `topics` tags,
+   * falling back to the level's topics when it carries none.
+   */
+  topicsOf: (index: number) => string[];
   mode: ReviewMode;
   today: string;
 }): ReviewSchedule {
-  const { schedule, questionIds, answeredCorrect, generatorIdOf, levelTopicIds, mode, today } = args;
+  const { schedule, questionCount, answeredCorrect, topicsOf, mode, today } = args;
 
   const verdict = new Map<string, boolean>();
-  const note = (id: string, correct: boolean) =>
-    verdict.set(id, (verdict.get(id) ?? true) && correct);
-
-  questionIds.forEach((questionId, i) => {
+  for (let i = 0; i < questionCount; i++) {
     const correct = answeredCorrect[i] ?? false;
-    const generatorId = generatorIdOf(questionId);
-    if (generatorId) note(generatorId, correct);
-    else for (const topic of levelTopicIds) note(topic, correct);
-  });
+    for (const topic of topicsOf(i)) {
+      verdict.set(topic, (verdict.get(topic) ?? true) && correct);
+    }
+  }
 
   let next = schedule;
   for (const [generatorId, correct] of verdict) {

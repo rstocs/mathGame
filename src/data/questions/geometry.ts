@@ -178,6 +178,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q1',
+    topics: ['g5-prism-volume'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A storage box is shaped like a rectangular prism with length 5 cm, width 4 cm, and height 3 cm. Find its volume.',
@@ -188,6 +189,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q2',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'The same box has length 5 cm, width 4 cm, and height 3 cm. Find its total surface area.',
@@ -198,6 +200,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q3',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A triangular sail has a base of 10 m and a height of 6 m. Find its area.',
@@ -207,6 +210,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q4',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A parallelogram-shaped garden bed has a base of 8 ft and a height of 5 ft. Find its area.',
@@ -217,6 +221,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q5',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A trapezoid-shaped window has parallel sides of 6 in and 10 in, and a height of 4 in. Find its area.',
@@ -226,6 +231,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q6',
+    topics: ['g5-prism-volume'],
     strand: 'geometry',
     type: 'multiple-choice',
     prompt: 'A shipping crate is a rectangular prism with length 10 m, width 6 m, and height 4 m. What is its volume?',
@@ -236,6 +242,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q7',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A cube-shaped gift box has sides of 6 cm each. Find its total surface area.',
@@ -245,6 +252,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q8',
+    topics: ['g5-prism-volume'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A tent shaped like a triangular prism has triangular ends with base 6 ft and height 4 ft, and the prism is 10 ft long. Find its volume.',
@@ -254,6 +262,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l3-q9',
+    topics: ['g5-prism-volume'],
     strand: 'geometry',
     type: 'multiple-choice',
     prompt: 'A packing box measures 12 cm long, 8 cm wide, and 5 cm tall. What is its volume?',
@@ -264,6 +273,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q1',
+    topics: ['g-circle', 'g-rectangle-area'],
     strand: 'geometry',
     type: 'multiple-choice',
     prompt: 'A circular rug has a radius of 6 ft, and a rectangular rug measures 10 ft by 11 ft. Using π ≈ 3.14, which rug has the greater area, and by about how much?',
@@ -279,6 +289,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q2',
+    topics: ['g-circle'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A circular swimming pool has a radius of 4.5 m. Using π ≈ 3.14, a pool cover needs to wrap exactly around the edge. Find the circumference of the pool. Round to the nearest tenth.',
@@ -290,6 +301,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q3',
+    topics: ['g5-prism-volume', 'g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A moving box is 20 cm long, 15 cm wide, and 10 cm tall. First find its volume, then find its total surface area. What is the surface area?',
@@ -300,6 +312,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q4',
+    topics: ['g-circle'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A large circular pizza has a radius of 8 in and costs $12.00. Using π ≈ 3.14, find the area of the pizza. Round to the nearest whole number.',
@@ -311,6 +324,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q5',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A triangular plot of land for a community garden has a base of 12 m and a height of 7 m. Find the area of the plot.',
@@ -320,6 +334,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q6',
+    topics: ['g-angles'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'Two angles are supplementary. The second angle is 40° more than the first angle. Find the measure of the larger angle.',
@@ -329,6 +344,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q7',
+    topics: ['g-rectangle-area'],
     strand: 'geometry',
     type: 'multiple-choice',
     prompt: 'A rectangular picture frame has an outer size of 12 in by 9 in and a rectangular opening (inner cutout) of 8 in by 5 in for the photo. What is the area of just the wooden frame (not counting the opening)?',
@@ -338,6 +354,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q8',
+    topics: ['g5-prism-volume'],
     strand: 'geometry',
     type: 'numeric',
     prompt: 'A fish tank is a rectangular prism measuring 2 m long, 1.5 m wide, and 1 m tall. Find its volume.',
@@ -348,6 +365,7 @@ export const geometryQuestions: Question[] = [
   },
   {
     id: 'g-l4-q9',
+    topics: ['g-circle'],
     strand: 'geometry',
     type: 'multiple-choice',
     prompt: 'A circular flower bed has a diameter of 20 ft. A gardener wants to put edging around the entire border. Using π ≈ 3.14, about how much edging (to the nearest whole number) is needed?',

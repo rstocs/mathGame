@@ -296,6 +296,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q1',
+    topics: ['sp-sample-prediction'],
     strand: 'statistics-probability',
     type: 'numeric',
     prompt: 'A random sample of 40 students found that 14 of them walk to school. If the whole school has 500 students, how many would you predict walk to school?',
@@ -305,6 +306,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q2',
+    topics: ['sp-compound-probability'],
     strand: 'statistics-probability',
     type: 'numeric',
     prompt: 'A spinner has 4 equal sections numbered 1 through 4, and a die has 6 sides. You spin the spinner and roll the die. What is the probability of getting a 1 on the spinner AND a 1 on the die? Enter your answer as a decimal.',
@@ -314,6 +316,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q3',
+    topics: ['sp-simple-probability'],
     strand: 'statistics-probability',
     type: 'numeric',
     prompt: 'A bag has 4 red marbles and 6 blue marbles (10 total). You draw a marble, put it back, then draw again. What is the probability both marbles drawn are blue? Enter your answer as a decimal.',
@@ -323,6 +326,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q4',
+    topics: ['sp-compound-probability'],
     strand: 'statistics-probability',
     type: 'multiple-choice',
     prompt: 'A game involves flipping a coin twice and then rolling a die once. What is the probability of getting heads, then heads again, then rolling a number greater than 4 on the die?',
@@ -332,6 +336,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q5',
+    topics: ['sp-sample-prediction'],
     strand: 'statistics-probability',
     type: 'multiple-choice',
     prompt: 'A school newspaper wants to predict how the whole 7th grade (300 students) feels about a new dress code. Which sampling plan will give the most reliable prediction?',
@@ -346,6 +351,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q6',
+    topics: ['sp-compound-probability'],
     strand: 'statistics-probability',
     type: 'numeric',
     prompt: 'A weather forecaster says there is a 0.3 probability of rain on Saturday and, independently, a 0.3 probability of rain on Sunday. What is the probability it rains on BOTH days? Enter your answer as a decimal.',
@@ -355,6 +361,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q7',
+    topics: ['sp-compound-probability'],
     strand: 'statistics-probability',
     type: 'numeric',
     prompt: 'Two spinners each have 3 equal sections. Spinner A\'s sections are red, blue, green. Spinner B\'s sections are red, blue, green. Both spinners are spun once. How many total outcomes are in the sample space?',
@@ -364,6 +371,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q8',
+    topics: ['sp-compound-probability'],
     strand: 'statistics-probability',
     type: 'multiple-choice',
     prompt: 'Using the two spinners from the previous scenario (each with equally likely red, blue, and green sections), what is the probability that Spinner A lands on red AND Spinner B lands on red?',
@@ -373,6 +381,7 @@ export const statisticsProbabilityQuestions: Question[] = [
   },
   {
     id: 'sp-l4-q9',
+    topics: ['sp-sample-prediction'],
     strand: 'statistics-probability',
     type: 'numeric',
     prompt: 'A raffle has 500 tickets, and a random sample check found that 20 out of every 500 tickets sold are winning tickets. If a class buys 1 ticket, what is the probability it is a winning ticket? Enter your answer as a decimal.',

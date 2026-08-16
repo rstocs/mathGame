@@ -3,6 +3,7 @@ import type { Question } from '../../types/game';
 export const expressionsEquationsQuestions: Question[] = [
   {
     id: 'ee-l1-q1',
+    topics: ['ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Simplify by combining like terms: 4x + 7 + 2x − 3',
@@ -13,6 +14,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q2',
+    topics: ['ee-expand'],
     strand: 'expressions-equations',
     type: 'expression',
     prompt: 'Apply the distributive property and write the expanded form of 3(x + 4).',
@@ -24,6 +26,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q3',
+    topics: ['ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Simplify 5x − 2x + 9, then find the value of the expression when x = 3.',
@@ -33,6 +36,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q4',
+    topics: ['ee-expand', 'ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Simplify completely: 2(3x − 5) + 4x',
@@ -43,6 +47,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q5',
+    topics: ['ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Simplify: 8x + 3 − 3x − 3. What is the coefficient of x in the simplified expression?',
@@ -52,6 +57,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q6',
+    topics: ['ee-expand', 'ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'A rectangle has width x and length (x + 6). Which expression represents its perimeter?',
@@ -62,6 +68,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q7',
+    topics: ['ee-expand', 'ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Simplify −4(2x − 3) + 5x. What is the coefficient of x in the result?',
@@ -71,6 +78,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q8',
+    topics: ['ee-expand', 'ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'drag-drop-match',
     prompt: 'Match each expression on the left with its simplified equivalent on the right.',
@@ -85,6 +93,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l1-q9',
+    topics: ['ee-expand'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Which expression is NOT equivalent to 6x + 9?',
@@ -95,6 +104,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q1',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 2x + 3 = 11',
@@ -104,6 +114,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q2',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 5x − 7 = 18',
@@ -113,6 +124,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q3',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Solve for x: 3x + 4 = 19',
@@ -123,6 +135,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q4',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: x/4 + 2 = 9',
@@ -132,6 +145,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q5',
+    topics: ['ee-word-equation'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Jamal has $15 and saves $6 each week. Which equation shows how many weeks (w) it takes for him to have $57, and what is w?',
@@ -142,6 +156,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q6',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 4x − 9 = 15',
@@ -151,6 +166,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q7',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Solve for x: −2x + 5 = 17',
@@ -161,6 +177,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q8',
+    topics: ['ee-word-equation'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'A rectangle has a perimeter of 34 cm and a length of 10 cm. Using 2(l + w) = P, solve for the width w.',
@@ -170,6 +187,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l2-q9',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Solve for x: x/3 − 4 = 1',
@@ -268,6 +286,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q1',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 2(x + 3) + 4 = 16',
@@ -277,6 +296,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q2',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Solve for x: 3(2x − 1) = 5x + 4',
@@ -287,6 +307,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q3',
+    topics: ['ee-solve-two-step', 'ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 4x + 3 − x = 18',
@@ -296,6 +317,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q4',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: x/2 + 3 = −1',
@@ -305,6 +327,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q5',
+    topics: ['ee-solve-inequality'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'Solve the inequality: −4(x − 2) ≤ 24',
@@ -315,6 +338,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q6',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'A phone plan costs $20 per month plus $0.50 per text message. Solve for t (number of texts) if the total bill was $35: 20 + 0.5t = 35',
@@ -324,6 +348,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q7',
+    topics: ['ee-solve-inequality'],
     strand: 'expressions-equations',
     type: 'multiple-choice',
     prompt: 'A movie ticket costs $9 and a popcorn combo costs $6. Sam has $48 and wants to bring friends, each needing a ticket, while he buys just one popcorn combo for the group. Which inequality finds the max number of tickets (n), and what is the answer?',
@@ -334,6 +359,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q8',
+    topics: ['ee-solve-two-step', 'ee-combine-like-terms'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 2(3x + 1) − 4x = 10',
@@ -343,6 +369,7 @@ export const expressionsEquationsQuestions: Question[] = [
   },
   {
     id: 'ee-l4-q9',
+    topics: ['ee-solve-two-step'],
     strand: 'expressions-equations',
     type: 'numeric',
     prompt: 'Solve for x: 3x + 5 = x + 2',

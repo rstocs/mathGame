@@ -346,79 +346,59 @@ describe('the whole point', () => {
 });
 
 describe('folding a finished run into the schedule', () => {
-  const gen = (id: string) => `gen:${id}:1:7`;
-  const generatorIdOf = (qid: string) => (qid.startsWith('gen:') ? qid.split(':')[1] : null);
-
-  it('brings a topic back tomorrow when hand-written questions were missed', () => {
-    // The regression that mattered: grade 7 is mostly authored, and authored
-    // questions carry no generator id. A kid missed all nine written unit-rate
-    // questions, got the three generated ones right, and the topic was PROMOTED
-    // — the one system meant to re-ask it never heard about the failures.
-    const schedule = applyRunToSchedule({
+  const fold = (topics: string[][], correct: boolean[]) =>
+    applyRunToSchedule({
       schedule: {},
-      questionIds: ['rp-l1-q1', 'rp-l1-q2', gen('rp-unit-rate')],
-      answeredCorrect: [false, false, true],
-      generatorIdOf,
-      levelTopicIds: ['rp-unit-rate'],
+      questionCount: topics.length,
+      answeredCorrect: correct,
+      topicsOf: (i) => topics[i],
       mode: 'standard',
       today: '2026-08-15',
     });
+
+  it('brings a topic back tomorrow when hand-written questions were missed', () => {
+    // The regression that mattered: grade 7 is mostly hand-written, and those
+    // questions carry no generator id. A kid missed all the written unit-rate
+    // questions, got the generated ones right, and the topic was PROMOTED —
+    // the system meant to re-ask it never heard about the failures.
+    const schedule = fold(
+      [['rp-unit-rate'], ['rp-unit-rate'], ['rp-unit-rate']],
+      [false, false, true],
+    );
     expect(schedule['rp-unit-rate'].box).toBe(0);
     expect(schedule['rp-unit-rate'].dueOn).toBe('2026-08-16');
   });
 
-  it('still promotes a topic when every question was right', () => {
-    const schedule = applyRunToSchedule({
-      schedule: {},
-      questionIds: ['rp-l1-q1', gen('rp-unit-rate')],
-      answeredCorrect: [true, true],
-      generatorIdOf,
-      levelTopicIds: ['rp-unit-rate'],
-      mode: 'standard',
-      today: '2026-08-15',
-    });
-    expect(schedule['rp-unit-rate'].box).toBe(1);
+  it('sends back only the topic that was missed, not its neighbours', () => {
+    // Both live in the same level. Getting percent change wrong says nothing
+    // about percent-of, and re-drilling a topic the kid just demonstrated is
+    // wasted practice that makes review feel like punishment.
+    const schedule = fold(
+      [['rp-percent-of'], ['rp-percent-change'], ['rp-percent-of']],
+      [true, false, true],
+    );
+    expect(schedule['rp-percent-change'].box).toBe(0);
+    expect(schedule['rp-percent-of'].box).toBe(1);
   });
 
-  it('counts an authored miss against every topic its level teaches', () => {
-    const schedule = applyRunToSchedule({
-      schedule: {},
-      questionIds: ['ee-l3-q1'],
-      answeredCorrect: [false],
-      generatorIdOf,
-      levelTopicIds: ['ee-solve-two-step', 'ee-solve-inequality'],
-      mode: 'standard',
-      today: '2026-08-15',
-    });
-    expect(Object.keys(schedule).sort()).toEqual(['ee-solve-inequality', 'ee-solve-two-step']);
+  it('counts a question that genuinely needs two skills against both', () => {
+    // Solving 4x + 3 - x = 18 means combining like terms first. Missing it is
+    // evidence about both, and there is no way to tell which half broke.
+    const schedule = fold([['ee-solve-two-step', 'ee-combine-like-terms']], [false]);
+    expect(Object.keys(schedule).sort()).toEqual(['ee-combine-like-terms', 'ee-solve-two-step']);
+  });
+
+  it('still promotes a topic when every question was right', () => {
+    expect(fold([['rp-unit-rate'], ['rp-unit-rate']], [true, true])['rp-unit-rate'].box).toBe(1);
   });
 
   it('needs every question of a type right, not just the last one', () => {
-    const schedule = applyRunToSchedule({
-      schedule: {},
-      questionIds: [gen('rp-unit-rate'), gen('rp-unit-rate')],
-      answeredCorrect: [false, true],
-      generatorIdOf,
-      levelTopicIds: [],
-      mode: 'standard',
-      today: '2026-08-15',
-    });
-    expect(schedule['rp-unit-rate'].box).toBe(0);
+    expect(fold([['rp-unit-rate'], ['rp-unit-rate']], [false, true])['rp-unit-rate'].box).toBe(0);
   });
 
-  it('leaves the schedule alone when a level has no topics to attribute to', () => {
-    // Authored-only level with no generated slots: nothing to schedule against,
-    // and inventing an entry would be worse than skipping it.
-    expect(
-      applyRunToSchedule({
-        schedule: {},
-        questionIds: ['rp-l1-q1'],
-        answeredCorrect: [false],
-        generatorIdOf,
-        levelTopicIds: [],
-        mode: 'standard',
-        today: '2026-08-15',
-      }),
-    ).toEqual({});
+  it('records nothing when a question has no topic to attribute to', () => {
+    // An authored question with no tags in a level that generates nothing.
+    // Inventing an entry would be worse than skipping it.
+    expect(fold([[]], [false])).toEqual({});
   });
 });

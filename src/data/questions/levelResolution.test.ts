@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { resolveLevelQuestions, attemptSeedFor, getQuestionById } from './index';
+import { resolveLevelQuestions, attemptSeedFor, getQuestionById, allQuestions } from './index';
 import { worlds, getLevel } from '../worlds';
-import { allGenerators } from '../generators';
+import { allGenerators, hasGenerator } from '../generators';
 import { isAnswerCorrect, type UserAnswer } from '../../lib/scoring';
 import type { Question } from '../../types/game';
 
@@ -150,5 +150,35 @@ describe('attemptSeedFor', () => {
       expect(seed).toBeGreaterThanOrEqual(0);
       expect(seed).toBeLessThan(2 ** 32);
     }
+  });
+});
+
+describe('authored question topic tags', () => {
+  it('only names generators that exist', () => {
+    // A typo here is silent and nasty: the miss is recorded against a topic
+    // nothing can generate, so the kid is never actually re-asked, and the
+    // dead entry sits in every save from then on.
+    const bad = allQuestions.flatMap((q) =>
+      (q.topics ?? []).filter((t) => !hasGenerator(t)).map((t) => `${q.id} -> ${t}`),
+    );
+    expect(bad).toEqual([]);
+  });
+
+  it('tags every authored question in a level that teaches more than one topic', () => {
+    // Where a level covers one topic, an untagged question is still attributed
+    // correctly by the fallback. Where it covers several, an untagged question
+    // has to be spread across all of them — which re-drills topics the kid
+    // just got right. Those are the ones that must carry tags.
+    const untagged: string[] = [];
+    for (const world of worlds) {
+      for (const level of world.levels) {
+        const topics = new Set((level.generated ?? []).map((s) => s.generatorId));
+        if (topics.size < 2) continue;
+        for (const id of level.questionIds) {
+          if (!getQuestionById(id)?.topics?.length) untagged.push(id);
+        }
+      }
+    }
+    expect(untagged).toEqual([]);
   });
 });

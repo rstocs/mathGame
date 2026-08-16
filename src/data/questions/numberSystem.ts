@@ -3,6 +3,7 @@ import type { Question } from '../../types/game';
 export const numberSystemQuestions: Question[] = [
   {
     id: 'ns-l1-q1',
+    topics: ['ns-fraction-add'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: -3/4 + 1/2',
@@ -13,6 +14,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q2',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: -2.5 - (-4.1)',
@@ -23,6 +25,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q3',
+    topics: ['ns-fraction-add'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: 5/6 - 7/8. Round your answer to the nearest hundredth.',
@@ -34,6 +37,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q4',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'multiple-choice',
     prompt: 'Calculate: -7.2 + 3.9',
@@ -44,6 +48,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q5',
+    topics: ['ns-fraction-add'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: 1/3 - (-5/6). Round your answer to the nearest hundredth.',
@@ -54,6 +59,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q6',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -66,6 +72,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q7',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: 4.75 - 6.3',
@@ -76,6 +83,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q8',
+    topics: ['ns-fraction-add'],
     strand: 'number-system',
     type: 'multiple-choice',
     prompt: 'Calculate: -2/5 + (-1/4)',
@@ -86,6 +94,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l1-q9',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -183,6 +192,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q1',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: -4 + 6 x (-2)',
@@ -192,6 +202,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q2',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: (-10 + 4) / (-3)',
@@ -201,6 +212,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q3',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'multiple-choice',
     prompt: 'Calculate: -2.5 x 4 - (-3)',
@@ -211,6 +223,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q4',
+    topics: ['ns-signed-mul-div', 'ns-fraction-add'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: 3/4 - 1/3 x 3/5. Round your answer to the nearest hundredth.',
@@ -221,6 +234,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q5',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -232,6 +246,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q6',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -243,6 +258,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q7',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -254,6 +270,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q8',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'multiple-choice',
     prompt: 'Calculate: -6 + (-3) x (-2)',
@@ -264,6 +281,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l3-q9',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -275,6 +293,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q1',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: (-3) x (-4) + (-15) / 3',
@@ -284,6 +303,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q2',
+    topics: ['ns-fraction-add', 'ns-signed-mul-div'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: -1/2 + 3/4 x (-2/3)',
@@ -294,6 +314,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q3',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'multiple-choice',
     prompt: 'Calculate: -6.5 - (-2.2) x 3',
@@ -304,6 +325,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q4',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -316,6 +338,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q5',
+    topics: ['ns-order-rationals'],
     strand: 'number-system',
     type: 'drag-drop-order',
     prompt: 'Order these values from least to greatest: -0.6, 1/4, -7/8, 0.3, -1/2',
@@ -327,6 +350,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q6',
+    topics: ['ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:
@@ -338,6 +362,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q7',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'multiple-choice',
     prompt: 'Calculate: -9 + (-2) x (-6) - 4',
@@ -348,6 +373,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q8',
+    topics: ['ns-fraction-add', 'ns-signed-mul-div'],
     strand: 'number-system',
     type: 'numeric',
     prompt: 'Calculate: 2/3 x (-3/5) - 1/10',
@@ -358,6 +384,7 @@ export const numberSystemQuestions: Question[] = [
   },
   {
     id: 'ns-l4-q9',
+    topics: ['ns-signed-mul-div', 'ns-signed-add-sub'],
     strand: 'number-system',
     type: 'numeric',
     prompt:

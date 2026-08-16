@@ -100,6 +100,21 @@ function readInitialScreen(): ScreenId {
 }
 
 
+/**
+ * Which question types one asked question counts as evidence about.
+ *
+ * A generated question answers this itself. A hand-written one uses its
+ * `topics` tags, so a miss sends back the topic it was actually testing rather
+ * than everything the level covers. Untagged authored questions fall back to
+ * the level's topics — imprecise, but far better than the miss going unrecorded.
+ */
+function topicsForQuestion(question: Question, levelId: string): string[] {
+  const generated = parseGeneratedId(question.id);
+  if (generated) return [generated.generatorId];
+  if (question.topics?.length) return question.topics;
+  return [...new Set((getLevel(levelId)?.generated ?? []).map((slot) => slot.generatorId))];
+}
+
 const REVIEW_SESSION_SIZE = 10;
 
 export const useGameStore = create<GameStore>()(
@@ -246,15 +261,11 @@ export const useGameStore = create<GameStore>()(
         }
 
         const today = todayIso();
-        // Authored questions have no generator of their own, so they count as
-        // evidence about whatever topics their level teaches.
-        const runLevel = getLevel(run.levelId);
         const scheduleAfter = applyRunToSchedule({
           schedule: state.reviewSchedule,
-          questionIds: run.questions.map((q) => q.id),
+          questionCount: run.questions.length,
           answeredCorrect: run.answeredCorrect,
-          generatorIdOf: (id) => parseGeneratedId(id)?.generatorId ?? null,
-          levelTopicIds: [...new Set((runLevel?.generated ?? []).map((s) => s.generatorId))],
+          topicsOf: (i) => topicsForQuestion(run.questions[i], run.levelId),
           mode: state.reviewMode,
           today,
         });

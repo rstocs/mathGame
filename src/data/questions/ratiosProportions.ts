@@ -187,6 +187,7 @@ export const ratiosProportionsQuestions: Question[] = [
 
   {
     id: 'rp-l3-q1',
+    topics: ['rp-percent-of'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'What is 40% of 85?',
@@ -195,6 +196,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q2',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A skateboard originally costs $80. It is on sale for 25% off. What is the sale price?',
@@ -204,6 +206,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q3',
+    topics: ['rp-percent-of'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'A restaurant bill is $42.00 before tip. If you leave an 18% tip, how much is the tip, in dollars?',
@@ -214,6 +217,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q4',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'The price of a video game increased from $40 to $50. What is the percent increase?',
@@ -223,6 +227,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q5',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'A jacket costs $60 before an 8% sales tax. What is the total cost including tax, in dollars?',
@@ -233,6 +238,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q6',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A shirt is on sale for $45 after a 25% discount. What was the original price?',
@@ -242,6 +248,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q7',
+    topics: ['rp-percent-of'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'You deposit $500 in a savings account that earns 4% simple interest per year. How much interest will you earn after 1 year, in dollars?',
@@ -251,6 +258,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q8',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A population of 200 fish in a pond decreases by 15% due to drought. How many fish are left?',
@@ -260,6 +268,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l3-q9',
+    topics: ['rp-percent-of'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'Of the 25 students in a class, 40% play a musical instrument. How many students play an instrument?',
@@ -270,6 +279,7 @@ export const ratiosProportionsQuestions: Question[] = [
 
   {
     id: 'rp-l4-q1',
+    topics: ['rp-unit-rate'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A 15-ounce jar of peanut butter costs $3.00, and a 20-ounce jar costs $4.60. After a 10% discount is applied to the 20-ounce jar, which jar has the lower price per ounce?',
@@ -279,6 +289,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q2',
+    topics: ['rp-solve-proportion', 'rp-unit-rate'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'A car uses 8 gallons of gas to travel 240 miles. At this same rate, how many gallons are needed to travel 360 miles?',
@@ -288,6 +299,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q3',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A backpack costs $64 after a 20% discount. What was the original price?',
@@ -297,6 +309,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q4',
+    topics: ['rp-solve-proportion'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'A recipe uses a ratio of 2 cups flour to 3 cups sugar to make one batch of cookies. If you want to use 9 cups of sugar, how many cups of flour do you need?',
@@ -306,6 +319,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q5',
+    topics: ['rp-unit-rate'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'Ana runs 5 kilometers in 25 minutes. Ben runs 8 kilometers in 36 minutes. Who has the faster unit rate (fewer minutes per kilometer)?',
@@ -315,6 +329,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q6',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'A $200 phone is on sale for 15% off, then an additional 10% sales tax is added to the sale price. What is the final price, in dollars?',
@@ -325,6 +340,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q7',
+    topics: ['rp-solve-proportion'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A school garden has a proportional relationship between the number of tomato plants (x) and pounds of tomatoes harvested (y): when x = 6, y = 45. How many pounds would 10 plants produce?',
@@ -334,6 +350,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q8',
+    topics: ['rp-percent-change'],
     strand: 'ratios-proportions',
     type: 'numeric',
     prompt: 'Last year, a school had 320 students. This year enrollment increased by 12.5%. How many students are enrolled this year?',
@@ -343,6 +360,7 @@ export const ratiosProportionsQuestions: Question[] = [
   },
   {
     id: 'rp-l4-q9',
+    topics: ['rp-unit-rate'],
     strand: 'ratios-proportions',
     type: 'multiple-choice',
     prompt: 'A store sells notebooks in two packs: Pack A has 6 notebooks for $9, and Pack B has 10 notebooks for $14. Pack B then gets an extra 5% discount. Which pack has the better (lower) price per notebook after the discount?',
