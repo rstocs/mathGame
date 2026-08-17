@@ -59,6 +59,7 @@ interface GameActions {
   selectWorld: (worldId: string) => void;
   selectGrade: (grade: GradeId) => void;
   goToGradeSelect: () => void;
+  goToAccount: () => void;
   startReview: () => void;
   setReviewMode: (mode: ReviewMode) => void;
   startLevel: (levelId: string) => void;
@@ -142,6 +143,10 @@ export const useGameStore = create<GameStore>()(
 
       goToGradeSelect: () => {
         set({ currentScreen: 'grade-select', selectedWorldId: null, selectedLevelId: null });
+      },
+
+      goToAccount: () => {
+        set({ currentScreen: 'account', selectedWorldId: null, selectedLevelId: null });
       },
 
       selectGrade: (grade) => {

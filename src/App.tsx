@@ -4,12 +4,14 @@ import { useGameStore } from './store/gameStore';
 import { OnboardingScreen } from './screens/OnboardingScreen';
 import { SignInScreen } from './screens/SignInScreen';
 import { GradeSelectScreen } from './screens/GradeSelectScreen';
+import { AccountScreen } from './screens/AccountScreen';
 import { WorldMapScreen } from './screens/WorldMapScreen';
 import { LevelIntroScreen } from './screens/LevelIntroScreen';
 import { GameplayScreen } from './screens/GameplayScreen';
 import { LevelCompleteScreen } from './screens/LevelCompleteScreen';
 import { useCloudSync } from './lib/useCloudSync';
 import { isCloudEnabled } from './lib/supabase';
+import { onPasswordRecovery } from './lib/auth';
 import { SyncBadge } from './components/shared/SyncBadge';
 
 /**
@@ -25,6 +27,11 @@ function App() {
   const currentScreen = useGameStore((s) => s.currentScreen);
   const { status, userId } = useCloudSync();
   const [skipped, setSkipped] = useState(() => localStorage.getItem(SKIP_KEY) === '1');
+
+  // Arriving from a reset email signs them in with a recovery session, which is
+  // good for exactly one thing: setting a new password. Send them to where that
+  // field is, rather than dropping them on the map with no idea what happened.
+  useEffect(() => onPasswordRecovery(() => useGameStore.getState().goToAccount()), []);
 
   // Signing in makes the earlier "play without an account" choice irrelevant,
   // so it should not linger and bypass the screen for a later sign-out.
@@ -57,6 +64,7 @@ function App() {
       <AnimatePresence mode="wait">
         {currentScreen === 'onboarding' && <OnboardingScreen key="onboarding" />}
         {currentScreen === 'grade-select' && <GradeSelectScreen key="grade-select" />}
+        {currentScreen === 'account' && <AccountScreen key="account" />}
         {currentScreen === 'world-map' && <WorldMapScreen key="world-map" />}
         {currentScreen === 'level-intro' && <LevelIntroScreen key="level-intro" />}
         {currentScreen === 'gameplay' && <GameplayScreen key="gameplay" />}

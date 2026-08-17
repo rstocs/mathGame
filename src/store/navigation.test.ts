@@ -42,3 +42,28 @@ describe('a new player', () => {
     expect(state.currentWorldId.startsWith('g9-')).toBe(true);
   });
 });
+
+describe('reaching the account screen', () => {
+  it('is reachable from anywhere with a TopBar', () => {
+    useGameStore.setState({ currentScreen: 'world-map' });
+    useGameStore.getState().goToAccount();
+    expect(useGameStore.getState().currentScreen).toBe('account');
+  });
+
+  it('clears any selected world or level on the way', () => {
+    // Otherwise backing out of Account lands on a level intro the kid never
+    // asked for, because the selection outlived the screen that made it.
+    useGameStore.setState({ selectedWorldId: 'g7-ratios-proportions', selectedLevelId: 'rp-l1' });
+    useGameStore.getState().goToAccount();
+
+    const state = useGameStore.getState();
+    expect(state.selectedWorldId).toBeNull();
+    expect(state.selectedLevelId).toBeNull();
+  });
+
+  it('goes back to the map', () => {
+    useGameStore.getState().goToAccount();
+    useGameStore.getState().goToWorldMap();
+    expect(useGameStore.getState().currentScreen).toBe('world-map');
+  });
+});

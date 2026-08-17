@@ -16,6 +16,7 @@ export function TopBar({ totalXP, onBack, rightContent }: TopBarProps) {
   // each one having to thread it through.
   const soundEnabled = useGameStore((state) => state.soundEnabled);
   const toggleSound = useGameStore((state) => state.toggleSound);
+  const goToAccount = useGameStore((state) => state.goToAccount);
 
   const handleToggleSound = () => {
     // Play the confirmation blip on the way *in* to sound-on, using the value
@@ -33,6 +34,14 @@ export function TopBar({ totalXP, onBack, rightContent }: TopBarProps) {
       )}
       <XPBar totalXP={totalXP} />
       {rightContent && <div className="top-bar__right">{rightContent}</div>}
+      <button
+        type="button"
+        className="top-bar__sound tap-target"
+        onClick={goToAccount}
+        aria-label="Account"
+      >
+        👤
+      </button>
       <button
         type="button"
         className="top-bar__sound tap-target"

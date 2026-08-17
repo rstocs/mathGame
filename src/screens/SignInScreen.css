@@ -82,3 +82,12 @@
   margin: 10px 0 0;
   max-width: 300px;
 }
+
+.sign-in-screen__notice {
+  color: var(--color-ink);
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin: 0;
+  font-size: 0.9rem;
+}

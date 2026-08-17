@@ -63,6 +63,79 @@ export async function signUp(email: string, password: string): Promise<AuthResul
 }
 
 /**
+ * Changes the password of the kid who is already signed in.
+ *
+ * Preferred over the emailed reset whenever they can still get in: no inbox, no
+ * link, no waiting, and a child playing on a device with no mail account can
+ * still do it themselves.
+ */
+export async function changePassword(newPassword: string): Promise<AuthResult> {
+  try {
+    const { error } = await requireSupabase().auth.updateUser({ password: newPassword });
+    return error ? { ok: false, error: friendlyMessage(error.message) } : { ok: true };
+  } catch (error) {
+    return { ok: false, error: friendlyMessage(String(error)) };
+  }
+}
+
+/**
+ * Sends a reset link, for the case where they cannot get in at all.
+ *
+ * Always reports success, even for an address with no account. Saying "no such
+ * account" would let anyone check which emails are registered, and the honest
+ * version tells the person who genuinely mistyped their address nothing useful
+ * either — they still just wait for an email that never comes.
+ */
+export async function requestPasswordReset(email: string): Promise<AuthResult> {
+  try {
+    await requireSupabase().auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin,
+    });
+    return { ok: true };
+  } catch {
+    return { ok: true };
+  }
+}
+
+/**
+ * Deletes the account and everything attached to it.
+ *
+ * Runs as an Edge Function rather than from the browser, and cannot be done any
+ * other way: removing a user requires the service_role key, which bypasses every
+ * row level security policy. Shipping that key inside the app would hand every
+ * visitor the ability to read and delete every child's progress.
+ *
+ * The progress rows go with it, by the `on delete cascade` on each table. That
+ * is the one place this project deletes rather than archives, because a request
+ * to delete an account is a request to be forgotten, and half-honouring it is
+ * worse than refusing.
+ */
+export async function deleteAccount(): Promise<AuthResult> {
+  try {
+    const { error } = await requireSupabase().functions.invoke('delete-account');
+    if (error) return { ok: false, error: 'Could not delete the account. Please try again.' };
+    await signOut();
+    return { ok: true };
+  } catch {
+    return { ok: false, error: 'Could not delete the account. Please try again.' };
+  }
+}
+
+/**
+ * Fires when the kid arrives from a password-reset email.
+ *
+ * At that moment they are signed in with a recovery session, which is enough to
+ * set a new password and nothing else.
+ */
+export function onPasswordRecovery(handler: () => void): () => void {
+  if (!supabase) return () => {};
+  const { data } = supabase.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') handler();
+  });
+  return () => data.subscription.unsubscribe();
+}
+
+/**
  * Signs out, leaving local progress alone.
  *
  * The localStorage save is not cleared. Signing out is not deleting an account,

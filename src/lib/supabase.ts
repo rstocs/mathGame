@@ -30,10 +30,11 @@ export const supabase: SupabaseClient | null =
         auth: {
           persistSession: true,
           autoRefreshToken: true,
-          // A kid signs in once per device and stays signed in. Detecting a
-          // session in the URL matters only for magic links and OAuth, neither
-          // of which this app uses.
-          detectSessionInUrl: false,
+          // Needed for password recovery: the emailed link carries a token in
+          // the URL that has to be picked up before a new password can be set.
+          // Nothing else in the app uses a URL-borne session — there are no
+          // magic links and no OAuth.
+          detectSessionInUrl: true,
         },
       })
     : null;

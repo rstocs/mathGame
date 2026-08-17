@@ -225,6 +225,7 @@ export interface PersistedState {
 
 export type ScreenId =
   | 'onboarding'
+  | 'account'
   | 'grade-select'
   | 'review'
   | 'world-map'

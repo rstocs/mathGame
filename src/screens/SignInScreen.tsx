@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '../components/shared/Button';
-import { signIn, signUp } from '../lib/auth';
+import { requestPasswordReset, signIn, signUp } from '../lib/auth';
 import './SignInScreen.css';
 
 /**
@@ -18,6 +18,7 @@ export function SignInScreen({ onContinue }: { onContinue: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const canSubmit = email.trim() !== '' && password !== '' && !busy;
@@ -30,6 +31,20 @@ export function SignInScreen({ onContinue }: { onContinue: () => void }) {
     setBusy(false);
     if (result.ok) onContinue();
     else setError(result.error ?? 'Something went wrong.');
+  }
+
+  async function forgotPassword() {
+    if (email.trim() === '') {
+      setError('Type your email first, then tap this again.');
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    await requestPasswordReset(email);
+    setBusy(false);
+    // Deliberately the same message whether or not that address has an account:
+    // a different one would let anyone test which emails are registered.
+    setNotice('If there is an account for that email, a reset link is on its way.');
   }
 
   return (
@@ -74,16 +89,28 @@ export function SignInScreen({ onContinue }: { onContinue: () => void }) {
             {error}
           </p>
         )}
+        {notice && (
+          <p className="sign-in-screen__notice" role="status">
+            {notice}
+          </p>
+        )}
 
         <Button fullWidth disabled={!canSubmit} onClick={() => void submit()}>
           {busy ? 'One moment…' : mode === 'sign-in' ? 'Sign In' : 'Create Account'}
         </Button>
+
+        {mode === 'sign-in' && (
+          <button className="sign-in-screen__switch tap-target" onClick={() => void forgotPassword()}>
+            Forgot your password?
+          </button>
+        )}
 
         <button
           className="sign-in-screen__switch tap-target"
           onClick={() => {
             setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in');
             setError(null);
+            setNotice(null);
           }}
         >
           {mode === 'sign-in' ? 'No account yet? Make one' : 'Already have an account? Sign in'}
