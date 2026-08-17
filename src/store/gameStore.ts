@@ -46,14 +46,6 @@ interface RunState {
 }
 
 interface RuntimeState {
-  /**
-   * Whether to show the sign-in screen even though this device already chose
-   * to play without an account.
-   *
-   * Runtime-only and never persisted: it is a momentary intention, not
-   * progress, and it must not travel to another device.
-   */
-  wantsSignIn: boolean;
   currentScreen: ScreenId;
   selectedWorldId: string | null;
   selectedLevelId: string | null;
@@ -68,8 +60,6 @@ interface GameActions {
   selectGrade: (grade: GradeId) => void;
   goToGradeSelect: () => void;
   goToAccount: () => void;
-  showSignIn: () => void;
-  dismissSignIn: () => void;
   startReview: () => void;
   setReviewMode: (mode: ReviewMode) => void;
   startLevel: (levelId: string) => void;
@@ -132,7 +122,6 @@ export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
       ...defaultPersistedState(),
-      wantsSignIn: false,
       currentScreen: readInitialScreen(),
       selectedWorldId: null,
       selectedLevelId: null,
@@ -159,9 +148,6 @@ export const useGameStore = create<GameStore>()(
       goToAccount: () => {
         set({ currentScreen: 'account', selectedWorldId: null, selectedLevelId: null });
       },
-
-      showSignIn: () => set({ wantsSignIn: true }),
-      dismissSignIn: () => set({ wantsSignIn: false }),
 
       selectGrade: (grade) => {
         const first = worldsForGrade(grade)[0];
@@ -423,7 +409,7 @@ export const useGameStore = create<GameStore>()(
       version: SCHEMA_VERSION,
       // Return type annotated on purpose. Without it partialize is inferred as
       // Partial<GameStore>, and adding a runtime field here — currentScreen,
-      // run, wantsSignIn — would type-check happily and start persisting screen
+      // or run — would type-check happily and start persisting screen
       // state into a kid's save, or syncing it to their other device.
       // Annotated, the object literal's excess-property check rejects it.
       partialize: (state): PersistedState => ({

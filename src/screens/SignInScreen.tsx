@@ -5,15 +5,23 @@ import { requestPasswordReset, signIn, signUp } from '../lib/auth';
 import './SignInScreen.css';
 
 /**
- * Signing in, with an explicit way past it.
+ * The way in. There is no way past it.
  *
- * The "Play without an account" button is not a courtesy. This game worked
- * offline on one device before accounts existed, and a kid who cannot sign in —
- * forgotten password, no internet, a paused free-tier project — must still be
- * able to sit down and practise. An account buys one thing: progress that
- * follows them between the phone and the laptop.
+ * Playing without an account used to be offered here, and is not any more: an
+ * account is now required whenever the app is built with a backend. That makes
+ * every kid's progress land somewhere it can be backed up and can follow them
+ * between devices, rather than existing only in one browser's storage where a
+ * cleared cache ends it.
+ *
+ * The cost is real and worth stating: a brand new player needs a working
+ * connection once. After that Supabase keeps the session on the device, so
+ * practising on a train still works — it is only the first sign-in that needs
+ * the network.
+ *
+ * A build with no Supabase configuration at all skips this screen entirely and
+ * runs as the local game it always was; there is nothing to sign in to.
  */
-export function SignInScreen({ onContinue }: { onContinue: () => void }) {
+export function SignInScreen({ onSignedIn }: { onSignedIn: () => void }) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +37,7 @@ export function SignInScreen({ onContinue }: { onContinue: () => void }) {
     setError(null);
     const result = mode === 'sign-in' ? await signIn(email, password) : await signUp(email, password);
     setBusy(false);
-    if (result.ok) onContinue();
+    if (result.ok) onSignedIn();
     else setError(result.error ?? 'Something went wrong.');
   }
 
@@ -117,11 +125,8 @@ export function SignInScreen({ onContinue }: { onContinue: () => void }) {
         </button>
       </div>
 
-      <button className="sign-in-screen__skip tap-target" onClick={onContinue}>
-        Play without an account
-      </button>
       <p className="sign-in-screen__skip-note">
-        Your progress saves on this device, but will not follow you to another one.
+        Your progress is saved to your account, so it is there on any device you sign in on.
       </p>
     </motion.div>
   );

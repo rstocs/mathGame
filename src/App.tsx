@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useGameStore } from './store/gameStore';
 import { OnboardingScreen } from './screens/OnboardingScreen';
@@ -14,52 +14,26 @@ import { isCloudEnabled } from './lib/supabase';
 import { onPasswordRecovery } from './lib/auth';
 import { SyncBadge } from './components/shared/SyncBadge';
 
-/**
- * Whether the sign-in screen has been dealt with on this device.
- *
- * Kept out of the game store on purpose: it is a fact about this browser, not
- * about the kid's progress, and it must never travel to another device or be
- * merged with anything.
- */
-const SKIP_KEY = 'math-adventure-skip-sign-in';
-
 function App() {
   const currentScreen = useGameStore((s) => s.currentScreen);
   const { status, userId } = useCloudSync();
-  const wantsSignIn = useGameStore((s) => s.wantsSignIn);
-  const [skipped, setSkipped] = useState(() => localStorage.getItem(SKIP_KEY) === '1');
 
   // Arriving from a reset email signs them in with a recovery session, which is
   // good for exactly one thing: setting a new password. Send them to where that
   // field is, rather than dropping them on the map with no idea what happened.
   useEffect(() => onPasswordRecovery(() => useGameStore.getState().goToAccount()), []);
 
-  // Signing in makes the earlier "play without an account" choice irrelevant,
-  // so it should not linger and bypass the screen for a later sign-out.
-  useEffect(() => {
-    if (userId) localStorage.removeItem(SKIP_KEY);
-  }, [userId]);
-
-  // Only ever a gate when there is something to sign in to. With no Supabase
-  // configuration this is a local game, exactly as it was before accounts
-  // existed, and a login screen would be a wall in front of nothing.
+  // An account is required, so that every kid's progress lands somewhere it can
+  // be backed up and can follow them between devices, rather than living only
+  // in one browser's storage.
   //
-  // `wantsSignIn` is how someone who chose to play without an account gets
-  // back here later. Without it that choice was permanent short of clearing
-  // browser storage, which is not something to ask of a child.
-  const needsSignIn = isCloudEnabled() && !userId && (!skipped || wantsSignIn);
-
-  if (needsSignIn) {
+  // Still conditional on there being a backend at all: a build with no Supabase
+  // configuration is the local game this started as, and a login screen would
+  // be a wall in front of nothing.
+  if (isCloudEnabled() && !userId) {
     return (
       <AnimatePresence mode="wait">
-        <SignInScreen
-          key="sign-in"
-          onContinue={() => {
-            localStorage.setItem(SKIP_KEY, '1');
-            setSkipped(true);
-            useGameStore.getState().dismissSignIn();
-          }}
-        />
+        <SignInScreen key="sign-in" onSignedIn={() => {}} />
       </AnimatePresence>
     );
   }

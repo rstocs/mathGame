@@ -67,25 +67,3 @@ describe('reaching the account screen', () => {
     expect(useGameStore.getState().currentScreen).toBe('world-map');
   });
 });
-
-describe('getting back to the sign-in screen', () => {
-  it('is possible after choosing to play without an account', () => {
-    // Without this the choice was permanent short of clearing browser storage,
-    // which is not something to ask of a child — and the account screen said
-    // "an account would let your progress follow you" while offering no way to
-    // make one.
-    expect(useGameStore.getState().wantsSignIn).toBe(false);
-    useGameStore.getState().showSignIn();
-    expect(useGameStore.getState().wantsSignIn).toBe(true);
-  });
-
-  it('stops asking once the screen has been dealt with', () => {
-    useGameStore.getState().showSignIn();
-    useGameStore.getState().dismissSignIn();
-    expect(useGameStore.getState().wantsSignIn).toBe(false);
-  });
-
-  // That it is never persisted is enforced by the compiler instead: partialize
-  // declares a PersistedState return, so adding a runtime field to it is an
-  // excess-property error rather than something a test has to notice.
-});

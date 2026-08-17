@@ -22,7 +22,6 @@ import './AccountScreen.css';
  */
 export function AccountScreen() {
   const goToWorldMap = useGameStore((s) => s.goToWorldMap);
-  const showSignIn = useGameStore((s) => s.showSignIn);
   const playerName = useGameStore((s) => s.playerName);
   const totalXP = useGameStore((s) => s.totalXP);
 
@@ -84,20 +83,13 @@ export function AccountScreen() {
       </div>
 
       {!email ? (
-        // Playing without an account. Say what signing in would buy rather than
-        // showing an empty settings page.
+        // Only reachable in a build with no Supabase configuration, where there
+        // is no account system to describe. Signing in is required otherwise.
         <div className="account-card">
-          <p className="account-card__lead">You are playing without an account.</p>
+          <p className="account-card__lead">This copy of the game has no accounts.</p>
           <p>
-            {playerName}'s progress is saved on this device only — {totalXP} XP so far. An account
-            would let it follow you to a phone or another computer.
-          </p>
-          <button type="button" className="account-card__button" onClick={showSignIn}>
-            Sign in or create an account
-          </button>
-          <p className="account-card__note">
-            Making an account starts fresh — the {totalXP} XP on this device stays here rather than
-            moving across.
+            {playerName}'s progress is saved in this browser only — {totalXP} XP so far. It cannot
+            follow you to another device, and clearing the browser's data ends it.
           </p>
         </div>
       ) : (
