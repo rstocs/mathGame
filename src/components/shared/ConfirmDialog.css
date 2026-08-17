@@ -1,0 +1,71 @@
+.confirm-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(35, 50, 74, 0.5);
+}
+
+.confirm-dialog__card {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  max-width: 380px;
+  width: 100%;
+}
+
+.confirm-dialog__card h2 {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  color: var(--color-ink);
+}
+
+.confirm-dialog__body {
+  color: var(--color-ink-soft);
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.confirm-dialog__body p {
+  margin: 0 0 8px;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-dialog__button {
+  flex: 1;
+  padding: 13px 16px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(35, 50, 74, 0.15);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.confirm-dialog__button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.confirm-dialog__button--danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger-dark);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+/* Keyboard focus must be obvious here: which button is focused is the whole
+   safety story when someone hits Enter without looking. */
+.confirm-dialog__button:focus-visible {
+  outline: 3px solid var(--color-ink);
+  outline-offset: 2px;
+}

@@ -3,22 +3,22 @@ import { motion } from 'framer-motion';
 import { useGameStore } from '../store/gameStore';
 import { changePassword, deleteAccount, getSession, signOut } from '../lib/auth';
 import { isCloudEnabled } from '../lib/supabase';
+import { ConfirmDialog } from '../components/shared/ConfirmDialog';
 import './AccountScreen.css';
 
 /**
  * Everything to do with the account, in one place a kid can find.
  *
- * The three actions here differ enormously in how much they cost if pressed by
- * mistake, and the screen is built around that rather than treating them as a
- * uniform list of settings:
+ * The three actions differ enormously in what they cost if pressed by mistake,
+ * and the screen is laid out around that rather than as a uniform settings list:
  *
  *   Sign out        — costs nothing. Progress stays on the device and in the
  *                     cloud, and signing back in brings it together.
  *   Change password — costs nothing, and is the way back in that does not need
  *                     an inbox on the device being played on.
- *   Delete account  — the only irreversible action in the whole app. It is set
- *                     apart, needs the word DELETE typed out, and says plainly
- *                     what disappears.
+ *   Delete account  — the only irreversible action in the app. Set apart
+ *                     visually, and confirmed in a dialog that names the
+ *                     account and counts what is about to go.
  */
 export function AccountScreen() {
   const goToWorldMap = useGameStore((s) => s.goToWorldMap);
@@ -30,7 +30,6 @@ export function AccountScreen() {
   const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleteTyped, setDeleteTyped] = useState('');
 
   useEffect(() => {
     if (isCloudEnabled()) void getSession().then((s) => setEmail(s?.user.email ?? null));
@@ -56,6 +55,7 @@ export function AccountScreen() {
     setBusy(true);
     const result = await deleteAccount();
     setBusy(false);
+    setConfirmDelete(false);
     if (result.ok) goToWorldMap();
     else setMessage({ kind: 'bad', text: result.error ?? 'Could not delete the account.' });
   }
@@ -137,48 +137,35 @@ export function AccountScreen() {
               This removes the account and all its progress — every star, badge and XP — from every
               device. It cannot be undone.
             </p>
-            {!confirmDelete ? (
-              <button
-                type="button"
-                className="account-card__button account-card__button--danger"
-                onClick={() => setConfirmDelete(true)}
-              >
-                Delete my account
-              </button>
-            ) : (
-              <>
-                <p className="account-card__note">
-                  Type <strong>DELETE</strong> to confirm.
-                </p>
-                <input
-                  className="account-card__input tap-target"
-                  value={deleteTyped}
-                  onChange={(e) => setDeleteTyped(e.target.value)}
-                  aria-label="Type DELETE to confirm"
-                />
-                <button
-                  type="button"
-                  className="account-card__button account-card__button--danger"
-                  // Typing the word is the point. A button that only needs a
-                  // second click is one mis-tap away from ending a year of work.
-                  disabled={busy || deleteTyped !== 'DELETE'}
-                  onClick={() => void onDelete()}
-                >
-                  Permanently delete
-                </button>
-                <button
-                  type="button"
-                  className="account-card__button"
-                  onClick={() => {
-                    setConfirmDelete(false);
-                    setDeleteTyped('');
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
+            <button
+              type="button"
+              className="account-card__button account-card__button--danger"
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete my account
+            </button>
           </div>
+
+          {confirmDelete && (
+            <ConfirmDialog
+              title="Delete this account?"
+              confirmLabel="Delete account"
+              busy={busy}
+              onCancel={() => setConfirmDelete(false)}
+              onConfirm={() => void onDelete()}
+              body={
+                <>
+                  <p>
+                    <strong>{email}</strong> and everything in it will be removed from every device.
+                  </p>
+                  <p>
+                    That is {totalXP} XP, along with every star and badge {playerName} has earned.
+                  </p>
+                  <p>This cannot be undone.</p>
+                </>
+              }
+            />
+          )}
         </>
       )}
     </motion.div>
