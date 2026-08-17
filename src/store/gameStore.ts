@@ -72,7 +72,7 @@ interface GameActions {
 
 export type GameStore = PersistedState & RuntimeState & GameActions;
 
-function defaultPersistedState(): PersistedState {
+export function defaultPersistedState(): PersistedState {
   return {
     version: SCHEMA_VERSION,
     playerName: '',

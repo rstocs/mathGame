@@ -11,6 +11,7 @@ import { LevelCompleteScreen } from './screens/LevelCompleteScreen';
 import { useCloudSync } from './lib/useCloudSync';
 import { isCloudEnabled } from './lib/supabase';
 import { SyncBadge } from './components/shared/SyncBadge';
+import { ClaimProgressPrompt } from './components/shared/ClaimProgressPrompt';
 
 /**
  * Whether the sign-in screen has been dealt with on this device.
@@ -23,7 +24,7 @@ const SKIP_KEY = 'math-adventure-skip-sign-in';
 
 function App() {
   const currentScreen = useGameStore((s) => s.currentScreen);
-  const { status, userId } = useCloudSync();
+  const { status, userId, claimPrompt } = useCloudSync();
   const [skipped, setSkipped] = useState(() => localStorage.getItem(SKIP_KEY) === '1');
 
   // Signing in makes the earlier "play without an account" choice irrelevant,
@@ -54,6 +55,9 @@ function App() {
   return (
     <>
       <SyncBadge status={status} />
+      {claimPrompt && (
+        <ClaimProgressPrompt onKeep={claimPrompt.onKeep} onDiscard={claimPrompt.onDiscard} />
+      )}
       <AnimatePresence mode="wait">
         {currentScreen === 'onboarding' && <OnboardingScreen key="onboarding" />}
         {currentScreen === 'grade-select' && <GradeSelectScreen key="grade-select" />}
