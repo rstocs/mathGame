@@ -21,6 +21,9 @@
 alter table public.profiles
   add column if not exists first_sync_at timestamptz;
 
+-- One literal rather than two adjacent ones. Splitting a string across lines is
+-- valid here — Postgres joins constants separated by a newline — but it depends
+-- on a trailing space nothing makes visible, and losing it silently yields
+-- "still thesign-up trigger's".
 comment on column public.profiles.first_sync_at is
-  'When the app first wrote this profile. Null means the row is still the '
-  'sign-up trigger''s defaults, and the device should keep its own preferences.';
+  'When the app first wrote this profile. Null means the row is still the sign-up trigger''s defaults, so the device should keep its own preferences.';
