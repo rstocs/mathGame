@@ -224,3 +224,35 @@ describe('the guarantee, stated directly', () => {
     }
   });
 });
+
+describe('signing up on the device that already has the progress', () => {
+  it('would send a grade 9 student back to grade 7 if defaults were treated as real', () => {
+    // Documents WHY progressSync refuses to merge against an untouched profile.
+    //
+    // The sign-up trigger creates a row carrying defaults: grade 7, the first
+    // world, sound on. Those are placeholders, not choices. Merging against
+    // them with preferences:'remote' — correct when the remote is real — hands
+    // the placeholder the win.
+    //
+    // XP and stars are never at risk, since those take the highest value. The
+    // grade is, and a silently reset grade is exactly the kind of "the app lost
+    // my place" that makes a kid stop trusting it.
+    const macbook = state({ selectedGradeId: 9, currentWorldId: 'g9-linear', totalXP: 3000 });
+    const untouchedRow = state({ selectedGradeId: 7, currentWorldId: 'g7-ratios-proportions', totalXP: 0 });
+
+    const ifWeMergedAnyway = mergeProgress(macbook, untouchedRow, { preferences: 'remote' });
+    expect(ifWeMergedAnyway.selectedGradeId).toBe(7); // the regression, shown
+    expect(ifWeMergedAnyway.totalXP).toBe(3000); // achievement was never at risk
+
+    // remoteIsAuthoritative() is what stops that merge happening at all, so the
+    // device keeps its own state untouched.
+    expect(macbook.selectedGradeId).toBe(9);
+  });
+
+  it('keeps the local grade once the remote is genuinely a synced profile', () => {
+    const laptop = state({ selectedGradeId: 9, totalXP: 3000 });
+    const realRemote = state({ selectedGradeId: 10, totalXP: 5000 });
+    // A real remote SHOULD win on preferences — that is a device catching up.
+    expect(mergeProgress(laptop, realRemote, { preferences: 'remote' }).selectedGradeId).toBe(10);
+  });
+});

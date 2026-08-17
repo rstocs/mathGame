@@ -37,6 +37,30 @@ interface RemoteProfile {
   reviewSchedule: ReviewSchedule;
 }
 
+/**
+ * A remote profile, plus whether it means anything yet.
+ *
+ * The sign-up trigger creates a profiles row immediately, so "a row exists" is
+ * not the same as "this kid has synced". An untouched row carries defaults —
+ * grade 7, the first world — and treating those as real preferences sends a
+ * grade 9 student back two grades the moment they make an account.
+ */
+interface RemoteState {
+  profile: RemoteProfile;
+  /** False while the row is still the trigger's defaults. */
+  hasSyncedBefore: boolean;
+}
+
+/**
+ * Whether the cloud holds anything worth preferring over this device.
+ *
+ * Exported so the rule is testable on its own: getting it wrong is silent, and
+ * shows up as a kid's grade or name quietly changing rather than as an error.
+ */
+export function remoteIsAuthoritative(remote: RemoteState | null): boolean {
+  return remote !== null && remote.hasSyncedBefore;
+}
+
 export interface SyncResult {
   ok: boolean;
   /** Present when the sync failed; suitable for a quiet status line, not a modal. */
@@ -56,7 +80,7 @@ export async function currentUserId(): Promise<string | null> {
  * Returns null when there is nothing yet, which is the normal state for a
  * newly created account rather than an error.
  */
-export async function loadRemoteProfile(userId: string): Promise<RemoteProfile | null> {
+export async function loadRemoteProfile(userId: string): Promise<RemoteState | null> {
   const db = requireSupabase();
 
   // Four reads in parallel: they are independent, and the round trip dominates.
@@ -92,6 +116,8 @@ export async function loadRemoteProfile(userId: string): Promise<RemoteProfile |
   }
 
   return {
+    hasSyncedBefore: profile.data.first_sync_at != null,
+    profile: {
     playerName: profile.data.player_name ?? '',
     selectedGradeId: (profile.data.selected_grade ?? 7) as GradeId,
     currentWorldId: profile.data.current_world_id ?? 'g7-ratios-proportions',
@@ -103,6 +129,7 @@ export async function loadRemoteProfile(userId: string): Promise<RemoteProfile |
     unlockedBadgeIds: stats.data?.unlocked_badge_ids ?? [],
     levelProgress,
     reviewSchedule,
+    },
   };
 }
 
@@ -115,8 +142,11 @@ export async function loadRemoteProfile(userId: string): Promise<RemoteProfile |
  */
 export async function pullAndMerge(userId: string, local: PersistedState): Promise<PersistedState> {
   const remote = await loadRemoteProfile(userId);
-  if (!remote) return local;
-  return mergeProgress(local, { ...local, ...remote }, { preferences: 'remote' });
+  // Nothing meaningful up there yet — a brand new account, whose row holds the
+  // trigger's defaults. Keep this device's state exactly as it is; signing up
+  // on the machine you have been playing on must not cost you anything.
+  if (!remoteIsAuthoritative(remote)) return local;
+  return mergeProgress(local, { ...local, ...remote!.profile }, { preferences: 'remote' });
 }
 
 /**
@@ -133,8 +163,8 @@ export async function pushProgress(userId: string, local: PersistedState): Promi
 
   try {
     const remote = await loadRemoteProfile(userId);
-    const merged = remote
-      ? mergeProgress(local, { ...local, ...remote }, { preferences: 'local' })
+    const merged = remoteIsAuthoritative(remote)
+      ? mergeProgress(local, { ...local, ...remote!.profile }, { preferences: 'local' })
       : local;
 
     const now = new Date().toISOString();
@@ -151,6 +181,9 @@ export async function pushProgress(userId: string, local: PersistedState): Promi
         sound_enabled: merged.soundEnabled,
         review_mode: merged.reviewMode,
         schema_version: merged.version,
+        // Set once, on the first real write. After that this row stops being
+        // the trigger's defaults and starts being the kid's actual profile.
+        first_sync_at: remote?.hasSyncedBefore ? undefined : now,
         updated_at: now,
       }),
       db.from('stats').upsert({
