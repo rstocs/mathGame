@@ -128,7 +128,12 @@ export const useGameStore = create<GameStore>()(
       lastLevelResult: null,
 
       setPlayerName: (name) => {
-        set({ playerName: name.trim() || 'Explorer', currentScreen: 'world-map' });
+        // Straight to the grade picker, not the map. Landing a new player on
+        // grade 7 makes a silent choice for them: a 5th grader meets material
+        // two years ahead and a 10th grader meets material three years behind,
+        // and neither has been told a decision was made or that it can be
+        // changed. Grade 7 is only the default because it was written first.
+        set({ playerName: name.trim() || 'Explorer', currentScreen: 'grade-select' });
       },
 
       goToWorldMap: () => {

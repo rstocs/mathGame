@@ -87,6 +87,15 @@ export function useCloudSync(): { status: SyncStatus; userId: string | null } {
         const merged = await pullAndMerge(id, persistedSlice(useGameStore.getState()));
         if (cancelled) return;
         useGameStore.setState(merged);
+
+        // The opening screen is chosen from localStorage before any of this
+        // runs, so a returning kid signing in on a NEW device is sitting on the
+        // onboarding screen being asked a name they already have. Their profile
+        // has just arrived; send them to their map.
+        if (merged.playerName && useGameStore.getState().currentScreen === 'onboarding') {
+          useGameStore.setState({ currentScreen: 'world-map' });
+        }
+
         setLocalOwner(id);
         // Seed the change detector with what we just adopted, so arriving does
         // not immediately look like a local edit and bounce straight back up.
