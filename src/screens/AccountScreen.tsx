@@ -22,6 +22,7 @@ import './AccountScreen.css';
  */
 export function AccountScreen() {
   const goToWorldMap = useGameStore((s) => s.goToWorldMap);
+  const showSignIn = useGameStore((s) => s.showSignIn);
   const playerName = useGameStore((s) => s.playerName);
   const totalXP = useGameStore((s) => s.totalXP);
 
@@ -90,6 +91,13 @@ export function AccountScreen() {
           <p>
             {playerName}'s progress is saved on this device only — {totalXP} XP so far. An account
             would let it follow you to a phone or another computer.
+          </p>
+          <button type="button" className="account-card__button" onClick={showSignIn}>
+            Sign in or create an account
+          </button>
+          <p className="account-card__note">
+            Making an account starts fresh — the {totalXP} XP on this device stays here rather than
+            moving across.
           </p>
         </div>
       ) : (

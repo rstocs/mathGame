@@ -26,6 +26,7 @@ const SKIP_KEY = 'math-adventure-skip-sign-in';
 function App() {
   const currentScreen = useGameStore((s) => s.currentScreen);
   const { status, userId } = useCloudSync();
+  const wantsSignIn = useGameStore((s) => s.wantsSignIn);
   const [skipped, setSkipped] = useState(() => localStorage.getItem(SKIP_KEY) === '1');
 
   // Arriving from a reset email signs them in with a recovery session, which is
@@ -42,7 +43,11 @@ function App() {
   // Only ever a gate when there is something to sign in to. With no Supabase
   // configuration this is a local game, exactly as it was before accounts
   // existed, and a login screen would be a wall in front of nothing.
-  const needsSignIn = isCloudEnabled() && !userId && !skipped;
+  //
+  // `wantsSignIn` is how someone who chose to play without an account gets
+  // back here later. Without it that choice was permanent short of clearing
+  // browser storage, which is not something to ask of a child.
+  const needsSignIn = isCloudEnabled() && !userId && (!skipped || wantsSignIn);
 
   if (needsSignIn) {
     return (
@@ -52,6 +57,7 @@ function App() {
           onContinue={() => {
             localStorage.setItem(SKIP_KEY, '1');
             setSkipped(true);
+            useGameStore.getState().dismissSignIn();
           }}
         />
       </AnimatePresence>
