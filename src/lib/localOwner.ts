@@ -7,21 +7,23 @@
  * into the other's account writes it into their cloud record permanently, and
  * from then on both accounts claim the same work.
  *
- * Three situations, and only one of them needs a human:
+ * The rule is deliberately blunt: a save is only ever merged when it demonstrably
+ * belongs to the account signing in. Anything else starts clean.
  *
- *   The save is already this user's   -> merge, silently. The normal case.
- *   The save belongs to someone else  -> archive it and start clean. No
- *                                        question needed: we know it is not
- *                                        theirs.
- *   Nobody has claimed the save       -> genuinely ambiguous. Somebody played
- *                                        here without an account, and only a
- *                                        person knows whether that was them.
+ *   The save is already this user's  -> merge. This is what lets a kid play
+ *                                       offline on their own device and keep it.
+ *   Anything else                    -> archive it and start fresh.
+ *
+ * "Anything else" covers both a brand new account and a second child on a shared
+ * laptop, and treating them the same is the point. The alternative was asking
+ * whose the progress was, which put a question a nine-year-old cannot reliably
+ * answer in front of the one action that can absorb a sibling's work forever.
+ * A predictable empty start is worth more than a clever guess.
  *
  * Archiving rather than clearing follows the same rule as everything else here:
- * nothing a child earned is ever deleted, even when it is in the way.
+ * nothing a child earned is deleted, even when it is in the way and even when
+ * nobody intends to go back for it.
  */
-
-import type { PersistedState } from '../types/game';
 
 const OWNER_KEY = 'math-adventure-owner';
 const SAVE_KEY = 'math-adventure-save';
@@ -53,24 +55,12 @@ export function clearLocalOwner(): void {
 }
 
 /**
- * Whether there is anything here worth asking about.
- *
- * A save with no XP and no level ever finished is an empty install, not
- * somebody's work. Interrupting a kid to ask whether they want to keep nothing
- * would be noise, and worse, would train them to click through the one question
- * that actually matters.
- */
-export function hasMeaningfulProgress(state: Pick<PersistedState, 'totalXP' | 'levelProgress'>): boolean {
-  return (state.totalXP ?? 0) > 0 || Object.keys(state.levelProgress ?? {}).length > 0;
-}
-
-/**
  * Copies the current save aside before it is replaced.
  *
- * The case this exists for: one child played without an account, another signs
- * in on the same device. The first child's progress is about to be pushed out
- * of the only place it exists. It is not ours to delete, so it is kept under a
- * dated key where it can be recovered by hand.
+ * Whatever is here is about to be pushed out of the only place it exists — a
+ * kid who played without an account has no cloud copy to fall back on. Starting
+ * fresh is the intended behaviour; destroying their afternoon on the way is not,
+ * so it is kept under a dated key and can be recovered by hand.
  */
 export function archiveLocalSave(reason: string): string | null {
   try {
@@ -106,22 +96,15 @@ export function listArchivedSaves(): string[] {
  * be buried inside an effect.
  */
 export type SignInDecision =
-  /** Same person as last time: merge their device and cloud state. */
+  /** This device's save is already theirs: merge it with the cloud. */
   | { kind: 'merge' }
-  /** Known to be someone else's save: keep it safe, start this account clean. */
-  | { kind: 'switch-user' }
-  /** Unclaimed progress exists. Only a human can say whose it is. */
-  | { kind: 'ask' };
+  /** Not theirs, or nobody's: set it aside and begin empty. */
+  | { kind: 'fresh-start' };
 
-export function decideOnSignIn(args: {
-  userId: string;
-  owner: string | null;
-  localHasProgress: boolean;
-}): SignInDecision {
-  const { userId, owner, localHasProgress } = args;
-  if (owner === userId) return { kind: 'merge' };
-  if (owner !== null) return { kind: 'switch-user' };
-  // Nobody has claimed this save. With nothing in it, there is nothing to
-  // claim and nothing to ask about.
-  return localHasProgress ? { kind: 'ask' } : { kind: 'merge' };
+export function decideOnSignIn(args: { userId: string; owner: string | null }): SignInDecision {
+  // Only a save this exact account has claimed before is merged. Unclaimed
+  // progress is not assumed to be theirs, however tempting: on a shared device
+  // that assumption writes one child's work into another's account for good,
+  // and there is no undo once both accounts claim it.
+  return args.owner === args.userId ? { kind: 'merge' } : { kind: 'fresh-start' };
 }

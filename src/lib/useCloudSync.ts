@@ -16,13 +16,7 @@ import { useGameStore } from '../store/gameStore';
 import { getSession, onAuthChange } from './auth';
 import { debounce, pullAndMerge, pushProgress } from './progressSync';
 import { isCloudEnabled } from './supabase';
-import {
-  archiveLocalSave,
-  decideOnSignIn,
-  getLocalOwner,
-  hasMeaningfulProgress,
-  setLocalOwner,
-} from './localOwner';
+import { archiveLocalSave, decideOnSignIn, getLocalOwner, setLocalOwner } from './localOwner';
 import { defaultPersistedState } from '../store/gameStore';
 import type { PersistedState } from '../types/game';
 
@@ -59,16 +53,9 @@ function syncKey(state: PersistedState): string {
   ]);
 }
 
-export function useCloudSync(): {
-  status: SyncStatus;
-  userId: string | null;
-  /** Set when only a person can say whose the progress on this device is. */
-  claimPrompt: { onKeep: () => void; onDiscard: () => void } | null;
-} {
+export function useCloudSync(): { status: SyncStatus; userId: string | null } {
   const [status, setStatus] = useState<SyncStatus>(isCloudEnabled() ? 'signed-out' : 'off');
   const [userId, setUserId] = useState<string | null>(null);
-  const [claimPrompt, setClaimPrompt] =
-    useState<{ onKeep: () => void; onDiscard: () => void } | null>(null);
   const lastPushed = useRef<string | null>(null);
 
   // Pull once per sign-in, and follow sign-out.
@@ -85,39 +72,16 @@ export function useCloudSync(): {
       }
       setStatus('syncing');
 
-      // Before syncing anything, work out whether the save sitting on this
-      // device is even theirs. On a shared laptop it may be a sibling's, and
-      // merging it up would write their work into this account for good.
-      const decision = decideOnSignIn({
-        userId: id,
-        owner: getLocalOwner(),
-        localHasProgress: hasMeaningfulProgress(useGameStore.getState()),
-      });
+      // A save is only merged when this exact account already owned it, which
+      // is what lets a kid play offline on their own device. Everything else —
+      // a new account, or a second child on a shared laptop — starts empty.
+      const decision = decideOnSignIn({ userId: id, owner: getLocalOwner() });
 
-      if (decision.kind === 'ask') {
-        setClaimPrompt({
-          onKeep: () => {
-            setClaimPrompt(null);
-            void adoptWith(id, 'merge');
-          },
-          onDiscard: () => {
-            setClaimPrompt(null);
-            void adoptWith(id, 'switch-user');
-          },
-        });
-        return;
-      }
-      await adoptWith(id, decision.kind);
-    }
-
-    async function adoptWith(id: string, kind: 'merge' | 'switch-user') {
-      if (cancelled) return;
-      setStatus('syncing');
       try {
-        if (kind === 'switch-user') {
-          // Someone else's progress. Keep a copy — it may be the only one, if
-          // they never made an account — then clear the decks for this user.
-          archiveLocalSave('user-switch');
+        if (decision.kind === 'fresh-start') {
+          // Keep a copy first. If whoever was playing here never made an
+          // account, this is the only copy that exists.
+          archiveLocalSave('fresh-start');
           useGameStore.setState(defaultPersistedState());
         }
         const merged = await pullAndMerge(id, persistedSlice(useGameStore.getState()));
@@ -167,5 +131,5 @@ export function useCloudSync(): {
     return useGameStore.subscribe((state) => push(persistedSlice(state)));
   }, [userId]);
 
-  return { status, userId, claimPrompt };
+  return { status, userId };
 }
