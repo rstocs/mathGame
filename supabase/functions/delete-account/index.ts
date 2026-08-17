@@ -15,11 +15,12 @@
  * refusing outright. The progress rows go with the user through the
  * `on delete cascade` on each table's foreign key.
  *
- * Deploy with:
- *   supabase functions deploy delete-account
+ * Deployed automatically by .github/workflows/deploy-functions.yml on any push
+ * that touches this directory. To do it by hand:
+ *   npx supabase functions deploy delete-account --project-ref <ref>
  *
- * SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by the platform; do
- * not add them as secrets and do not hard-code them.
+ * SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by
+ * the platform; do not add them as secrets and do not hard-code them.
  */
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
