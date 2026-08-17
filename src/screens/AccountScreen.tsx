@@ -30,6 +30,7 @@ export function AccountScreen() {
   const [message, setMessage] = useState<{ kind: 'ok' | 'bad'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isCloudEnabled()) void getSession().then((s) => setEmail(s?.user.email ?? null));
@@ -51,13 +52,20 @@ export function AccountScreen() {
     );
   }
 
-  async function onDelete() {
+  async function onDelete(password?: string) {
+    if (!password) return;
     setBusy(true);
-    const result = await deleteAccount();
+    setDeleteError(null);
+    const result = await deleteAccount(password);
     setBusy(false);
-    setConfirmDelete(false);
-    if (result.ok) goToWorldMap();
-    else setMessage({ kind: 'bad', text: result.error ?? 'Could not delete the account.' });
+    if (result.ok) {
+      setConfirmDelete(false);
+      goToWorldMap();
+      return;
+    }
+    // Kept open, with the reason inside it. Closing on a mistyped password
+    // would make them find and re-open the dialog to try again.
+    setDeleteError(result.error ?? 'Could not delete the account.');
   }
 
   return (
@@ -151,8 +159,13 @@ export function AccountScreen() {
               title="Delete this account?"
               confirmLabel="Delete account"
               busy={busy}
-              onCancel={() => setConfirmDelete(false)}
-              onConfirm={() => void onDelete()}
+              passwordLabel="Enter your password to confirm"
+              error={deleteError}
+              onCancel={() => {
+                setConfirmDelete(false);
+                setDeleteError(null);
+              }}
+              onConfirm={(password) => void onDelete(password)}
               body={
                 <>
                   <p>

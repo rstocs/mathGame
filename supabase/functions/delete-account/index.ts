@@ -58,9 +58,38 @@ Deno.serve(async (req: Request) => {
   if (userError || !userData.user) return json({ error: 'Not signed in.' }, 401);
 
   const userId = userData.user.id;
+  const userEmail = userData.user.email;
 
-  // Only now, with the id established from the caller's own token, use the
-  // privileged client — and only on that id.
+  // Re-check the password before deleting anything.
+  //
+  // Verified HERE rather than in the browser on purpose. A check in the app is
+  // a prompt: anyone holding the session could skip it by calling this function
+  // directly. Doing it server-side makes it a condition of deletion, so a valid
+  // token alone is not enough — you also have to know the password.
+  //
+  // What that actually buys, in this app: two children share a laptop, and one
+  // can reach an unlocked session belonging to the other. A confirmation box
+  // asks "did you mean this?"; a password asks "are you the person whose work
+  // this is?", and only the second has an answer a sibling cannot give.
+  let password = '';
+  try {
+    password = (await req.json())?.password ?? '';
+  } catch {
+    password = '';
+  }
+  if (!password || !userEmail) return json({ error: 'Password required.' }, 400);
+
+  // A separate anon client with no Authorization header, so this is a plain
+  // password check and not something the existing session can satisfy.
+  const check = createClient(url, anonKey);
+  const { error: passwordError } = await check.auth.signInWithPassword({
+    email: userEmail,
+    password,
+  });
+  if (passwordError) return json({ error: 'Incorrect password.' }, 401);
+
+  // Only now, with the id established from the caller's own token and the
+  // password confirmed, use the privileged client — and only on that id.
   const asAdmin = createClient(url, serviceKey);
   const { error: deleteError } = await asAdmin.auth.admin.deleteUser(userId);
   if (deleteError) return json({ error: deleteError.message }, 500);

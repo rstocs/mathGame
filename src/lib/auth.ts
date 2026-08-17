@@ -109,11 +109,30 @@ export async function requestPasswordReset(email: string): Promise<AuthResult> {
  * is the one place this project deletes rather than archives, because a request
  * to delete an account is a request to be forgotten, and half-honouring it is
  * worse than refusing.
+ *
+ * The password is checked by the function, not here. Checking it in the browser
+ * would only be a prompt — anyone holding the session could call the function
+ * directly and skip it.
  */
-export async function deleteAccount(): Promise<AuthResult> {
+export async function deleteAccount(password: string): Promise<AuthResult> {
   try {
-    const { error } = await requireSupabase().functions.invoke('delete-account');
-    if (error) return { ok: false, error: 'Could not delete the account. Please try again.' };
+    const { data, error } = await requireSupabase().functions.invoke('delete-account', {
+      body: { password },
+    });
+    if (error) {
+      // A wrong password comes back as a 401 from the function. Say so plainly:
+      // "could not delete" would send someone hunting for a fault when they
+      // simply mistyped.
+      const status = (error as { context?: { status?: number } }).context?.status;
+      return {
+        ok: false,
+        error:
+          status === 401
+            ? 'That password is not right.'
+            : 'Could not delete the account. Please try again.',
+      };
+    }
+    if (data?.error) return { ok: false, error: String(data.error) };
     await signOut();
     return { ok: true };
   } catch {

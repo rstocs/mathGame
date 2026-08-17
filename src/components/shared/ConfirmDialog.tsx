@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './ConfirmDialog.css';
 
 /**
@@ -16,6 +16,13 @@ import './ConfirmDialog.css';
  * The confirm button says what it does — "Delete account", not "OK". Read on
  * its own, halfway through a sentence, "OK" tells you nothing about what you
  * are agreeing to.
+ *
+ * With `passwordLabel` set it also asks for the password. That is not about
+ * making the user think twice — the dialog already does that — but about WHO is
+ * pressing the button. Two children share a laptop, and one of them can reach
+ * an unlocked session belonging to the other. A confirmation box asks "did you
+ * mean this?"; a password asks "are you the person whose work this is?", and
+ * only the second question has a wrong answer a sibling cannot give.
  */
 export function ConfirmDialog({
   title,
@@ -24,15 +31,24 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
   busy = false,
+  passwordLabel,
+  error,
 }: {
   title: string;
   body: React.ReactNode;
   confirmLabel: string;
-  onConfirm: () => void;
+  /** Receives the typed password when `passwordLabel` is set. */
+  onConfirm: (password?: string) => void;
   onCancel: () => void;
   busy?: boolean;
+  /** Set to require the account password before confirming. */
+  passwordLabel?: string;
+  /** Shown inside the dialog, so a wrong password does not close it. */
+  error?: string | null;
 }) {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const [password, setPassword] = useState('');
+  const needsPassword = passwordLabel !== undefined;
 
   useEffect(() => {
     cancelRef.current?.focus();
@@ -56,6 +72,31 @@ export function ConfirmDialog({
       >
         <h2 id="confirm-title">{title}</h2>
         <div className="confirm-dialog__body">{body}</div>
+
+        {needsPassword && (
+          <div className="confirm-dialog__field">
+            <label htmlFor="confirm-password">{passwordLabel}</label>
+            <input
+              id="confirm-password"
+              className="confirm-dialog__input"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter submits only once a password is present, so it cannot
+                // fire the destructive action on an empty field.
+                if (e.key === 'Enter' && password !== '' && !busy) onConfirm(password);
+              }}
+            />
+          </div>
+        )}
+
+        {error && (
+          <p className="confirm-dialog__error" role="alert">
+            {error}
+          </p>
+        )}
         <div className="confirm-dialog__actions">
           <button
             ref={cancelRef}
@@ -69,8 +110,8 @@ export function ConfirmDialog({
           <button
             type="button"
             className="confirm-dialog__button confirm-dialog__button--danger"
-            onClick={onConfirm}
-            disabled={busy}
+            onClick={() => onConfirm(needsPassword ? password : undefined)}
+            disabled={busy || (needsPassword && password === '')}
           >
             {busy ? 'One moment…' : confirmLabel}
           </button>

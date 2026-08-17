@@ -69,3 +69,29 @@
   outline: 3px solid var(--color-ink);
   outline-offset: 2px;
 }
+
+.confirm-dialog__field {
+  margin-bottom: 14px;
+}
+
+.confirm-dialog__field label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-ink-soft);
+  margin-bottom: 6px;
+}
+
+.confirm-dialog__input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(35, 50, 74, 0.15);
+  /* 1rem or larger, or iOS Safari zooms the page on focus. */
+  font-size: 1rem;
+}
+
+.confirm-dialog__error {
+  color: var(--color-danger-dark);
+  font-size: 0.9rem;
+  margin: 0 0 14px;
+}
