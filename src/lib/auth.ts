@@ -23,16 +23,54 @@ export interface AuthResult {
 /**
  * Turns API errors into something a kid can act on.
  *
- * The raw messages are written for developers: "Invalid login credentials"
- * gives a nine-year-old nothing to do next.
+ * Keyed on the error CODE, not on the wording. Matching substrings of English
+ * error text is how "Email not confirmed" came out as "that does not look like
+ * an email address" — the word "email" appeared in it, so a check meant for
+ * malformed addresses caught a confirmed-account problem and sent the reader
+ * off to fix an address that was never wrong.
+ *
+ * The text fallback stays for errors that arrive without a code, but it is now
+ * ordered most-specific first and tested against the phrasings that actually
+ * occur.
  */
-function friendlyMessage(raw: string): string {
-  const text = raw.toLowerCase();
+export function friendlyAuthMessage(error: { code?: string; message?: string } | null): string {
+  const code = error?.code ?? '';
+  const text = (error?.message ?? '').toLowerCase();
+
+  switch (code) {
+    case 'invalid_credentials':
+      return 'That email and password do not match. Try again.';
+    case 'email_not_confirmed':
+      return 'This account still needs confirming. Check your email for a confirmation link.';
+    case 'user_already_exists':
+    case 'email_exists':
+      return 'There is already an account with that email. Try signing in instead.';
+    case 'weak_password':
+      return 'Passwords need to be at least 6 characters.';
+    case 'over_request_rate_limit':
+    case 'over_email_send_rate_limit':
+      return 'Too many tries just now. Wait a minute and try again.';
+    case 'validation_failed':
+      return 'Check the email and password and try again.';
+  }
+
+  // No code, so fall back to the text — most specific phrases first, since the
+  // general ones are substrings of the specific ones.
+  if (text.includes('not confirmed')) {
+    return 'This account still needs confirming. Check your email for a confirmation link.';
+  }
   if (text.includes('invalid login')) return 'That email and password do not match. Try again.';
-  if (text.includes('already registered')) return 'There is already an account with that email. Try signing in instead.';
-  if (text.includes('password')) return 'Passwords need to be at least 6 characters.';
-  if (text.includes('email')) return 'That does not look like an email address.';
-  if (text.includes('fetch') || text.includes('network')) {
+  if (text.includes('already registered')) {
+    return 'There is already an account with that email. Try signing in instead.';
+  }
+  if (text.includes('rate limit')) return 'Too many tries just now. Wait a minute and try again.';
+  if (text.includes('password should be') || text.includes('weak password')) {
+    return 'Passwords need to be at least 6 characters.';
+  }
+  if (text.includes('invalid email') || text.includes('unable to validate email')) {
+    return 'That does not look like an email address.';
+  }
+  if (text.includes('fetch') || text.includes('network') || text.includes('failed to fetch')) {
     return 'Cannot reach the internet right now. You can still play offline.';
   }
   return 'Something went wrong. You can still play offline.';
@@ -44,9 +82,9 @@ export async function signIn(email: string, password: string): Promise<AuthResul
       email: email.trim(),
       password,
     });
-    return error ? { ok: false, error: friendlyMessage(error.message) } : { ok: true };
+    return error ? { ok: false, error: friendlyAuthMessage(error) } : { ok: true };
   } catch (error) {
-    return { ok: false, error: friendlyMessage(String(error)) };
+    return { ok: false, error: friendlyAuthMessage({ message: String(error) }) };
   }
 }
 
@@ -56,9 +94,9 @@ export async function signUp(email: string, password: string): Promise<AuthResul
       email: email.trim(),
       password,
     });
-    return error ? { ok: false, error: friendlyMessage(error.message) } : { ok: true };
+    return error ? { ok: false, error: friendlyAuthMessage(error) } : { ok: true };
   } catch (error) {
-    return { ok: false, error: friendlyMessage(String(error)) };
+    return { ok: false, error: friendlyAuthMessage({ message: String(error) }) };
   }
 }
 
@@ -72,9 +110,9 @@ export async function signUp(email: string, password: string): Promise<AuthResul
 export async function changePassword(newPassword: string): Promise<AuthResult> {
   try {
     const { error } = await requireSupabase().auth.updateUser({ password: newPassword });
-    return error ? { ok: false, error: friendlyMessage(error.message) } : { ok: true };
+    return error ? { ok: false, error: friendlyAuthMessage(error) } : { ok: true };
   } catch (error) {
-    return { ok: false, error: friendlyMessage(String(error)) };
+    return { ok: false, error: friendlyAuthMessage({ message: String(error) }) };
   }
 }
 
