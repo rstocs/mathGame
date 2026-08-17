@@ -88,15 +88,28 @@ export async function signIn(email: string, password: string): Promise<AuthResul
   }
 }
 
-export async function signUp(email: string, password: string): Promise<AuthResult> {
+export interface SignUpResult extends AuthResult {
+  /**
+   * Whether they are now signed in and can start playing.
+   *
+   * False when the project requires email confirmation: sign-up succeeds, but
+   * it returns no session, so nothing else in the app notices anything
+   * happened. Without this the screen simply sat there after a successful
+   * sign-up, looking broken while working exactly as configured.
+   */
+  signedIn: boolean;
+}
+
+export async function signUp(email: string, password: string): Promise<SignUpResult> {
   try {
-    const { error } = await requireSupabase().auth.signUp({
+    const { data, error } = await requireSupabase().auth.signUp({
       email: email.trim(),
       password,
     });
-    return error ? { ok: false, error: friendlyAuthMessage(error) } : { ok: true };
+    if (error) return { ok: false, signedIn: false, error: friendlyAuthMessage(error) };
+    return { ok: true, signedIn: data.session !== null };
   } catch (error) {
-    return { ok: false, error: friendlyAuthMessage({ message: String(error) }) };
+    return { ok: false, signedIn: false, error: friendlyAuthMessage({ message: String(error) }) };
   }
 }
 

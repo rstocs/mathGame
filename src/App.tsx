@@ -33,7 +33,7 @@ function App() {
   if (isCloudEnabled() && !userId) {
     return (
       <AnimatePresence mode="wait">
-        <SignInScreen key="sign-in" onSignedIn={() => {}} />
+        <SignInScreen key="sign-in" />
       </AnimatePresence>
     );
   }

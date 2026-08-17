@@ -21,7 +21,7 @@ import './SignInScreen.css';
  * A build with no Supabase configuration at all skips this screen entirely and
  * runs as the local game it always was; there is nothing to sign in to.
  */
-export function SignInScreen({ onSignedIn }: { onSignedIn: () => void }) {
+export function SignInScreen() {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -35,10 +35,32 @@ export function SignInScreen({ onSignedIn }: { onSignedIn: () => void }) {
     if (!canSubmit) return;
     setBusy(true);
     setError(null);
-    const result = mode === 'sign-in' ? await signIn(email, password) : await signUp(email, password);
+    setNotice(null);
+
+    if (mode === 'sign-in') {
+      const result = await signIn(email, password);
+      setBusy(false);
+      // Nothing to do on success: the auth listener notices the new session and
+      // this screen stops being rendered.
+      if (!result.ok) setError(result.error ?? 'Something went wrong.');
+      return;
+    }
+
+    const result = await signUp(email, password);
     setBusy(false);
-    if (result.ok) onSignedIn();
-    else setError(result.error ?? 'Something went wrong.');
+    if (!result.ok) {
+      setError(result.error ?? 'Something went wrong.');
+      return;
+    }
+    if (result.signedIn) return;
+
+    // Account made, but the project requires confirmation, so there is no
+    // session yet and nothing on screen would otherwise change. Say so.
+    setPassword('');
+    setMode('sign-in');
+    setNotice(
+      `Account made. We have sent a confirmation link to ${email.trim()} — open it, then sign in here.`,
+    );
   }
 
   async function forgotPassword() {
