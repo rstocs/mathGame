@@ -19,6 +19,10 @@ describe('by error code', () => {
     ['user_already_exists', 'There is already an account with that email. Try signing in instead.'],
     ['weak_password', 'Passwords need to be at least 6 characters.'],
     ['over_request_rate_limit', 'Too many tries just now. Wait a minute and try again.'],
+    [
+      'over_email_send_rate_limit',
+      'Only a couple of emails can be sent each hour, and that is used up. Try again in an hour.',
+    ],
   ];
 
   for (const [code, expected] of cases) {
@@ -60,6 +64,17 @@ describe('by message text, when no code arrives', () => {
     const out = friendlyAuthMessage({ message: 'AuthApiError: unexpected_failure at /token' });
     expect(out).not.toContain('AuthApiError');
     expect(out.length).toBeGreaterThan(10);
+  });
+
+  it('keeps the two rate limits apart', () => {
+    // They differ by a factor of sixty. Supabase's built-in mail sends 2 an
+    // hour; saying "wait a minute" sends someone retrying into the same wall,
+    // each attempt looking like a brand new failure.
+    const emails = friendlyAuthMessage({ message: 'email rate limit exceeded' });
+    const requests = friendlyAuthMessage({ message: 'Request rate limit reached' });
+    expect(emails).toContain('hour');
+    expect(requests).toContain('minute');
+    expect(emails).not.toBe(requests);
   });
 
   it('copes with nothing at all', () => {

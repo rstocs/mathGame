@@ -48,8 +48,13 @@ export function friendlyAuthMessage(error: { code?: string; message?: string } |
     case 'weak_password':
       return 'Passwords need to be at least 6 characters.';
     case 'over_request_rate_limit':
-    case 'over_email_send_rate_limit':
       return 'Too many tries just now. Wait a minute and try again.';
+    case 'over_email_send_rate_limit':
+      // A different limit entirely, and far longer: Supabase's built-in mail
+      // sends 2 an hour and cannot be raised without custom SMTP. Telling
+      // someone to wait a minute here makes them retry into the same wall
+      // repeatedly, each attempt looking like a fresh failure.
+      return 'Only a couple of emails can be sent each hour, and that is used up. Try again in an hour.';
     case 'validation_failed':
       return 'Check the email and password and try again.';
   }
@@ -62,6 +67,9 @@ export function friendlyAuthMessage(error: { code?: string; message?: string } |
   if (text.includes('invalid login')) return 'That email and password do not match. Try again.';
   if (text.includes('already registered')) {
     return 'There is already an account with that email. Try signing in instead.';
+  }
+  if (text.includes('email rate limit') || text.includes('over_email_send')) {
+    return 'Only a couple of emails can be sent each hour, and that is used up. Try again in an hour.';
   }
   if (text.includes('rate limit')) return 'Too many tries just now. Wait a minute and try again.';
   if (text.includes('password should be') || text.includes('weak password')) {
