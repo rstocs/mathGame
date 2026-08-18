@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { playerLevelProgress } from '../../lib/xp';
+import { rankProgress } from '../../lib/xp';
 import './XPBar.css';
 
 interface XPBarProps {
@@ -7,10 +7,14 @@ interface XPBarProps {
 }
 
 export function XPBar({ totalXP }: XPBarProps) {
-  const { playerLevel, progressFraction } = playerLevelProgress(totalXP);
+  const { rank, progressFraction } = rankProgress(totalXP);
   return (
     <div className="xp-bar">
-      <div className="xp-bar__level">Lv {playerLevel}</div>
+      {/* "Rank", not "Lv": the map right below this numbers its levels 1, 2, 3,
+          and an XP tier labelled Lv 3 reads as "you have finished three". */}
+      <div className="xp-bar__level" title="Your rank goes up as you earn XP">
+        Rank {rank}
+      </div>
       <div className="xp-bar__track">
         <motion.div
           className="xp-bar__fill"

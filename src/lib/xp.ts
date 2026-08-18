@@ -15,29 +15,40 @@ export function xpForLevelCompletion(stars: 0 | 1 | 2 | 3): number {
   return stars * XP_PER_STAR;
 }
 
-export function playerLevelFromXP(totalXP: number): number {
+/**
+ * The player's RANK, from total XP.
+ *
+ * Deliberately not called a level. A "level" in this game is a thing you play —
+ * Powers of Ten, Adding Decimals — and the map numbers them 1, 2, 3. Showing an
+ * XP tier called "Lv 3" directly above that list invited exactly the question it
+ * got: why does it say 3 when I finished one?
+ *
+ * Rank is a separate axis: it goes up with every correct answer, across every
+ * grade, and never resets.
+ */
+export function rankFromXP(totalXP: number): number {
   return Math.floor(Math.sqrt(totalXP / 50)) + 1;
 }
 
-export function xpThresholdForPlayerLevel(playerLevel: number): number {
-  return 50 * (playerLevel - 1) ** 2;
+export function xpThresholdForRank(rank: number): number {
+  return 50 * (rank - 1) ** 2;
 }
 
-export function playerLevelProgress(totalXP: number): {
-  playerLevel: number;
-  currentLevelXP: number;
-  xpNeededForNextLevel: number;
+export function rankProgress(totalXP: number): {
+  rank: number;
+  xpIntoRank: number;
+  xpNeededForNextRank: number;
   progressFraction: number;
 } {
-  const playerLevel = playerLevelFromXP(totalXP);
-  const floorXP = xpThresholdForPlayerLevel(playerLevel);
-  const ceilXP = xpThresholdForPlayerLevel(playerLevel + 1);
-  const currentLevelXP = totalXP - floorXP;
-  const xpNeededForNextLevel = ceilXP - floorXP;
+  const rank = rankFromXP(totalXP);
+  const floorXP = xpThresholdForRank(rank);
+  const ceilXP = xpThresholdForRank(rank + 1);
+  const xpIntoRank = totalXP - floorXP;
+  const xpNeededForNextRank = ceilXP - floorXP;
   return {
-    playerLevel,
-    currentLevelXP,
-    xpNeededForNextLevel,
-    progressFraction: xpNeededForNextLevel === 0 ? 1 : currentLevelXP / xpNeededForNextLevel,
+    rank,
+    xpIntoRank,
+    xpNeededForNextRank,
+    progressFraction: xpNeededForNextRank === 0 ? 1 : xpIntoRank / xpNeededForNextRank,
   };
 }
